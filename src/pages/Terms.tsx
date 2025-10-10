@@ -181,11 +181,19 @@ const Terms = () => {
               <p className="text-lf-slate leading-relaxed mb-4">
                 For questions about these Terms:
               </p>
-              <div className="flex items-center gap-2 text-lf-aurora">
-                <Mail className="h-5 w-5" />
-                <a href="https://github.com/hwinnwin/Vyberology" className="hover:text-lf-violet transition-colors">
-                  GitHub: hwinnwin/Vyberology
-                </a>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-lf-aurora">
+                  <Mail className="h-5 w-5" />
+                  <a href="mailto:legal@hwinnwin.com" className="hover:text-lf-violet transition-colors">
+                    legal@hwinnwin.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 text-lf-aurora">
+                  <Mail className="h-5 w-5" />
+                  <a href="https://github.com/hwinnwin/Vyberology" target="_blank" rel="noopener noreferrer" className="hover:text-lf-violet transition-colors">
+                    GitHub: hwinnwin/Vyberology
+                  </a>
+                </div>
               </div>
             </section>
 

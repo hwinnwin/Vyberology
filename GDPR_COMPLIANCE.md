@@ -109,7 +109,7 @@ EU users have the following rights under GDPR:
 
 ### 1. Right to Access (Article 15)
 **What:** Users can request a copy of their personal data
-**How to Exercise:** Email request to [Your Email]
+**How to Exercise:** Email request to legal@hwinnwin.com
 **Response Time:** Within 30 days
 **Format:** Machine-readable format (JSON or CSV)
 
@@ -415,7 +415,7 @@ Users can:
 
 ### How to Submit Requests
 
-**Email:** [Your Email Address]
+**Email:** legal@hwinnwin.com
 **Subject Line:** "GDPR Request - [Type of Request]"
 **Required Information:**
 - Full name
@@ -493,9 +493,9 @@ Users can:
 - ICO Guidance: https://ico.org.uk/for-organisations/
 
 ### Internal Contacts
-- **Privacy Questions:** [Your Email]
-- **DPO (if applicable):** [DPO Email]
-- **Security Issues:** [Security Email]
+- **Privacy Questions:** legal@hwinnwin.com
+- **DPO (if applicable):** legal@hwinnwin.com
+- **Security Issues:** legal@hwinnwin.com
 
 ---
 

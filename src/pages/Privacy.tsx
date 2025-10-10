@@ -150,11 +150,19 @@ const Privacy = () => {
               <p className="text-lf-slate leading-relaxed mb-4">
                 If you have questions, concerns, or requests regarding this Privacy Policy or your data:
               </p>
-              <div className="flex items-center gap-2 text-lf-aurora">
-                <Mail className="h-5 w-5" />
-                <a href="https://github.com/hwinnwin/Vyberology" className="hover:text-lf-violet transition-colors">
-                  GitHub: hwinnwin/Vyberology
-                </a>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-lf-aurora">
+                  <Mail className="h-5 w-5" />
+                  <a href="mailto:legal@hwinnwin.com" className="hover:text-lf-violet transition-colors">
+                    legal@hwinnwin.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-2 text-lf-aurora">
+                  <Mail className="h-5 w-5" />
+                  <a href="https://github.com/hwinnwin/Vyberology" target="_blank" rel="noopener noreferrer" className="hover:text-lf-violet transition-colors">
+                    GitHub: hwinnwin/Vyberology
+                  </a>
+                </div>
               </div>
               <p className="text-lf-slate text-sm mt-4">
                 For GDPR-related inquiries, please specify "GDPR Request" in your subject line.

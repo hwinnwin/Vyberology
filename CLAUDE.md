@@ -267,7 +267,7 @@ Vyberology includes comprehensive legal documentation for GDPR and CCPA complian
 ### Compliance Checklist
 
 Before going live:
-- [ ] Update contact email in legal documents (currently placeholder)
+- [x] Update contact email in legal documents (legal@hwinnwin.com)
 - [ ] Establish Data Processing Agreements with Supabase and OpenAI
 - [ ] Appoint DPO if required (EU, 250+ employees, or systematic monitoring)
 - [ ] Set up data subject request handling process

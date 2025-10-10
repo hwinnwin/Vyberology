@@ -118,9 +118,8 @@ When using the voice assistant feature:
 
 If you have questions, concerns, or requests regarding this Privacy Policy or your data:
 
-**Email**: [Your Email Address]
+**Email**: legal@hwinnwin.com
 **GitHub**: https://github.com/hwinnwin/Vyberology
-**Website**: [Your Website URL]
 
 For GDPR-related inquiries, please specify "GDPR Request" in your subject line.
 
@@ -136,7 +135,7 @@ For EU users, our legal basis for processing your data:
 
 For privacy-related inquiries from EU users:
 
-**DPO Contact**: [Your DPO Email]
+**DPO Contact**: legal@hwinnwin.com
 **Response Time**: Within 30 days of request
 
 ---

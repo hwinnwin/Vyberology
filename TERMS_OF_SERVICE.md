@@ -228,9 +228,8 @@ Our failure to enforce any right or provision of these Terms shall not constitut
 
 For questions about these Terms:
 
-**Email**: [Your Email Address]
+**Email**: legal@hwinnwin.com
 **GitHub**: https://github.com/hwinnwin/Vyberology
-**Website**: [Your Website URL]
 
 ## 20. Special Provisions
 
