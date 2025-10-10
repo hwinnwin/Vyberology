@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { ReadingActions } from "./ReadingActions";
 import type { ReadingResult } from "@/lib/numerology";
@@ -6,7 +7,7 @@ interface ReadingCardProps {
   result: ReadingResult;
 }
 
-export function ReadingCard({ result }: ReadingCardProps) {
+export const ReadingCard = memo(function ReadingCard({ result }: ReadingCardProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -83,4 +84,4 @@ export function ReadingCard({ result }: ReadingCardProps) {
       </CardContent>
     </Card>
   );
-}
+});

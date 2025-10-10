@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { ReadingActions } from "./ReadingActions";
 import type { PairReading } from "@/lib/numerology/compat";
@@ -7,7 +8,7 @@ interface PairReadingCardProps {
   reading: PairReading;
 }
 
-export function PairReadingCard({ reading }: PairReadingCardProps) {
+export const PairReadingCard = memo(function PairReadingCard({ reading }: PairReadingCardProps) {
   return (
     <Card className="overflow-hidden">
       <CardHeader>
@@ -117,4 +118,4 @@ export function PairReadingCard({ reading }: PairReadingCardProps) {
       </CardContent>
     </Card>
   );
-}
+});
