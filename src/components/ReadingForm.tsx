@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card } from "./ui/card";
+import { Loader2 } from "lucide-react";
 
 interface ReadingFormProps {
   onGenerate: (fullName: string, dob: string) => void;
@@ -70,7 +71,8 @@ export function ReadingForm({ onGenerate, isLoading }: ReadingFormProps) {
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Generating..." : "Generate Reading"}
+          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {isLoading ? "Generating Your Reading..." : "Generate Reading"}
         </Button>
       </form>
 
