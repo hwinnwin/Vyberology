@@ -1,0 +1,19 @@
+project_id = "qptrlxzyindcohsubidl"
+
+[functions.reading]
+verify_jwt = false
+
+[functions.ocr]
+verify_jwt = true
+
+[functions.readings]
+verify_jwt = true
+
+[functions.read]
+verify_jwt = false
+
+[functions.compare]
+verify_jwt = false
+
+[functions.vybe-reading]
+verify_jwt = false
