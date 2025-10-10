@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Sparkles, Calculator, Hash, BookOpen, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import vybeLogo from "@/assets/vybe-logo.png";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -98,6 +99,9 @@ const Index = () => {
           </Link>
         </Card>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

@@ -15,6 +15,8 @@ const Brand = lazy(() => import("./pages/Brand"));
 const NumerologyReader = lazy(() => import("./pages/NumerologyReader"));
 const Compatibility = lazy(() => import("./pages/Compatibility"));
 const GetVybe = lazy(() => import("./pages/GetVybe"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -55,6 +57,8 @@ const App = () => {
                   <Route path="/numerology" element={<NumerologyReader />} />
                   <Route path="/compatibility" element={<Compatibility />} />
                   <Route path="/get-vybe" element={<GetVybe />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

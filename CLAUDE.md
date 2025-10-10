@@ -123,11 +123,13 @@ See `SECURITY.md` for complete deployment and security guidelines.
 
 React Router v6 defines these routes:
 
-- `/` → `Index.tsx`: Landing page
+- `/` → `Index.tsx`: Landing page with footer
 - `/brand` → `Brand.tsx`: Branding information
 - `/numerology` → `NumerologyReader.tsx`: Main numerology reading form
 - `/compatibility` → `Compatibility.tsx`: Two-person compatibility analysis
 - `/get-vybe` → `GetVybe.tsx`: Voice assistant / screenshot-based reading capture
+- `/privacy` → `Privacy.tsx`: Privacy Policy page
+- `/terms` → `Terms.tsx`: Terms of Service page
 - `*` → `NotFound.tsx`: 404 handler
 
 **Important:** New routes must be added **above** the catch-all `"*"` route in `App.tsx`.
@@ -149,9 +151,12 @@ Custom application components:
 
 - **`ReadingForm.tsx`**: Input form for name + date of birth
 - **`ReadingCard.tsx`**: Display single person's numerology reading
+- **`ReadingActions.tsx`**: Reusable copy/share buttons for readings
 - **`CompatibilityForm.tsx`**: Input form for two people
 - **`PairReadingCard.tsx`**: Display compatibility results
 - **`AppHeader.tsx`**: Top navigation (feature-flagged)
+- **`Footer.tsx`**: Site footer with legal links and navigation
+- **`ErrorBoundary.tsx`**: React error boundary for graceful error handling
 
 All use shadcn/ui base components (`src/components/ui/`) built on Radix UI primitives.
 
@@ -217,6 +222,62 @@ Set via: `supabase secrets set OPENAI_API_KEY=your-key`
 - **Supabase types:** Auto-generated types are in `src/integrations/supabase/types.ts` — regenerate if database schema changes.
 - **Route ordering:** In `App.tsx`, custom routes must appear before the `"*"` catch-all route.
 
+## Legal & Compliance
+
+Vyberology includes comprehensive legal documentation for GDPR and CCPA compliance:
+
+### Legal Documents
+
+- **`PRIVACY_POLICY.md`**: Complete privacy policy covering data collection, usage, user rights (GDPR/CCPA)
+- **`TERMS_OF_SERVICE.md`**: Terms of service including disclaimers, liability limitations, user responsibilities
+- **`GDPR_COMPLIANCE.md`**: Detailed GDPR compliance guide for handling data subject requests
+
+### Legal Pages
+
+- `/privacy` → `Privacy.tsx`: User-facing privacy policy page
+- `/terms` → `Terms.tsx`: User-facing terms of service page
+- `Footer.tsx`: Includes links to legal pages on all main pages
+
+### Data Collection Summary
+
+**What we collect:**
+- Name and date of birth for readings
+- Optional account information (email, auth tokens)
+- Usage data (via Supabase analytics)
+- Screenshots (temporary, for voice assistant feature)
+
+**What we DON'T collect:**
+- Tracking cookies
+- Third-party advertising data
+- Payment information (handled by processors)
+- We do NOT sell user data
+
+### Third-Party Services
+
+- **Supabase**: Backend/storage (data processing agreement required)
+- **OpenAI**: AI reading generation (data sent: name, DOB, numerology numbers)
+- **Lovable.dev**: Hosting platform
+
+### User Rights
+
+- **All users**: Access, correction, deletion, opt-out
+- **EU users (GDPR)**: Right to be forgotten, data portability, restriction, objection
+- **California users (CCPA)**: Know, delete, opt-out (no selling)
+
+### Compliance Checklist
+
+Before going live:
+- [ ] Update contact email in legal documents (currently placeholder)
+- [ ] Establish Data Processing Agreements with Supabase and OpenAI
+- [ ] Appoint DPO if required (EU, 250+ employees, or systematic monitoring)
+- [ ] Set up data subject request handling process
+- [ ] Test data deletion workflows
+- [ ] Review OpenAI's data retention policy (API requests)
+- [ ] Verify Supabase data center locations for transfer compliance
+- [ ] Consider cookie consent banner if adding analytics cookies
+
+See `GDPR_COMPLIANCE.md` for detailed handling of user requests.
+
 ## Deployment
 
 The app is deployed via Lovable's platform:
@@ -230,3 +291,10 @@ For self-hosting:
 2. Deploy `dist/` to any static host (Vercel, Netlify, etc.)
 3. Ensure environment variables are configured in hosting platform
 4. Supabase functions must be deployed separately via Supabase CLI
+
+**Before Production Deployment:**
+- Update legal document contact information
+- Ensure OPENAI_API_KEY is set in Supabase secrets
+- Deploy Edge Functions to production
+- Test legal page routes (/privacy, /terms)
+- Verify footer displays on all pages
