@@ -3,11 +3,21 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Sparkles, Clock, Image as ImageIcon, Send, Hash } from "lucide-react";
+import { Upload, Sparkles, Clock, Image as ImageIcon, Send, Hash, Camera as CameraIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PermissionPrompt } from "@/components/PermissionPrompt";
+import {
+  checkCameraPermission,
+  requestCameraPermission,
+  checkMicrophonePermission,
+  requestMicrophonePermission,
+  capturePhoto,
+  pickPhoto,
+  PermissionStatus
+} from "@/lib/permissions";
 import vybeLogo from "@/assets/vybe-logo.png";
 
 interface Reading {
@@ -39,6 +49,9 @@ const GetVybe = () => {
   const [manualNumbers, setManualNumbers] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
   const [chatInput, setChatInput] = useState<string>("");
+  const [cameraPermissionStatus, setCameraPermissionStatus] = useState<PermissionStatus>('prompt');
+  const [micPermissionStatus, setMicPermissionStatus] = useState<PermissionStatus>('prompt');
+  const [showPermissionPrompt, setShowPermissionPrompt] = useState<'camera' | 'microphone' | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -46,6 +59,19 @@ const GetVybe = () => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Check permissions on mount
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const cameraResult = await checkCameraPermission();
+      setCameraPermissionStatus(cameraResult.status);
+
+      const micResult = await checkMicrophonePermission();
+      setMicPermissionStatus(micResult.status);
+    };
+
+    checkPermissions();
   }, []);
 
   const handleCaptureTime = async () => {
@@ -101,6 +127,59 @@ const GetVybe = () => {
       });
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const handleCameraCapture = async () => {
+    // Check camera permission
+    if (cameraPermissionStatus === 'denied') {
+      setShowPermissionPrompt('camera');
+      return;
+    }
+
+    try {
+      const result = await capturePhoto();
+
+      if (!result.success) {
+        if (result.error && !result.error.includes('cancel')) {
+          toast({
+            title: "Camera Error",
+            description: result.error,
+            variant: "destructive"
+          });
+
+          if (result.error.includes('denied')) {
+            setCameraPermissionStatus('denied');
+            setShowPermissionPrompt('camera');
+          }
+        }
+        return;
+      }
+
+      if (result.data) {
+        // Convert data URL to File
+        const response = await fetch(result.data);
+        const blob = await response.blob();
+        const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
+
+        setSelectedImage(file);
+        setPreviewUrl(result.data);
+        setReadings([]);
+        setCaptureMode("image");
+        setCameraPermissionStatus('granted');
+
+        toast({
+          title: "Photo captured!",
+          description: "Ready to read frequency numbers"
+        });
+      }
+    } catch (error) {
+      console.error("Camera capture error:", error);
+      toast({
+        title: "Camera failed",
+        description: "Unable to capture photo",
+        variant: "destructive"
+      });
     }
   };
 
@@ -163,6 +242,32 @@ const GetVybe = () => {
     }
   };
 
+  const handleRequestCameraPermission = async () => {
+    const result = await requestCameraPermission();
+    setCameraPermissionStatus(result.status);
+    setShowPermissionPrompt(null);
+
+    if (result.status === 'granted') {
+      toast({
+        title: "Permission granted",
+        description: "You can now use camera features"
+      });
+    }
+  };
+
+  const handleRequestMicPermission = async () => {
+    const result = await requestMicrophonePermission();
+    setMicPermissionStatus(result.status);
+    setShowPermissionPrompt(null);
+
+    if (result.status === 'granted') {
+      toast({
+        title: "Permission granted",
+        description: "You can now use voice features"
+      });
+    }
+  };
+
   const handleSendChat = async () => {
     if (!chatInput.trim()) return;
 
@@ -199,7 +304,28 @@ const GetVybe = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
       <AppHeader />
-      
+
+      {/* Permission Prompts */}
+      {showPermissionPrompt === 'camera' && (
+        <PermissionPrompt
+          permissionType="camera"
+          status={cameraPermissionStatus}
+          onRequest={handleRequestCameraPermission}
+          onDismiss={() => setShowPermissionPrompt(null)}
+          variant="modal"
+        />
+      )}
+
+      {showPermissionPrompt === 'microphone' && (
+        <PermissionPrompt
+          permissionType="microphone"
+          status={micPermissionStatus}
+          onRequest={handleRequestMicPermission}
+          onDismiss={() => setShowPermissionPrompt(null)}
+          variant="modal"
+        />
+      )}
+
       <div className="container mx-auto px-6 py-12">
         <div className="mx-auto max-w-4xl">
           {/* Header */}
@@ -262,10 +388,10 @@ const GetVybe = () => {
                 <div className="space-y-6">
                   <div className="mb-4 text-center">
                     <h3 className="font-display text-xl font-semibold text-white">
-                      Upload Image with Numbers
+                      Capture or Upload Image
                     </h3>
                     <p className="text-sm text-lf-slate">
-                      Screenshots with times, repeating numbers, or frequency patterns
+                      Take a photo or upload screenshots with times, repeating numbers, or frequency patterns
                     </p>
                   </div>
                   <div className="flex flex-col items-center justify-center gap-4">
@@ -275,23 +401,32 @@ const GetVybe = () => {
                           <div className="text-center">
                             <ImageIcon className="mx-auto mb-3 h-12 w-12 text-lf-violet" />
                             <p className="mb-1 text-sm font-semibold text-white">
-                              Drop an image or click to browse
+                              Take a photo or choose an image
                             </p>
                           </div>
                         </div>
-                        <label htmlFor="image-upload">
-                          <Button variant="outline" className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10">
-                            <ImageIcon className="h-5 w-5" />
-                            Choose Image
+                        <div className="flex gap-3">
+                          <Button
+                            onClick={handleCameraCapture}
+                            className="gap-2 bg-lf-gradient hover:shadow-glow"
+                          >
+                            <CameraIcon className="h-5 w-5" />
+                            Take Photo
                           </Button>
-                          <input
-                            id="image-upload"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                          />
-                        </label>
+                          <label htmlFor="image-upload">
+                            <Button variant="outline" className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10">
+                              <ImageIcon className="h-5 w-5" />
+                              Choose Image
+                            </Button>
+                            <input
+                              id="image-upload"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageSelect}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
                       </>
                     ) : (
                       <>

@@ -127,7 +127,7 @@ React Router v6 defines these routes:
 - `/brand` → `Brand.tsx`: Branding information
 - `/numerology` → `NumerologyReader.tsx`: Main numerology reading form
 - `/compatibility` → `Compatibility.tsx`: Two-person compatibility analysis
-- `/get-vybe` → `GetVybe.tsx`: Voice assistant / screenshot-based reading capture
+- `/get-vybe` → `GetVybe.tsx`: Voice assistant / screenshot-based reading capture with camera/mic permissions
 - `/privacy` → `Privacy.tsx`: Privacy Policy page
 - `/terms` → `Terms.tsx`: Terms of Service page
 - `*` → `NotFound.tsx`: 404 handler
@@ -178,7 +178,62 @@ Configuration in `capacitor.config.ts`:
 - Web directory: `dist` (Vite output)
 - Server URL: Points to Lovable-hosted preview during development
 
-The `/get-vybe` page includes voice assistant functionality ("Hey Lumen") that works better on native mobile with Capacitor plugins like `@capacitor/screen-reader` and screenshot capture APIs.
+The `/get-vybe` page includes voice assistant functionality ("Hey Lumen") that works better on native mobile with Capacitor plugins.
+
+#### Mobile Permissions (`src/lib/permissions.ts`)
+
+Comprehensive permission handling for mobile features:
+
+**Supported Permissions:**
+- **Camera**: Take photos with device camera
+- **Photos**: Access photo library
+- **Microphone**: Voice commands and audio input
+
+**Key Functions:**
+- `checkCameraPermission()`: Check camera permission status
+- `requestCameraPermission()`: Request camera access
+- `checkMicrophonePermission()`: Check microphone permission status
+- `requestMicrophonePermission()`: Request microphone access
+- `capturePhoto()`: Take photo with camera (handles permissions automatically)
+- `pickPhoto()`: Select photo from gallery (handles permissions automatically)
+- `openAppSettings()`: Direct user to app settings when permission denied
+
+**Permission Status Values:**
+- `granted`: Permission granted, feature available
+- `denied`: Permission denied, show settings prompt
+- `prompt`: Permission not yet requested
+- `limited`: Limited access (iOS photo library)
+- `unavailable`: Feature not available on device
+
+**Graceful Degradation:**
+- Web: Falls back to browser APIs (`getUserMedia`, file input)
+- Native: Uses Capacitor plugins (`@capacitor/camera`)
+- Permission denials show user-friendly prompts with "Open Settings" button
+- All permission requests are non-blocking
+
+#### Permission UI Component (`src/components/PermissionPrompt.tsx`)
+
+Reusable component for permission requests and denials:
+
+```typescript
+<PermissionPrompt
+  permissionType="camera"
+  status={cameraPermissionStatus}
+  onRequest={handleRequestPermission}
+  onDismiss={() => setShowPrompt(false)}
+  variant="modal" // or "inline"
+/>
+```
+
+**Variants:**
+- `modal`: Full-screen overlay with card (for critical permissions)
+- `inline`: Alert-style inline prompt (for informational)
+
+**Features:**
+- Permission-specific icons and messages
+- Contextual actions ("Grant Permission", "Open Settings")
+- Dismissable prompts
+- Branded styling consistent with Vyberology design
 
 ## Testing
 
@@ -293,8 +348,32 @@ For self-hosting:
 4. Supabase functions must be deployed separately via Supabase CLI
 
 **Before Production Deployment:**
-- Update legal document contact information
-- Ensure OPENAI_API_KEY is set in Supabase secrets
-- Deploy Edge Functions to production
-- Test legal page routes (/privacy, /terms)
-- Verify footer displays on all pages
+- [x] Update legal document contact information (legal@hwinnwin.com)
+- [ ] Ensure OPENAI_API_KEY is set in Supabase secrets
+- [ ] Deploy Edge Functions to production
+- [x] Test legal page routes (/privacy, /terms)
+- [x] Verify footer displays on all pages
+- [ ] Test mobile permissions on iOS device
+- [ ] Test mobile permissions on Android device
+- [ ] Add camera/microphone usage descriptions to iOS Info.plist
+- [ ] Add camera/microphone permissions to Android AndroidManifest.xml
+
+**Mobile Permission Configuration:**
+
+For iOS (ios/App/App/Info.plist):
+```xml
+<key>NSCameraUsageDescription</key>
+<string>Vyberology needs camera access to capture frequency numbers and patterns in photos.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Vyberology needs photo library access to select images with frequency numbers.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>Vyberology needs microphone access for voice commands like "Hey Lumen".</string>
+```
+
+For Android (android/app/src/main/AndroidManifest.xml):
+```xml
+<uses-permission android:name="android.permission.CAMERA" />
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+```
