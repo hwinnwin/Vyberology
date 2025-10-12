@@ -101,9 +101,9 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'API key not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -115,18 +115,18 @@ serve(async (req) => {
       depth === "deep" ? "~600–800 words." :
       "~300–400 words.";
 
-    const model = "google/gemini-2.5-flash";
+    const model = "gpt-4o-mini";
     const maxTokens = depth === "deep" ? 900 : depth === "lite" ? 300 : 500;
 
     const userPrompt = `Reading for: ${inputs.map((i: any) => `${i.label}: ${i.value}`).join(", ")}
 Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengthHint}`.trim();
 
-    console.log('Calling Lovable AI with model:', model);
+    console.log('Calling OpenAI with model:', model);
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -155,7 +155,7 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
         });
       }
       const errorText = await response.text();
-      console.error('Lovable AI error:', response.status, errorText);
+      console.error('OpenAI error:', response.status, errorText);
       return new Response(
         JSON.stringify({ error: `AI service error: ${response.status}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

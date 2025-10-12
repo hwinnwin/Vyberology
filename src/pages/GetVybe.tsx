@@ -194,6 +194,47 @@ const GetVybe = () => {
     }
   };
 
+  const handlePickPhoto = async () => {
+    try {
+      const result = await pickPhoto();
+
+      if (!result.success) {
+        if (result.error && !result.error.includes('cancel')) {
+          toast({
+            title: "Error",
+            description: result.error,
+            variant: "destructive"
+          });
+        }
+        return;
+      }
+
+      if (result.data) {
+        // Convert data URL to File
+        const response = await fetch(result.data);
+        const blob = await response.blob();
+        const file = new File([blob], "selected-image.jpg", { type: "image/jpeg" });
+
+        setSelectedImage(file);
+        setPreviewUrl(result.data);
+        setReadings([]);
+        setCaptureMode("image");
+
+        toast({
+          title: "Image selected!",
+          description: "Ready to read frequency numbers"
+        });
+      }
+    } catch (error) {
+      console.error("Photo picker error:", error);
+      toast({
+        title: "Selection failed",
+        description: "Unable to pick image",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleCapture = async () => {
     if (!selectedImage) {
       toast({
@@ -211,11 +252,27 @@ const GetVybe = () => {
       const formData = new FormData();
       formData.append("screenshot", selectedImage);
 
+      // Call OCR without timeout
       const { data, error } = await supabase.functions.invoke("ocr", {
         body: formData,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("OCR error:", error);
+        console.error("Full error object:", JSON.stringify(error, null, 2));
+
+        // Show detailed error from function
+        let errorMsg = "OCR processing failed";
+        if (data && data.message) {
+          errorMsg = data.message;
+        } else if (data && data.details) {
+          errorMsg = data.details.substring(0, 200);
+        }
+
+        throw new Error(errorMsg);
+      }
+
+      console.log("OCR response data:", data);
 
       if (data.readings && data.readings.length > 0) {
         setReadings(data.readings);
@@ -232,9 +289,21 @@ const GetVybe = () => {
       }
     } catch (error) {
       console.error("Error processing image:", error);
+
+      let errorMessage = "Please try again";
+      if (error instanceof Error) {
+        if (error.message.includes('timeout')) {
+          errorMessage = "Image processing is taking too long. The OCR service may not be deployed.";
+        } else if (error.message.includes('not found')) {
+          errorMessage = "OCR service not found. It may not be deployed to Supabase.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: "Processing failed",
-        description: error instanceof Error ? error.message : "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -413,19 +482,14 @@ const GetVybe = () => {
                             <CameraIcon className="h-5 w-5" />
                             Take Photo
                           </Button>
-                          <label htmlFor="image-upload">
-                            <Button variant="outline" className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10">
-                              <ImageIcon className="h-5 w-5" />
-                              Choose Image
-                            </Button>
-                            <input
-                              id="image-upload"
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageSelect}
-                              className="hidden"
-                            />
-                          </label>
+                          <Button
+                            onClick={handlePickPhoto}
+                            variant="outline"
+                            className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10"
+                          >
+                            <ImageIcon className="h-5 w-5" />
+                            Choose Image
+                          </Button>
                         </div>
                       </>
                     ) : (
@@ -438,19 +502,14 @@ const GetVybe = () => {
                           />
                         </div>
                         <div className="flex gap-3">
-                          <label htmlFor="image-upload-2">
-                            <Button variant="outline" className="gap-2 border-lf-violet text-lf-violet">
-                              <Upload className="h-4 w-4" />
-                              Change Image
-                            </Button>
-                            <input
-                              id="image-upload-2"
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageSelect}
-                              className="hidden"
-                            />
-                          </label>
+                          <Button
+                            onClick={handlePickPhoto}
+                            variant="outline"
+                            className="gap-2 border-lf-violet text-lf-violet"
+                          >
+                            <Upload className="h-4 w-4" />
+                            Change Image
+                          </Button>
                           <Button
                             onClick={handleCapture}
                             disabled={isProcessing}
@@ -499,6 +558,7 @@ const GetVybe = () => {
                         const now = new Date();
                         setCapturedAt(now.toLocaleString());
                         try {
+                          // Use vybe-reading for rich formatted readings
                           const { data, error } = await supabase.functions.invoke("vybe-reading", {
                             body: {
                               inputs: [{ label: 'Numbers', value: manualNumbers }],
@@ -507,6 +567,7 @@ const GetVybe = () => {
                           });
                           if (error) throw error;
                           if (data?.reading) {
+                            // Store the formatted markdown reading
                             setReadings([{
                               input_text: manualNumbers,
                               normalized_number: '',
@@ -524,7 +585,7 @@ const GetVybe = () => {
                             }]);
                             toast({
                               title: "Reading generated! 🌟",
-                              description: "Your vyberology reading is ready",
+                              description: `Your reading for ${manualNumbers} is ready`,
                             });
                           }
                         } catch (error) {
