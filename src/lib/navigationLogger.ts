@@ -4,7 +4,7 @@ interface NavigationEventData {
   hadHistory?: boolean;
   unsavedPromptShown?: boolean;
   userConfirmed?: boolean;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
 
 export const logNavigationEvent = (

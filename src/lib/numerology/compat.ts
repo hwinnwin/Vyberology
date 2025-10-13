@@ -8,7 +8,7 @@ export type NumerologyNumbers = {
   expression: { value: number };
   soulUrge: { value: number };
   personality: { value: number };
-  [key: string]: any;
+  [key: string]: { value: number } | undefined;
 };
 
 // 2️⃣ import once from chakraMap

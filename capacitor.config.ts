@@ -6,10 +6,10 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   // Comment out server config to use local built files
   // Uncomment below to use local dev server with hot reload:
-  // server: {
-  //   url: 'http://192.168.0.24:8080',
-  //   cleartext: true
-  // },
+   server: {
+     url: 'http://192.168.0.24:8080',
+     cleartext: true
+   },
   plugins: {
     SplashScreen: {
       launchShowDuration: 0

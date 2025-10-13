@@ -8,6 +8,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { isFeatureEnabled } from "@/lib/featureFlags";
+import { useDeepLinks } from "@/hooks/useDeepLinks";
 
 // Lazy load pages for better code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -15,6 +16,8 @@ const Brand = lazy(() => import("./pages/Brand"));
 const NumerologyReader = lazy(() => import("./pages/NumerologyReader"));
 const Compatibility = lazy(() => import("./pages/Compatibility"));
 const GetVybe = lazy(() => import("./pages/GetVybe"));
+const History = lazy(() => import("./pages/History"));
+const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -32,9 +35,44 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => {
+// Router component with deep link support
+const AppRouter = () => {
   const showHeader = isFeatureEnabled("nav.header.v1");
 
+  // Initialize deep link handler
+  useDeepLinks();
+
+  return (
+    <>
+      {showHeader && <AppHeader />}
+      <ErrorBoundary>
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center">
+              <LoadingSpinner size="lg" text="Loading..." />
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/brand" element={<Brand />} />
+            <Route path="/numerology" element={<NumerologyReader />} />
+            <Route path="/compatibility" element={<Compatibility />} />
+            <Route path="/get-vybe" element={<GetVybe />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </>
+  );
+};
+
+const App = () => {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
@@ -42,28 +80,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            {showHeader && <AppHeader />}
-            <ErrorBoundary>
-              <Suspense
-                fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <LoadingSpinner size="lg" text="Loading..." />
-                  </div>
-                }
-              >
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/brand" element={<Brand />} />
-                  <Route path="/numerology" element={<NumerologyReader />} />
-                  <Route path="/compatibility" element={<Compatibility />} />
-                  <Route path="/get-vybe" element={<GetVybe />} />
-                  <Route path="/privacy" element={<Privacy />} />
-                  <Route path="/terms" element={<Terms />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </Suspense>
-            </ErrorBoundary>
+            <AppRouter />
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

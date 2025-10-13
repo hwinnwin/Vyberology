@@ -3,12 +3,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Upload, Sparkles, Clock, Image as ImageIcon, Send, Hash, Camera as CameraIcon } from "lucide-react";
+import { Upload, Sparkles, Clock, Image as ImageIcon, Send, Hash, Camera as CameraIcon, ArrowLeft, Home } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/AppHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PermissionPrompt } from "@/components/PermissionPrompt";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
+import { useNavigate } from "react-router-dom";
 import {
   checkCameraPermission,
   requestCameraPermission,
@@ -18,6 +20,7 @@ import {
   pickPhoto,
   PermissionStatus
 } from "@/lib/permissions";
+import { saveReading } from "@/lib/readingHistory";
 import vybeLogo from "@/assets/vybe-logo.png";
 
 interface Reading {
@@ -39,6 +42,7 @@ interface Reading {
 }
 
 const GetVybe = () => {
+  const navigate = useNavigate();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -113,6 +117,14 @@ const GetVybe = () => {
             color: '#6B46C1'
           }
         }]);
+
+        // Save to history
+        saveReading({
+          inputType: 'time',
+          inputValue: timeString,
+          reading: data.reading,
+        });
+
         toast({
           title: "Vybe captured! 🌟",
           description: `Reading generated for ${timeString}`,
@@ -276,6 +288,16 @@ const GetVybe = () => {
 
       if (data.readings && data.readings.length > 0) {
         setReadings(data.readings);
+
+        // Save each reading to history
+        data.readings.forEach((reading: Reading) => {
+          saveReading({
+            inputType: 'image',
+            inputValue: reading.input_text,
+            reading: reading.numerology_data.guidance,
+          });
+        });
+
         toast({
           title: "Vybe captured! 🌟",
           description: `Found ${data.readings.length} frequency signal(s)`,
@@ -370,6 +392,83 @@ const GetVybe = () => {
     }
   };
 
+  const handleVoiceCommand = async (command: string) => {
+    const lowerCommand = command.toLowerCase();
+
+    // "what's the vybe" - capture current time
+    if (lowerCommand.includes("what") && lowerCommand.includes("vybe")) {
+      await handleCaptureTime();
+      return;
+    }
+
+    // "show history" - navigate to history
+    if (lowerCommand.includes("history")) {
+      navigate("/history");
+      return;
+    }
+
+    // "read [number]" - generate reading for specific number
+    const readMatch = lowerCommand.match(/read\s+(\d+)/);
+    if (readMatch) {
+      const number = readMatch[1];
+      setManualNumbers(number);
+      setIsProcessing(true);
+      setCapturedAt(new Date().toLocaleString());
+
+      try {
+        const { data, error } = await supabase.functions.invoke("vybe-reading", {
+          body: {
+            inputs: [{ label: 'Numbers', value: number }],
+            depth: 'standard'
+          },
+        });
+        if (error) throw error;
+        if (data?.reading) {
+          setReadings([{
+            input_text: number,
+            normalized_number: '',
+            numerology_data: {
+              headline: 'Vyberology Reading',
+              keywords: [],
+              guidance: data.reading
+            },
+            chakra_data: {
+              name: '',
+              element: '',
+              focus: '',
+              color: '#6B46C1'
+            }
+          }]);
+
+          saveReading({
+            inputType: 'manual',
+            inputValue: number,
+            reading: data.reading,
+          });
+
+          toast({
+            title: "Reading generated! 🌟",
+            description: `Your reading for ${number} is ready`,
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        toast({
+          title: "Processing failed",
+          description: error instanceof Error ? error.message : "Please try again",
+          variant: "destructive",
+        });
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
+
+    // Default: treat as chat message
+    setChatInput(command);
+    await handleSendChat();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
       <AppHeader />
@@ -397,14 +496,39 @@ const GetVybe = () => {
 
       <div className="container mx-auto px-6 py-12">
         <div className="mx-auto max-w-4xl">
+          {/* Decorative Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 left-10 w-32 h-32 bg-lf-violet/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }}></div>
+            <div className="absolute top-40 right-20 w-40 h-40 bg-lf-aurora/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }}></div>
+            <div className="absolute bottom-20 left-1/4 w-36 h-36 bg-lf-indigo/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }}></div>
+          </div>
+
           {/* Header */}
-          <div className="mb-12 text-center">
+          <div className="mb-8 relative z-10">
+            <div className="mb-6 flex items-center justify-between">
+              <Button
+                onClick={() => navigate(-1)}
+                variant="ghost"
+                className="gap-2 text-white hover:text-lf-aurora"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                Back
+              </Button>
+              <Button
+                onClick={() => navigate('/')}
+                variant="ghost"
+                className="gap-2 text-white hover:text-lf-aurora"
+              >
+                <Home className="h-5 w-5" />
+                Home
+              </Button>
+            </div>
             <div className="mb-4 flex items-center justify-center gap-3">
               <img src={vybeLogo} alt="Vybe Logo" className="h-12" />
-              <h1 className="font-display text-5xl font-bold text-white">Get Vybe</h1>
+              <h1 className="font-display text-5xl font-bold text-white">Advanced Options</h1>
             </div>
-            <p className="text-lg text-lf-slate">
-              Capture the current time frequency or upload an image with numbers and patterns
+            <p className="text-lg text-lf-slate text-center">
+              Upload images, enter numbers manually, chat with Lumen, or explore frequency patterns
             </p>
           </div>
 
@@ -431,13 +555,19 @@ const GetVybe = () => {
             <Button
               onClick={handleCaptureTime}
               disabled={isProcessing}
-              className="inline-flex h-auto min-w-[220px] flex-col items-center gap-3 rounded-full bg-amber-400 px-5 py-4 font-semibold text-slate-900 shadow transition-colors duration-200 hover:bg-amber-500 focus:outline-none focus:ring-2 focus:ring-violet-400 active:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-amber-300 dark:hover:bg-amber-400 dark:text-slate-900 w-full sm:w-auto"
+              className="relative inline-flex h-auto min-w-[220px] flex-col items-center gap-3 rounded-full bg-white px-6 py-5 font-semibold text-lf-indigo shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-lf-aurora disabled:cursor-not-allowed disabled:opacity-60 w-full sm:w-auto animate-pulse"
+              style={{ animationDuration: '3s' }}
             >
-              {isProcessing ? "Capturing..." : (
+              {isProcessing ? (
+                <span className="text-lg">Capturing...</span>
+              ) : (
                 <>
                   <span className="text-lg">What's the</span>
-                  <span className="grid place-items-center rounded-full bg-white p-2 shadow-sm">
-                    <img src={vybeLogo} alt="Vybe" className="h-10" />
+                  <span className="relative grid place-items-center rounded-full bg-white p-3 shadow-lg ring-2 ring-lf-violet/30">
+                    {/* Oscillating rings */}
+                    <span className="absolute inset-0 rounded-full bg-lf-violet/20 animate-ping" style={{ animationDuration: '2s' }}></span>
+                    <span className="absolute inset-0 rounded-full bg-lf-aurora/20 animate-pulse" style={{ animationDuration: '3s' }}></span>
+                    <img src={vybeLogo} alt="Vybe" className="h-12 w-12 relative z-10" />
                   </span>
                 </>
               )}
@@ -446,9 +576,10 @@ const GetVybe = () => {
 
           {/* Tabs for different input methods */}
           <Tabs defaultValue="image" className="mb-8">
-            <TabsList className="grid w-full grid-cols-3 bg-lf-ink/60">
+            <TabsList className="grid w-full grid-cols-4 bg-lf-ink/60">
               <TabsTrigger value="image">Upload Image</TabsTrigger>
               <TabsTrigger value="manual">Manual Entry</TabsTrigger>
+              <TabsTrigger value="voice">Voice</TabsTrigger>
               <TabsTrigger value="chat">Chat</TabsTrigger>
             </TabsList>
 
@@ -583,6 +714,14 @@ const GetVybe = () => {
                                 color: '#6B46C1'
                               }
                             }]);
+
+                            // Save to history
+                            saveReading({
+                              inputType: 'manual',
+                              inputValue: manualNumbers,
+                              reading: data.reading,
+                            });
+
                             toast({
                               title: "Reading generated! 🌟",
                               description: `Your reading for ${manualNumbers} is ready`,
@@ -608,6 +747,14 @@ const GetVybe = () => {
                   </div>
                 </div>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="voice">
+              <VoiceAssistant
+                onCommand={handleVoiceCommand}
+                isActive={true}
+                disabled={isProcessing}
+              />
             </TabsContent>
 
             <TabsContent value="chat">
@@ -672,6 +819,139 @@ const GetVybe = () => {
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Quick Capture - Recurring Numbers */}
+          <Card className="mb-6 border-lf-aurora/30 bg-lf-gradient/50 p-6 backdrop-blur shadow-glow relative z-10">
+            <div className="mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-lf-aurora" />
+              <h3 className="font-display text-xl font-semibold text-white">Universe Signals</h3>
+            </div>
+            <p className="text-sm text-white/80 mb-4">Quick capture common frequency patterns - strong guidance from the universe</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {['11:11', '222', '333', '444', '555', '777', '888', '1111'].map((pattern) => (
+                <Button
+                  key={pattern}
+                  onClick={async () => {
+                    setIsProcessing(true);
+                    setCapturedAt(new Date().toLocaleString());
+                    try {
+                      const { data, error } = await supabase.functions.invoke("vybe-reading", {
+                        body: {
+                          inputs: [{ label: 'Frequency Pattern', value: pattern }],
+                          depth: 'standard'
+                        },
+                      });
+                      if (error) throw error;
+                      if (data?.reading) {
+                        setReadings([{
+                          input_text: pattern,
+                          normalized_number: '',
+                          numerology_data: {
+                            headline: `Universe Signal: ${pattern}`,
+                            keywords: [],
+                            guidance: data.reading
+                          },
+                          chakra_data: {
+                            name: '',
+                            element: '',
+                            focus: '',
+                            color: '#A78BFA'
+                          }
+                        }]);
+
+                        // Save to history
+                        saveReading({
+                          inputType: 'pattern',
+                          inputValue: pattern,
+                          reading: data.reading,
+                        });
+
+                        toast({
+                          title: "Signal captured! ✨",
+                          description: `Reading for ${pattern}`,
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Error:", error);
+                      toast({
+                        title: "Processing failed",
+                        description: error instanceof Error ? error.message : "Please try again",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsProcessing(false);
+                    }
+                  }}
+                  disabled={isProcessing}
+                  className="bg-white/90 hover:bg-white text-lf-indigo font-bold text-lg h-14 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105"
+                >
+                  {pattern}
+                </Button>
+              ))}
+            </div>
+          </Card>
+
+          {/* Numerology Tips */}
+          <Card className="mb-6 border-lf-violet/30 bg-lf-midnight/50 p-6 backdrop-blur relative z-10">
+            <div className="mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-lf-violet" />
+              <h3 className="font-display text-xl font-semibold text-white">Frequency Guidance</h3>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-lg bg-lf-ink/40 p-4 border border-lf-aurora/20 hover:border-lf-aurora/50 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-lf-aurora/20 p-2">
+                    <Clock className="h-5 w-5 text-lf-aurora" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-1">Timing Patterns</h4>
+                    <p className="text-sm text-lf-slate">
+                      Repeating numbers in time (11:11, 22:22) are powerful synchronicity markers
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg bg-lf-ink/40 p-4 border border-lf-violet/20 hover:border-lf-violet/50 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-lf-violet/20 p-2">
+                    <Hash className="h-5 w-5 text-lf-violet" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-1">Angel Numbers</h4>
+                    <p className="text-sm text-lf-slate">
+                      Sequences like 333, 444, 555 carry specific messages from the universe
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg bg-lf-ink/40 p-4 border border-lf-indigo/20 hover:border-lf-indigo/50 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-lf-indigo/20 p-2">
+                    <Sparkles className="h-5 w-5 text-lf-indigo" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-1">Master Numbers</h4>
+                    <p className="text-sm text-lf-slate">
+                      11, 22, 33 are master numbers with amplified spiritual significance
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg bg-lf-ink/40 p-4 border border-lf-aurora/20 hover:border-lf-aurora/50 transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-full bg-lf-aurora/20 p-2">
+                    <ImageIcon className="h-5 w-5 text-lf-aurora" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white mb-1">Daily Captures</h4>
+                    <p className="text-sm text-lf-slate">
+                      Screenshot numbers you encounter - license plates, receipts, timestamps
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Results */}
           {readings.length > 0 && (

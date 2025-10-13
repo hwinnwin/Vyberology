@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">vyberology</string>
+    <string name="title_activity_main">vyberology</string>
+    <string name="package_name">app.lovable.eebd950946e542d89b5f15154caa7b65</string>
+    <string name="custom_url_scheme">app.lovable.eebd950946e542d89b5f15154caa7b65</string>
+    <string name="widget_description">Quick access to capture your vybe</string>
+</resources>

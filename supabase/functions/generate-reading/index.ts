@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
+// CORS headers
+// TODO: Update to production domain before deployment
+// Recommended: Deno.env.get('APP_URL') || 'https://vyberology.app'
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': '*', // FIXME: Change to production domain
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 

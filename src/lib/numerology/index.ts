@@ -4,7 +4,7 @@ export type NumerologyNumbers = {
   expression: { value: number; isMaster?: boolean };
   soulUrge: { value: number; isMaster?: boolean };
   personality: { value: number; isMaster?: boolean };
-  [key: string]: any;
+  [key: string]: { value: number; isMaster?: boolean } | undefined;
 };
 
 // single import set — remove any duplicate lines

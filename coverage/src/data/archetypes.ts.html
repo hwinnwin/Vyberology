@@ -1,0 +1,1003 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/archetypes.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> archetypes.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/278</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>1/1</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/278</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a>
+<a name='L253'></a><a href='#L253'>253</a>
+<a name='L254'></a><a href='#L254'>254</a>
+<a name='L255'></a><a href='#L255'>255</a>
+<a name='L256'></a><a href='#L256'>256</a>
+<a name='L257'></a><a href='#L257'>257</a>
+<a name='L258'></a><a href='#L258'>258</a>
+<a name='L259'></a><a href='#L259'>259</a>
+<a name='L260'></a><a href='#L260'>260</a>
+<a name='L261'></a><a href='#L261'>261</a>
+<a name='L262'></a><a href='#L262'>262</a>
+<a name='L263'></a><a href='#L263'>263</a>
+<a name='L264'></a><a href='#L264'>264</a>
+<a name='L265'></a><a href='#L265'>265</a>
+<a name='L266'></a><a href='#L266'>266</a>
+<a name='L267'></a><a href='#L267'>267</a>
+<a name='L268'></a><a href='#L268'>268</a>
+<a name='L269'></a><a href='#L269'>269</a>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a>
+<a name='L283'></a><a href='#L283'>283</a>
+<a name='L284'></a><a href='#L284'>284</a>
+<a name='L285'></a><a href='#L285'>285</a>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a>
+<a name='L292'></a><a href='#L292'>292</a>
+<a name='L293'></a><a href='#L293'>293</a>
+<a name='L294'></a><a href='#L294'>294</a>
+<a name='L295'></a><a href='#L295'>295</a>
+<a name='L296'></a><a href='#L296'>296</a>
+<a name='L297'></a><a href='#L297'>297</a>
+<a name='L298'></a><a href='#L298'>298</a>
+<a name='L299'></a><a href='#L299'>299</a>
+<a name='L300'></a><a href='#L300'>300</a>
+<a name='L301'></a><a href='#L301'>301</a>
+<a name='L302'></a><a href='#L302'>302</a>
+<a name='L303'></a><a href='#L303'>303</a>
+<a name='L304'></a><a href='#L304'>304</a>
+<a name='L305'></a><a href='#L305'>305</a>
+<a name='L306'></a><a href='#L306'>306</a>
+<a name='L307'></a><a href='#L307'>307</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export type ArchetypeFamily = 'base' | 'master' | 'power' | 'angel';
+export type Mode = 'CCM' | 'AMM' | 'OCM';
+export type Element = 'Fire' | 'Water' | 'Air' | 'Earth' | 'Ether';
+&nbsp;
+export interface Archetype {
+  id: string;
+  number: number;
+  family: ArchetypeFamily;
+  root: number;
+  modes: Mode[];
+  primaryLabel: string;
+  secondaryLabel: string;
+  tertiaryLabel: string;
+  emoji: string;
+  essence: string;
+  expandedMeaning: string;
+  lightExpression: string[];
+  shadowExpression: string[];
+  keywords: string[];
+  toneStyle: string;
+  colorHex: string;
+  uiMotif: string;
+  element: Element;
+  frequencyTone: string;
+  commonMisunderstanding: string;
+  dailyPractice: string;
+}
+&nbsp;
+<span class="cstat-no" title="statement not covered" >export const ARCHETYPES: Archetype[] = [</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '1',</span>
+<span class="cstat-no" title="statement not covered" >    number: 1,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 1,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Initiator',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Pioneer',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Spark',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🔥',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'The pulse of creation — the first movement from idea to action.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: "The 1 is that inner engine that says \"I'll go first.\" It's the impulse to start a business before the market exists, to speak an unspoken truth in a meeting, to make art before there's an audience. This frequency doesn't wait for permission; it creates momentum by acting. When balanced, 1 energy feels electric but steady — decisive, confident, inspiring. When off, it can look like the founder who burns out chasing ten ideas at once, or the partner who insists on being right instead of being real. The evolution of 1 is learning that leadership isn't force — it's direction with awareness.",</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Grounded confidence', 'decisive motion', 'creative ignition'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Impatience', 'tunnel vision', 'control tendencies'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['beginning', 'courage', 'clarity', 'leadership', 'autonomy'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'focused, motivating',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#DC2626',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'beam',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Fire',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'C',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Starting alone doesn\'t mean staying alone. Real independence creates space for collaboration, not isolation.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Pick one idea you\'ve been circling and take a small, visible action today — send the message, make the call, buy the materials. Let movement itself build your confidence.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '2',</span>
+<span class="cstat-no" title="statement not covered" >    number: 2,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 2,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Balancer',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Mirror',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Weaver',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🌿',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Harmony through connection; the art of listening life back into rhythm.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: 'Energy is relational intelligence — it understands that everything lives in conversation. It\'s the friend who mediates a tense room with one calm sentence, the designer who knows when to pause and ask, "How does this feel for everyone?" It leads quietly, sensing currents rather than forcing them. When in balance, 2 energy feels like water: patient, responsive, nourishing. When off, it becomes the person who says "yes" to keep the peace while resentment builds.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Patient', 'attuned', 'cooperative', 'emotionally intelligent'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['People-pleasing', 'indecisive', 'conflict-avoidant'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['harmony', 'partnership', 'intuition', 'diplomacy', 'timing'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'calm, empathetic',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#16A34A',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'wave',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Water',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'D',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Kindness means agreement. Real kindness is honesty delivered gently.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Before responding today, take one breath and repeat: "I can care without carrying." Then speak the truth you\'ve been avoiding.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '3',</span>
+<span class="cstat-no" title="statement not covered" >    number: 3,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 3,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Expressor',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Artist',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Muse',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🎶',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'The joy of expression — giving sound, color, and language to life itself.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '3 energy is creative oxygen. It brings ideas into motion, laughter into rooms, and rhythm into communication. It\'s the musician who writes a song that says what everyone\'s been feeling, the friend who can turn tension into humor. When balanced, 3 feels like effortless flow — open, bright, connected. When unbalanced, it scatters: too many half-finished projects, words that fill the silence but never land.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Playful', 'articulate', 'magnetic', 'joyful', 'encouraging'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Scattered', 'inconsistent', 'avoidant of depth', 'performative'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['communication', 'creativity', 'joy', 'story', 'connection'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'bright, uplifting',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#EAB308',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'spiral',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Air',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'E',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Being expressive means being loud. True expression is about honesty, not volume.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Share something you made today — a sentence, a photo, a laugh — without editing for approval. Creation is complete once it\'s released.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '4',</span>
+<span class="cstat-no" title="statement not covered" >    number: 4,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 4,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Architect',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Builder',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Strategist',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🪵',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Order as freedom — stability as the soil where vision takes root.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '4 energy is the frequency of form. It\'s the engineer drafting the bridge, the parent who keeps the household rhythm steady, the founder who builds a system sturdy enough to outlive them. In balance, 4 is the calm that makes other energies possible — predictable, dependable, quietly powerful. Out of balance, it becomes rigid, pessimistic, or so attached to control that life stops breathing.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Reliable', 'organized', 'disciplined', 'trustworthy', 'methodical'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Controlling', 'pessimistic', 'fearful of change', 'overly cautious'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['structure', 'discipline', 'stability', 'patience', 'endurance'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'grounded, reassuring',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#78716C',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'grid',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Earth',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'F',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Control equals safety. Real safety is flexibility within structure — strength that can bend without breaking.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Bring order to one small corner of your world today — your desk, your calendar, your breathing. Let that stability ripple outward.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '5',</span>
+<span class="cstat-no" title="statement not covered" >    number: 5,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 5,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Wanderer',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Explorer',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Catalyst',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🌊',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'The movement of change — freedom meeting curiosity.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '5 energy is the wind that keeps the system alive. It\'s the friend who says, "let\'s try a different route," the creative who reinvents their work every season. It keeps life fresh by refusing stagnation. When balanced, 5 energy feels like a clean breeze — spontaneous, curious, alive. When unbalanced, it turns into chaos: impulse buying, serial jobs or partners, distraction disguised as freedom.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Adaptable', 'adventurous', 'curious', 'innovative', 'expressive'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Restless', 'reckless', 'inconsistent', 'commitment-averse'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['freedom', 'change', 'adventure', 'curiosity', 'transformation'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'dynamic, fresh',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#06B6D4',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'wave',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Air',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'G',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Freedom means absence of limits. Real freedom is the ability to move inside your own boundaries without breaking yourself apart.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Switch one routine consciously — take a different route, try a new food, approach a familiar problem from a new angle. Notice what expands when you move with awareness.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '6',</span>
+<span class="cstat-no" title="statement not covered" >    number: 6,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 6,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Caretaker',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Healer',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Guardian',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🌷',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Love as responsibility — harmony through service and beauty.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '6 energy is the heartbeat of compassion. It\'s the friend who checks on everyone after a storm, the manager who keeps morale steady, the artist who tends to the emotional landscape of their community. When balanced, 6 is radiant and trustworthy. When unbalanced, it becomes controlling or martyring, believing that love equals self-erasure.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Compassionate', 'loyal', 'graceful', 'supportive', 'artistic'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Over-giving', 'controlling', 'anxious', 'self-neglecting'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['nurture', 'harmony', 'responsibility', 'beauty', 'protection'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'warm, reassuring',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#EC4899',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'bloom',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Water',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'A',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Caring for others means ignoring yourself. Sustainable care begins with self-tending.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Do one act of care for yourself before offering it to anyone else. Even a small kindness — a meal, a pause, a walk — recalibrates the whole system.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '7',</span>
+<span class="cstat-no" title="statement not covered" >    number: 7,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 7,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Seeker',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Mystic',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Analyst',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🔮',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Stillness reveals truth — wisdom through observation and reflection.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '7 energy is the contemplative current — it learns by watching, listening, and sensing what\'s unsaid. It\'s the researcher lost in thought who suddenly grasps the underlying system. When balanced, 7 feels like deep water: calm, perceptive, profoundly peaceful. When unbalanced, it drifts toward isolation, skepticism, or analysis that disconnects from the heart.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Insightful', 'discerning', 'intuitive', 'contemplative', 'faithful'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Withdrawn', 'skeptical', 'secretive', 'emotionally distant'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['introspection', 'wisdom', 'spirituality', 'analysis', 'discernment'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'serene, introspective',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#6366F1',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'spiral',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Ether',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'B',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Solitude equals loneliness. True solitude is communion with your own source.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Spend ten minutes in silence today — no phone, no music, just observation. Write down one truth that surfaced once your mind stopped talking.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '8',</span>
+<span class="cstat-no" title="statement not covered" >    number: 8,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 8,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Leader',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Executive',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Strategos',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '💎',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Power with purpose — mastery through stewardship and integrity.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '8 energy is the architecture of influence. It\'s the entrepreneur who builds a company that empowers others, the director who keeps a creative team on course. When balanced, 8 feels composed and confident — firm, fair, decisive. When unbalanced, it can tip into control, obsession with status, or burnout from over-responsibility.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Disciplined', 'visionary', 'dependable', 'commanding', 'protective'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Controlling', 'materialistic', 'impatient', 'dominating'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['authority', 'integrity', 'discipline', 'success', 'stewardship'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'commanding, steady',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#1E293B',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'beam',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Earth',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'C#',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Power means control. Real mastery is guiding energy, not gripping it.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Identify one decision you\'ve been avoiding and make it cleanly. Then delegate or act without overthinking. Momentum brings clarity.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '9',</span>
+<span class="cstat-no" title="statement not covered" >    number: 9,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'base',</span>
+<span class="cstat-no" title="statement not covered" >    root: 9,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Humanitarian',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Sage',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Finisher',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🌹',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Release to renew — compassion as completion.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '9 energy is the integrator — the frequency of endings that become beginnings. It\'s the mentor who turns lessons into guidance, the activist who serves without needing the spotlight. When balanced, 9 is generous, forgiving, and visionary. When unbalanced, it drifts into martyrdom, nostalgia, or exhaustion from over-caring.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Empathetic', 'wise', 'forgiving', 'inspiring', 'expansive'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Martyr', 'sentimental', 'rescuing', 'avoidant of closure'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['completion', 'compassion', 'release', 'service', 'wisdom'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'wise, soothing',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#BE123C',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'spiral',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Fire',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'D#',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Holding on shows love. Real love lets life evolve; endings are sacred forms of care.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Choose one situation that\'s lingering and consciously complete it — a conversation, a project, a feeling. Closure is an act of healing.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '11',</span>
+<span class="cstat-no" title="statement not covered" >    number: 11,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'master',</span>
+<span class="cstat-no" title="statement not covered" >    root: 2,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Visionary',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Channel',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Illuminator',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '💫',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Intuition as transmission — awareness that lights the way for others.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '11 energy is heightened perception — the bridge between imagination and manifestation. When balanced, 11 energy feels crystalline: intuitive, creative, anchored in compassion. When unbalanced, it can turn into anxiety, over-stimulation, or escapism. The evolution of 11 is learning to ground the light — to build a body that can carry its own frequency.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Inspired', 'perceptive', 'creative', 'compassionate', 'visionary'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Overwhelmed', 'hypersensitive', 'ungrounded', 'self-doubting'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['intuition', 'insight', 'inspiration', 'awareness', 'empathy'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'ethereal but practical',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#8B5CF6',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'aura',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Ether',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'F#',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Intuition replaces discipline. In truth, intuition thrives inside structure.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Capture one intuitive flash and give it structure — write it down, sketch it, or speak it aloud. Turn light into language before it fades.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '22',</span>
+<span class="cstat-no" title="statement not covered" >    number: 22,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'master',</span>
+<span class="cstat-no" title="statement not covered" >    root: 4,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Master Builder',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Engineer',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Architect of Vision',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🏛️',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Vision engineered into reality — sacred architecture in motion.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '22 energy is the alchemy of dream and discipline. It manifests big visions through deliberate, patient craftsmanship. When balanced, 22 is stable, focused, and quietly visionary. When unbalanced, it freezes in perfectionism or control, losing faith in organic timing.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Disciplined', 'visionary', 'methodical', 'reliable', 'inspiring through example'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Perfectionistic', 'rigid', 'fearful of failure', 'over-controlling'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['manifestation', 'legacy', 'structure', 'stewardship', 'patience'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'grounded-visionary, precise',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#475569',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'grid',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Earth',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'G#',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Greatness demands doing everything alone. True building happens through collaboration.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Choose one lofty goal and break it into a single, concrete step. Lay one brick today — not the whole wall.'</span>
+<span class="cstat-no" title="statement not covered" >  },</span>
+<span class="cstat-no" title="statement not covered" >  {</span>
+<span class="cstat-no" title="statement not covered" >    id: '33',</span>
+<span class="cstat-no" title="statement not covered" >    number: 33,</span>
+<span class="cstat-no" title="statement not covered" >    family: 'master',</span>
+<span class="cstat-no" title="statement not covered" >    root: 6,</span>
+<span class="cstat-no" title="statement not covered" >    modes: ['CCM', 'AMM', 'OCM'],</span>
+<span class="cstat-no" title="statement not covered" >    primaryLabel: 'Master Healer',</span>
+<span class="cstat-no" title="statement not covered" >    secondaryLabel: 'Teacher',</span>
+<span class="cstat-no" title="statement not covered" >    tertiaryLabel: 'Radiant',</span>
+<span class="cstat-no" title="statement not covered" >    emoji: '🌞',</span>
+<span class="cstat-no" title="statement not covered" >    essence: 'Compassion in action — love made practical and powerful.',</span>
+<span class="cstat-no" title="statement not covered" >    expandedMeaning: '33 energy is the vibration of embodied compassion. It moves through service, reminding others that love is not sentimentality — it\'s applied awareness. When balanced, 33 is luminous and grounded. When unbalanced, it slips into martyrdom or over-care.',</span>
+<span class="cstat-no" title="statement not covered" >    lightExpression: ['Loving', 'wise', 'patient', 'inspiring', 'generous'],</span>
+<span class="cstat-no" title="statement not covered" >    shadowExpression: ['Martyr', 'over-giver', 'controlling through care', 'emotionally exhausted'],</span>
+<span class="cstat-no" title="statement not covered" >    keywords: ['healing', 'compassion', 'teaching', 'radiance', 'service'],</span>
+<span class="cstat-no" title="statement not covered" >    toneStyle: 'devotional, radiant',</span>
+<span class="cstat-no" title="statement not covered" >    colorHex: '#F59E0B',</span>
+<span class="cstat-no" title="statement not covered" >    uiMotif: 'bloom',</span>
+<span class="cstat-no" title="statement not covered" >    element: 'Water',</span>
+<span class="cstat-no" title="statement not covered" >    frequencyTone: 'A#',</span>
+<span class="cstat-no" title="statement not covered" >    commonMisunderstanding: 'Love means fixing. Real love holds space for others to heal themselves.',</span>
+<span class="cstat-no" title="statement not covered" >    dailyPractice: 'Offer one small act of kindness that nourishes you as much as the receiver — a compliment, a meal shared, a pause in gratitude.'</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >];</span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-10-13T04:07:38.074Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

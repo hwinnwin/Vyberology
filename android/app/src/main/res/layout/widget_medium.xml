@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Medium Widget (4x2) - Time + Quick Capture -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_background"
+    android:padding="16dp">
+
+    <!-- Left Side - Time Display -->
+    <LinearLayout
+        android:id="@+id/widget_left_section"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical">
+
+        <!-- Current Vybe Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current Vybe"
+            android:textColor="#B3FFFFFF"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/widget_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="11:11"
+            android:textColor="#FFFFFF"
+            android:textSize="36sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/widget_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Monday, Jan 1"
+            android:textColor="#99FFFFFF"
+            android:textSize="10sp" />
+
+    </LinearLayout>
+
+    <!-- Right Side - Capture Button -->
+    <LinearLayout
+        android:id="@+id/widget_capture_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Circular Capture Button -->
+        <View
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/widget_capture_circle" />
+
+        <!-- Capture Icon Overlay (using text for simplicity) -->
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="-50dp"
+            android:gravity="center"
+            android:text="⚡"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp" />
+
+        <!-- Capture Label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Capture"
+            android:textColor="#FFFFFF"
+            android:textSize="10sp"
+            android:fontFamily="sans-serif-medium" />
+
+    </LinearLayout>
+
+</RelativeLayout>

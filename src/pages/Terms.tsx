@@ -1,20 +1,36 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, FileText, Mail, AlertTriangle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, FileText, Mail, AlertTriangle, Home } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Terms = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
       <div className="container mx-auto px-6 py-12">
+        {/* Navigation */}
+        <div className="mb-8 flex items-center justify-between">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back
+          </Button>
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <Home className="h-5 w-5" />
+            Home
+          </Button>
+        </div>
+
         {/* Header */}
         <div className="mb-8">
-          <Link to="/">
-            <Button variant="ghost" className="mb-4 gap-2 text-lf-slate hover:text-white">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
           <div className="flex items-center gap-3 mb-4">
             <FileText className="h-8 w-8 text-lf-aurora" />
             <h1 className="font-display text-5xl font-bold text-white">

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Home } from "lucide-react";
 import { ReadingForm } from "@/components/ReadingForm";
 import { ReadingCard } from "@/components/ReadingCard";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import type { ReadingResult } from "@/lib/numerology";
 
 export default function NumerologyReader() {
+  const navigate = useNavigate();
   const [result, setResult] = useState<ReadingResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,20 +65,30 @@ export default function NumerologyReader() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
       <div className="container max-w-4xl py-12 space-y-8">
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" asChild>
-            <Link to="/" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Link>
+          <Button
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back
+          </Button>
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <Home className="h-5 w-5" />
+            Home
           </Button>
         </div>
-        
+
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Numerology Reader</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-bold tracking-tight text-white">Numerology Reader</h1>
+          <p className="text-lf-slate">
             Discover your numbers and dominant chakras
           </p>
         </div>

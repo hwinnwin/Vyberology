@@ -1,13 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Download, Check, Copy, Palette, Type, Image as ImageIcon, FileText } from "lucide-react";
+import { Sparkles, Download, Check, Copy, Palette, Type, Image as ImageIcon, FileText, ArrowLeft, Home } from "lucide-react";
 import logoConcept1 from "@/assets/logo-concept-1.png";
 import logoConcept2 from "@/assets/logo-concept-2.png";
 import logoConcept3 from "@/assets/logo-concept-3.png";
 
 const Brand = () => {
+  const navigate = useNavigate();
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
 
   const colorPalette = [
@@ -30,6 +32,28 @@ const Brand = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
+      {/* Navigation */}
+      <div className="container mx-auto px-6 pt-6">
+        <div className="flex items-center justify-between">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <ArrowLeft className="h-5 w-5" />
+            Back
+          </Button>
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            className="gap-2 text-white hover:text-lf-aurora"
+          >
+            <Home className="h-5 w-5" />
+            Home
+          </Button>
+        </div>
+      </div>
+
       {/* Header with gradient */}
       <header className="relative overflow-hidden">
         <div className="absolute inset-0 bg-lf-gradient opacity-20"></div>

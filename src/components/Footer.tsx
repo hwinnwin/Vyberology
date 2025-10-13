@@ -39,6 +39,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/history" className="text-lf-slate hover:text-lf-aurora transition-colors">
+                  Reading History
+                </Link>
+              </li>
+              <li>
+                <Link to="/settings" className="text-lf-slate hover:text-lf-aurora transition-colors">
+                  Settings
+                </Link>
+              </li>
+              <li>
                 <Link to="/brand" className="text-lf-slate hover:text-lf-aurora transition-colors">
                   Brand Kit
                 </Link>
