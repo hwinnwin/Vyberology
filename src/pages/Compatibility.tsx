@@ -4,6 +4,8 @@ import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CompatibilityForm } from "@/components/CompatibilityForm";
 import { PairReadingCard } from "@/components/PairReadingCard";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { PairReading } from "@/lib/numerology/compat";
@@ -12,28 +14,54 @@ export default function Compatibility() {
   const navigate = useNavigate();
   const [result, setResult] = useState<PairReading | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async (aName: string, aDob: string, bName: string, bDob: string) => {
     setIsLoading(true);
-    
+    setError(null);
+    setResult(null); // Clear previous result
+
     try {
       const { data, error } = await supabase.functions.invoke('compare', {
         body: { aName, aDob, bName, bDob }
       });
 
-      if (error) throw error;
+      if (error) {
+        throw new Error(error.message || 'Failed to generate compatibility reading');
+      }
+
+      if (!data) {
+        throw new Error('No data received from server');
+      }
 
       setResult(data);
+
+      toast({
+        title: "Success!",
+        description: "Your compatibility reading has been generated.",
+      });
     } catch (error) {
       console.error('Error generating compatibility reading:', error);
+
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'An unexpected error occurred';
+
+      setError(errorMessage);
+
       toast({
         title: "Error",
-        description: "Failed to generate compatibility reading. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRetry = () => {
+    setError(null);
+    // The form will still have the previous values, user can just resubmit
   };
 
   return (
@@ -67,7 +95,27 @@ export default function Compatibility() {
 
         <CompatibilityForm onGenerate={handleGenerate} isLoading={isLoading} />
 
-        {result && <PairReadingCard reading={result} />}
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner
+              size="lg"
+              text="Calculating compatibility... This may take a moment."
+            />
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isLoading && (
+          <ErrorMessage
+            title="Failed to Generate Compatibility Reading"
+            message={error}
+            onRetry={handleRetry}
+          />
+        )}
+
+        {/* Success State - Display Reading */}
+        {result && !isLoading && !error && <PairReadingCard reading={result} />}
       </div>
     </div>
   );
