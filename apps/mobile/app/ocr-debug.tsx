@@ -5,6 +5,7 @@ import TextRecognition from "@react-native-ml-kit/text-recognition";
 import { renderVolumeIV, type NumberToken, type RenderResult } from "@vybe/reading-engine";
 import { saveReading } from "@/lib/saveReading";
 import { ReadingDelivery } from "@/components/ReadingDelivery";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 export default function OcrDebug() {
   const [uri, setUri] = useState<string | null>(null);
@@ -34,17 +35,33 @@ export default function OcrDebug() {
     if (!res.canceled) {
       const u = res.assets[0].uri;
       setUri(u);
+      void trackAnalyticsEvent("ocr_image_selected", {
+        platform: "mobile",
+        source: "library",
+      });
       const result = await TextRecognition.recognize(u);
       const text = result.text ?? "";
       setRaw(text);
       const tokens: NumberToken[] = parseTokensNative(result, 0.85);
       setTokens(tokens);
+      void trackAnalyticsEvent("ocr_numbers_extracted", {
+        platform: "mobile",
+        tokenCount: tokens.length,
+      });
+      const renderOptions: any = { explain: true };
+      if (deliveryEnabled) {
+        renderOptions.format = "blocks";
+      }
       const reading = renderVolumeIV(
         { coreNumber: 11, tokens, volume: "IV" },
-        { explain: true, format: deliveryEnabled ? "blocks" : "text" }
+        renderOptions
       );
       setRenderResult(reading);
       setOut(reading.text + "\n\n---\nExplain:\n" + JSON.stringify(reading.rationale, null, 2));
+      void trackAnalyticsEvent("reading_generated", {
+        platform: "mobile",
+        tokenCount: tokens.length,
+      });
     }
   }
 
@@ -72,6 +89,11 @@ export default function OcrDebug() {
     } catch (error) {
       console.error(error);
       setStatus("Failed to save reading.");
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "mobile",
+        scope: "ocr_save",
+        message: error instanceof Error ? error.message : "unknown",
+      });
     } finally {
       setSaving(false);
     }
@@ -92,7 +114,7 @@ export default function OcrDebug() {
       const [h, min] = m[0]
         .replace(/\s?(AM|PM|am|pm)$/, "")
         .split(":")
-        .map((n) => +n);
+        .map((segment: string) => Number(segment));
       push(m[0], "time", [h, min]);
     }
     for (const m of text.matchAll(TEMP)) {

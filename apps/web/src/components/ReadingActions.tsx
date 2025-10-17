@@ -1,6 +1,7 @@
 import { Button } from "./ui/button";
 import { Copy, Share2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 interface ReadingActionsProps {
   readingText: string;
@@ -14,7 +15,13 @@ export function ReadingActions({
   className = ""
 }: ReadingActionsProps) {
   const handleCopy = () => {
-    navigator.clipboard.writeText(readingText);
+    navigator.clipboard.writeText(readingText).catch((error) => {
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "web",
+        scope: "clipboard_copy",
+        message: error instanceof Error ? error.message : "unknown",
+      });
+    });
     toast({
       title: "Copied to clipboard",
       description: "Your reading has been copied"
@@ -22,6 +29,10 @@ export function ReadingActions({
   };
 
   const handleShare = async () => {
+    void trackAnalyticsEvent("share_clicked", {
+      platform: "web",
+      method: navigator.share ? "web-share" : "fallback-copy",
+    });
     if (navigator.share) {
       try {
         await navigator.share({
@@ -32,6 +43,11 @@ export function ReadingActions({
         // User cancelled share or share failed
         if (error instanceof Error && error.name !== 'AbortError') {
           handleCopy();
+          void trackAnalyticsEvent("error_occurred", {
+            platform: "web",
+            scope: "navigator_share",
+            message: error.message
+          });
         }
       }
     } else {

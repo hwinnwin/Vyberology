@@ -1,7 +1,25 @@
 import { useState } from "react";
-import type { DeliveredReading, ReadingBlocks } from "@vybe/reading-engine";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { trackAnalyticsEvent } from "@/lib/analytics";
+
+type ReadingBlocks = {
+  header: string;
+  elemental: string;
+  chakra: string;
+  resonance: string;
+  essence: string;
+  intention: string;
+  reflection: string;
+};
+
+type ReadingDeliveryProps = {
+  reading: {
+    text: string;
+    blocks: ReadingBlocks;
+  };
+  className?: string;
+};
 
 type ReadingDeliveryProps = {
   reading: DeliveredReading;
@@ -53,10 +71,20 @@ export function ReadingDelivery({ reading, className }: ReadingDeliveryProps) {
     } catch (error) {
       console.error("Copy failed", error);
       notify("Unable to copy — please try again.");
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "web",
+        scope: "reading_copy",
+        message: error instanceof Error ? error.message : "unknown",
+      });
     }
   };
 
   const handleShare = async () => {
+    const method = navigator.share ? "web-share" : "fallback-copy";
+    void trackAnalyticsEvent("share_clicked", {
+      platform: "web",
+      method,
+    });
     if (navigator.share) {
       try {
         await navigator.share({
@@ -69,6 +97,11 @@ export function ReadingDelivery({ reading, className }: ReadingDeliveryProps) {
           console.error("Share failed", error);
           notify("Share failed — copied instead.");
           await handleCopy();
+          void trackAnalyticsEvent("error_occurred", {
+            platform: "web",
+            scope: "reading_share",
+            message: error instanceof Error ? error.message : "unknown",
+          });
         }
       }
       return;

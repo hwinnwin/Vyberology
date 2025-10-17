@@ -512,3 +512,9 @@ export function renderVolumeIV(
 
   return { text, blocks, rationale };
 }
+
+export {
+  assembleReading as assembleReadingV4,
+  generateReadingV4,
+  isFeatureEnabled as isV4ReadingEnabled,
+} from "../v4/index";

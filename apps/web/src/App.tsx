@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 // Lazy load pages for better code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -75,6 +76,13 @@ const AppRouter = () => {
 };
 
 const App = () => {
+  useEffect(() => {
+    void trackAnalyticsEvent("app_open", {
+      platform: "web",
+      pathname: window.location.pathname,
+    });
+  }, []);
+
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>

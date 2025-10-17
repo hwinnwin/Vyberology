@@ -1,22 +1,22 @@
-const path = require('path');
-const { getDefaultConfig } = require('@expo/metro-config');
+// apps/mobile/metro.config.js
+const { getDefaultConfig } = require("expo/metro-config");
+const path = require("path");
 
 const projectRoot = __dirname;
-const workspaceRoot = path.resolve(projectRoot, '..', '..');
+const workspaceRoot = path.resolve(projectRoot, "../.."); // repo root
 
 const config = getDefaultConfig(projectRoot);
 
+// Watch the workspace (so packages/* updates are seen)
 config.watchFolders = [workspaceRoot];
 
+// Resolve modules from the workspace root first to avoid duplicate React
 config.resolver.nodeModulesPaths = [
-  path.join(projectRoot, 'node_modules'),
-  path.join(workspaceRoot, 'node_modules'),
+  path.join(workspaceRoot, "node_modules"),
+  path.join(projectRoot, "node_modules"),
 ];
 
-config.resolver.extraNodeModules = {
-  ...config.resolver.extraNodeModules,
-  react: path.join(projectRoot, 'node_modules/react'),
-  'react-dom': path.join(projectRoot, 'node_modules/react-dom'),
-};
+// Helpful in monorepos
+config.resolver.unstable_enableSymlinks = true;
 
 module.exports = config;

@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { saveReading } from "@/lib/readingHistory";
 import type { ReadingResult } from "@/lib/numerology";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 export default function NumerologyReader() {
   const navigate = useNavigate();
@@ -36,6 +37,10 @@ export default function NumerologyReader() {
       }
 
       setResult(data);
+      void trackAnalyticsEvent("reading_generated", {
+        platform: "web",
+        source: "numerology-reader",
+      });
 
       // Save to history
       saveReading({
@@ -56,6 +61,11 @@ export default function NumerologyReader() {
         : 'An unexpected error occurred';
 
       setError(errorMessage);
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "web",
+        scope: "numerology_reader",
+        message: errorMessage,
+      });
 
       toast({
         title: "Error",

@@ -6,9 +6,11 @@
     "emitDeclarationOnly": false
   },
   "include": [
-    "src"
+    "src",
+    "v4"
   ],
   "exclude": [
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "v4/**/*.test.ts"
   ]
 }

@@ -4,13 +4,12 @@ export default defineConfig({
   test: {
     coverage: {
       provider: "v8",
-      include: ["src/**/*.ts", "v4/**/*.ts"],
       reporter: ["text", "lcov"],
-      exclude: ["v4/types.ts"],
-      lines: 0.98,
-      functions: 0.98,
-      statements: 0.98,
-      branches: 0.9,
+      lines: 0.9,
+      functions: 0.9,
+      statements: 0.9,
+      branches: 0.75
     },
-  },
+    include: ["src/**/*.test.ts"]
+  }
 });

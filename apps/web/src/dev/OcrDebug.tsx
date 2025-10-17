@@ -4,6 +4,7 @@ import { FEAT_DELIVERY, FEAT_OCR } from "../lib/flags";
 import { renderVolumeIV, type NumberToken, type RenderResult } from "@vybe/reading-engine";
 import { saveReading } from "../lib/saveReading";
 import { ReadingDelivery } from "@/components/ReadingDelivery";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 export default function OcrDebug() {
   const [img, setImg] = useState<string>("");
@@ -19,16 +20,31 @@ export default function OcrDebug() {
     if (!file) return;
     setImg(URL.createObjectURL(file));
     setStatus("");
+    void trackAnalyticsEvent("ocr_image_selected", {
+      platform: "web",
+      source: "file-input",
+    });
     const { text, confidence } = await recognizeText(file);
     setRaw(text);
     const tokens = parseTokens(text, confidence);
     setTokens(tokens);
+    void trackAnalyticsEvent("ocr_numbers_extracted", {
+      platform: "web",
+      tokenCount: tokens.length,
+    });
+    const renderOptions: any = { explain: true };
+    renderOptions.format = FEAT_DELIVERY ? "blocks" : "text";
     const out = renderVolumeIV(
       { coreNumber: 11, tokens, volume: "IV" },
-      { explain: true, format: FEAT_DELIVERY ? "blocks" : "text" }
+      renderOptions
     );
     setRenderResult(out);
     setReading(out.text + "\n\n---\nExplain:\n" + JSON.stringify(out.rationale, null, 2));
+    void trackAnalyticsEvent("reading_generated", {
+      platform: "web",
+      source: "ocr-debug",
+      tokenCount: tokens.length,
+    });
   }
 
   async function onSave() {
@@ -57,6 +73,11 @@ export default function OcrDebug() {
     } catch (err) {
       console.error(err);
       setStatus("Failed to save reading.");
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "web",
+        scope: "ocr_debug_save",
+        message: err instanceof Error ? err.message : "unknown",
+      });
     } finally {
       setSaving(false);
     }

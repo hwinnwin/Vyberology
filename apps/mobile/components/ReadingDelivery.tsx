@@ -1,10 +1,23 @@
 import { useState } from "react";
 import { Share, StyleSheet, Text, View, ScrollView } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import type { DeliveredReading, ReadingBlocks } from "@vybe/reading-engine";
+import { trackAnalyticsEvent } from "@/lib/analytics";
+
+type ReadingBlocks = {
+  header: string;
+  elemental: string;
+  chakra: string;
+  resonance: string;
+  essence: string;
+  intention: string;
+  reflection: string;
+};
 
 type ReadingDeliveryProps = {
-  reading: DeliveredReading;
+  reading: {
+    text: string;
+    blocks: ReadingBlocks;
+  };
 };
 
 const BLOCK_LABELS: Array<{ key: keyof ReadingBlocks; heading: string }> = [
@@ -31,10 +44,19 @@ export function ReadingDelivery({ reading }: ReadingDeliveryProps) {
     } catch (error) {
       console.error("Copy failed", error);
       notify("Unable to copy. Please try again.");
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "mobile",
+        scope: "clipboard_copy",
+        message: error instanceof Error ? error.message : "unknown",
+      });
     }
   };
 
   const handleShare = async () => {
+    void trackAnalyticsEvent("share_clicked", {
+      platform: "mobile",
+      method: "native-share",
+    });
     try {
       await Share.share({
         title: "Vyberology Reading",
@@ -47,6 +69,11 @@ export function ReadingDelivery({ reading }: ReadingDeliveryProps) {
       console.error("Share failed", error);
       await handleCopy();
       notify("Sharing unavailable — copied instead.");
+      void trackAnalyticsEvent("error_occurred", {
+        platform: "mobile",
+        scope: "native_share",
+        message: error instanceof Error ? error.message : "unknown",
+      });
     }
   };
 
@@ -72,7 +99,7 @@ export function ReadingDelivery({ reading }: ReadingDeliveryProps) {
 
       <ScrollView contentContainerStyle={styles.scrollBody}>
         {BLOCK_LABELS.map(({ key, heading }) => (
-          <View key={key} style={styles.section}>
+          <View key={key as string} style={styles.section}>
             <Text style={styles.sectionHeading}>{heading}</Text>
             <Text style={styles.sectionBody}>{reading.blocks[key]}</Text>
           </View>
