@@ -513,8 +513,10 @@ export function renderVolumeIV(
   return { text, blocks, rationale };
 }
 
+// added by Claude Code (Stage A - IP Protection)
+// V4 engine now delegated to private core package
 export {
   assembleReading as assembleReadingV4,
   generateReadingV4,
   isFeatureEnabled as isV4ReadingEnabled,
-} from "../v4/index";
+} from "@vybe/reading-core-private";
