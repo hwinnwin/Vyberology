@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
-    "emitDeclarationOnly": false
+    "emitDeclarationOnly": false,
+    "paths": {
+      "@vybe/reading-core-private": ["../reading-core-private/src/index.ts"]
+    }
   },
   "include": [
     "src",
