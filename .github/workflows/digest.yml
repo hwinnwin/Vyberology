@@ -1,0 +1,38 @@
+name: Daily Dev Digest (Slack)
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+
+      - name: Collect CI metrics
+        run: node scripts/ci/collect-metrics.js
+
+      # Slack posting temporarily disabled until webhook is configured.
+      # - name: Post to Slack
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      #   run: |
+      #     node -e "
+      #     const fs=require('fs');
+      #     const m=JSON.parse(fs.readFileSync('./tmp/metrics.json','utf8'));
+      #     const text=[
+      #       '*Guardian Aegis — Daily Dev Digest*',
+      #       `Coverage: ${m.coveragePct||0}%`,
+      #       `Last build: ${m.lastBuild||'unknown'}`,
+      #       `Open PRs: ${m.openPRs||0}`,
+      #       `Errors (24h): ${m.error24h||0} | RL hits: ${m.rlHits24h||0}`
+      #     ].join('\n');
+      #     fetch(process.env.SLACK_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})})
+      #     .then(r=>{ if(!r.ok) process.exit(1) });
+      #     "

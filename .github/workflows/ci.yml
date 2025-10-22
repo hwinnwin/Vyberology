@@ -1,0 +1,83 @@
+name: CI (Build + Test + Gates)
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: Setup Node + npm cache
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Use npm@10.9.3
+        run: npm i -g npm@10.9.3
+      - name: Install (root + workspaces)
+        run: npm ci
+
+  lint-typecheck:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+      - name: Lint
+        run: npm run lint --workspace apps/web
+      - name: Typecheck
+        run: npm run typecheck --workspace apps/web
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+      - name: Run unit tests with coverage
+        run: npm run test:coverage --workspace apps/web
+      - name: Enforce coverage gate (≥60% lines)
+        run: |
+          node -e "
+          const fs=require('fs');
+          const p='./apps/web/coverage/coverage-summary.json';
+          const s=JSON.parse(fs.readFileSync(p,'utf8'));
+          const lines=s.total.lines.pct;
+          if(lines<60){console.error('Coverage lines %:',lines);process.exit(1)}
+          console.log('Coverage lines %:',lines);
+          "
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-web
+          path: apps/web/coverage
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [unit-tests, lint-typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+      - name: Install Playwright browsers
+        working-directory: apps/web
+        run: npx playwright install --with-deps
+      - name: Build web
+        run: npm run build --workspace apps/web
+      - name: Run e2e (smoke)
+        run: npm run e2e --workspace apps/web

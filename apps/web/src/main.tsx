@@ -4,9 +4,11 @@ import "./index.css";
 import { initSentry } from "./lib/sentry";
 import { FEAT_PM_SENTRY } from "./lib/flags";
 import { reportError } from "./lib/errorReporter";
+import { attachGlobalErrorHandlers } from "./lib/logger";
 
 // Initialize Sentry before rendering app
 initSentry();
+attachGlobalErrorHandlers();
 
 if (FEAT_PM_SENTRY) {
   window.addEventListener("error", (e) => {

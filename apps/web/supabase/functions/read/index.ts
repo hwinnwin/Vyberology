@@ -1,9 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { buildCors, passesRateLimit } from "../_shared/security.ts";
 
 // Pythagorean map A=1..I=9, J=1..R=9, S=1..Z=8
 const LETTER_MAP: Record<string, number> = {
@@ -398,18 +394,35 @@ ${synthesis}`;
 }
 
 serve(async (req) => {
+  const { headers, allowed } = buildCors(req.headers.get('origin'));
+  const jsonHeaders = { ...headers, 'Content-Type': 'application/json' };
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers });
+  }
+
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
+      status: 403,
+      headers: jsonHeaders,
+    });
+  }
+
+  if (!(await passesRateLimit(req, 'read'))) {
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }), {
+      status: 429,
+      headers: jsonHeaders,
+    });
   }
 
   try {
     const { fullName, dob } = await req.json();
 
     if (!fullName || !dob) {
-      return new Response(
-        JSON.stringify({ error: 'fullName and dob are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'fullName and dob are required' }), {
+        status: 400,
+        headers: jsonHeaders,
+      });
     }
 
     const lifePath = lifePathFromDOB(dob);
@@ -433,17 +446,17 @@ serve(async (req) => {
       reading: { frequencyProfile, energyField, insight, detailedSummary }
     };
 
-    return new Response(
-      JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: jsonHeaders,
+    });
 
   } catch (error) {
     console.error('Error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: jsonHeaders,
+    });
   }
 });
