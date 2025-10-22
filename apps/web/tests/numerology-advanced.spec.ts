@@ -121,6 +121,7 @@ describe('chakra mapping utilities', () => {
     expect(semantics.themes).toContain('freedom');
     expect(prettyChakra('thirdEye+heart')).toBe('Third Eye × Heart');
     expect(prettyElement(['air', 'ether'])).toBe('Air + Ether');
+    expect(prettyElement('fire')).toBe('Fire');
   });
 
   it('produces legacy chakra semantics with dominant and bridge values', () => {

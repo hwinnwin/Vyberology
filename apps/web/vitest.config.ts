@@ -30,6 +30,7 @@ export default defineConfig({
         'android/**',
         'ios/**',
         'dist/**',
+        'src/lib/numerology/types.ts',
       ],
       thresholds: {
         lines: 60,
