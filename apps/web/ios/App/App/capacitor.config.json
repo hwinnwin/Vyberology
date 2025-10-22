@@ -1,0 +1,16 @@
+{
+	"appId": "app.lovable.eebd950946e542d89b5f15154caa7b65",
+	"appName": "vyberology",
+	"webDir": "dist",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"CAPCameraPlugin",
+		"ScreenReaderPlugin",
+		"SentryCapacitorPlugin"
+	]
+}
