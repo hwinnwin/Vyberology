@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach, afterAll } from 'vitest';
 import { composeActions } from '../src/lib/numerology/actionPlan';
+import { compareProfiles } from '../src/lib/numerology/compat';
 import type { PairReading, Profile } from '../src/lib/numerology/compat';
 import { tag, blendTitle } from '../src/lib/numerology/compatLabels';
 import {
@@ -13,6 +14,7 @@ import {
 import { summarizeWeave } from '../src/lib/numerology/chakraWeave';
 import { composeReading, renderReadingMarkdown } from '../src/lib/numerology/composeReading';
 import type { NumValue } from '../src/lib/numerology/reduce';
+import * as calculators from '../src/lib/numerology/calculators';
 
 function makeProfile(): Profile {
   return {
@@ -140,6 +142,10 @@ describe('chakra mapping utilities', () => {
     expect(weave.dominant).toContain('care');
     expect(weave.bridge).toBe('clarity ↔ harmony');
   });
+
+  it('falls back gracefully when chakra key unknown', () => {
+    expect(prettyChakra('mystic' as any)).toBe('Chakra');
+  });
 });
 
 describe('composeReading + markdown rendering', () => {
@@ -166,5 +172,64 @@ describe('composeReading + markdown rendering', () => {
     expect(markdown).toContain('### 🌍 Compat Focus');
     expect(markdown).toContain('| Life Path |');
     expect(markdown).toContain(reading.energyMessage);
+  });
+});
+
+describe('lifePath blend and prosperity vectors', () => {
+  const computeSpy = vi.spyOn(calculators, 'computeAll');
+
+  afterEach(() => {
+    computeSpy.mockReset();
+  });
+
+  afterAll(() => {
+    computeSpy.mockRestore();
+  });
+
+  function mockPair(left: { lifePath: number; expression: number; soulUrge?: number; personality?: number }, right: { lifePath: number; expression: number; soulUrge?: number; personality?: number }) {
+    const makeResponse = (payload: typeof left) => ({
+      lifePath: { value: payload.lifePath },
+      expression: { value: payload.expression },
+      soulUrge: { value: payload.soulUrge ?? payload.lifePath },
+      personality: { value: payload.personality ?? payload.lifePath },
+      maturity: { value: payload.lifePath },
+    });
+    computeSpy
+      .mockImplementationOnce(() => makeResponse(left))
+      .mockImplementationOnce(() => makeResponse(right));
+  }
+
+  it('summarises life path master 11 and 22 blends', () => {
+    mockPair({ lifePath: 5, expression: 3 }, { lifePath: 6, expression: 4 });
+    const eleven = compareProfiles('A', '2000-01-01', 'B', '2000-01-01');
+    expect(eleven.synergy.lifePathBlend.summary).toBe('Heightened intuition and shared vision; protect quiet time.');
+
+    mockPair({ lifePath: 11, expression: 8 }, { lifePath: 11, expression: 8 });
+    const twentyTwo = compareProfiles('C', '2000-01-01', 'D', '2000-01-01');
+    expect(twentyTwo.synergy.lifePathBlend.summary).toBe('Blueprinting a legacy—translate vision into systems.');
+  });
+
+  it('covers prosperity vector variations', () => {
+    mockPair({ lifePath: 4, expression: 8 }, { lifePath: 4, expression: 8 });
+    const doubleEight = compareProfiles('E', '2000-01-01', 'F', '2000-01-01');
+    expect(doubleEight.synergy.prosperityVector).toContain('Dual 8');
+
+    mockPair({ lifePath: 7, expression: 22 }, { lifePath: 7, expression: 3 });
+    const master = compareProfiles('G', '2000-01-01', 'H', '2000-01-01');
+    expect(master.synergy.prosperityVector).toContain('22 present');
+
+    mockPair({ lifePath: 5, expression: 3 }, { lifePath: 3, expression: 4 });
+    const lpEight = compareProfiles('I', '2000-01-01', 'J', '2000-01-01');
+    expect(lpEight.synergy.prosperityVector).toContain('LP 8 influence');
+
+    mockPair({ lifePath: 4, expression: 3 }, { lifePath: 1, expression: 4 });
+    const defaultVector = compareProfiles('K', '2000-01-01', 'L', '2000-01-01');
+    expect(defaultVector.synergy.prosperityVector).toContain('clarify the offer');
+  });
+
+  it('falls back to default life path blend guidance when reduced number not special', () => {
+    mockPair({ lifePath: 4, expression: 3 }, { lifePath: 6, expression: 4 });
+    const result = compareProfiles('M', '2000-01-01', 'N', '2000-01-01');
+    expect(result.synergy.lifePathBlend.summary).toBe('Blend your strengths; choose one clear owner per decision.');
   });
 });

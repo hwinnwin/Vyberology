@@ -24,6 +24,7 @@ const scenarios: TestCase[] = [
   { top: 11, energy: '“Trust the signal — intuition is louder than usual.”', essence: 'Trust the signal — it’s confirmation, not coincidence.', isMaster: true },
   { top: 22, energy: '“Blueprints want action — build one real step today.”', essence: 'Make it tangible — vision becomes real through structure.', isMaster: true },
   { top: 33, energy: '“Teach by example — your warmth is the message.”', essence: 'Lead with compassion — your voice heals as it teaches.', isMaster: true },
+  { top: 12, energy: '“Stay present; the next step will show itself.”', essence: 'Calm step, clear signal.' },
 ];
 
 describe('composeReading energy + essence map', () => {
