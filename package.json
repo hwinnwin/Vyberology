@@ -27,7 +27,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "test": "turbo test"
+    "test": "turbo test",
+    "ci:coverage:read": "node scripts/ci/read-coverage.js"
   },
   "packageManager": "npm@10.9.3"
 }

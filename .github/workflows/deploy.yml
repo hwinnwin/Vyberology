@@ -1,0 +1,78 @@
+name: Deploy (Web + Supabase)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/deploy.yml'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+
+      - name: Build web
+        run: npm run build --workspace apps/web
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Supabase login & link
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+      - name: Push migrations
+        run: supabase db push
+      - name: Deploy edge functions
+        run: |
+          supabase functions deploy vybe-reading
+          supabase functions deploy ocr
+          supabase functions deploy read
+          supabase functions deploy compare
+          supabase functions deploy log-error
+          supabase functions deploy error-digest
+
+      # ---- choose one hosting target; keep others commented ----
+      # Vercel:
+      # - name: Deploy to Vercel
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     working-directory: apps/web
+      #     github-comment: false
+
+      # Netlify:
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@v4
+        with:
+          args: deploy --dir=apps/web/dist --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Post-release tag
+        if: ${{ success() }}
+        run: |
+          git config user.name "guardian-aegis-bot"
+          git config user.email "aegis-bot@users.noreply.github.com"
+          git tag -a guardian-$(date +'%Y%m%d-%H%M') -m "Guardian Aegis release"
+          git push origin --tags

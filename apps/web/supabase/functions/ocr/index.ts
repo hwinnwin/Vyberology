@@ -1,9 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { buildCors, passesRateLimit } from "../_shared/security.ts";
 
 // Numerology engine
 const NUMEROLOGY_MAP: Record<string, any> = {
@@ -78,8 +74,25 @@ function extractNumbers(text: string): string[] {
 }
 
 serve(async (req) => {
+  const { headers, allowed } = buildCors(req.headers.get('origin'));
+  const jsonHeaders = { ...headers, 'Content-Type': 'application/json' };
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { status: 204, headers });
+  }
+
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
+      status: 403,
+      headers: jsonHeaders,
+    });
+  }
+
+  if (!(await passesRateLimit(req, 'ocr'))) {
+    return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }), {
+      status: 429,
+      headers: jsonHeaders,
+    });
   }
 
   try {
@@ -88,20 +101,20 @@ serve(async (req) => {
     const file = formData.get('screenshot') as File;
 
     if (!file) {
-      return new Response(
-        JSON.stringify({ error: 'screenshot file is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'screenshot file is required' }), {
+        status: 400,
+        headers: jsonHeaders,
+      });
     }
 
     console.log('File received:', file.size, 'bytes, type:', file.type);
 
     // Check file size (max 20MB)
     if (file.size > 20 * 1024 * 1024) {
-      return new Response(
-        JSON.stringify({ error: 'Image too large', message: 'Please use an image smaller than 20MB' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Image too large', message: 'Please use an image smaller than 20MB' }), {
+        status: 400,
+        headers: jsonHeaders,
+      });
     }
 
     // Convert to base64
@@ -116,10 +129,10 @@ serve(async (req) => {
       console.log('Base64 encoded, length:', base64.length);
     } catch (e) {
       console.error('Base64 encoding failed:', e);
-      return new Response(
-        JSON.stringify({ error: 'Image encoding failed', message: 'Try a smaller image' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'Image encoding failed', message: 'Try a smaller image' }), {
+        status: 500,
+        headers: jsonHeaders,
+      });
     }
 
     const uint8Array = new Uint8Array(bytes);
@@ -129,10 +142,10 @@ serve(async (req) => {
     // Call OpenAI Vision
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     if (!OPENAI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
+        status: 500,
+        headers: jsonHeaders,
+      });
     }
 
     console.log('Calling OpenAI Vision API...');
@@ -166,15 +179,15 @@ serve(async (req) => {
       console.error('OpenAI error:', aiResponse.status, errorText);
 
       // Return detailed error to user for debugging
-      return new Response(
-        JSON.stringify({
-          error: 'OpenAI API Error',
-          status: aiResponse.status,
-          details: errorText,
-          message: `OpenAI returned ${aiResponse.status}. Check your API key and credits.`
-        }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({
+        error: 'OpenAI API Error',
+        status: aiResponse.status,
+        details: errorText,
+        message: `OpenAI returned ${aiResponse.status}. Check your API key and credits.`
+      }), {
+        status: 500,
+        headers: jsonHeaders,
+      });
     }
 
     const aiData = await aiResponse.json();
@@ -203,19 +216,19 @@ serve(async (req) => {
 
     console.log('Returning', readings.length, 'readings');
 
-    return new Response(
-      JSON.stringify({ raw_text, numbers, readings }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ raw_text, numbers, readings }), {
+      status: 200,
+      headers: jsonHeaders,
+    });
 
   } catch (error) {
     console.error('OCR error:', error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timestamp: new Date().toISOString()
+    }), {
+      status: 500,
+      headers: jsonHeaders,
+    });
   }
 });

@@ -8,6 +8,13 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/api/log-error": {
+        target: "http://localhost:54321",
+        rewrite: (path) => path.replace(/^\/api\/log-error/, "/functions/v1/log-error"),
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {

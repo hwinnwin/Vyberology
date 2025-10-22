@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 
@@ -8,9 +8,17 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./src/test/setup.ts'],
+    exclude: [...configDefaults.exclude, 'tests/e2e/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'json-summary'],
+      include: [
+        'src/components/CompatibilityForm.tsx',
+        'src/components/PairReadingCard.tsx',
+        'src/components/ReadingCard.tsx',
+        'src/components/ReadingForm.tsx',
+        'src/lib/numerology/**/*.ts',
+      ],
       exclude: [
         'node_modules/',
         'src/test/',
