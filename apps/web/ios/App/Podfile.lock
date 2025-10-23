@@ -1,0 +1,53 @@
+PODS:
+  - Capacitor (7.4.3):
+    - CapacitorCordova
+  - CapacitorApp (7.1.0):
+    - Capacitor
+  - CapacitorCamera (7.0.2):
+    - Capacitor
+  - CapacitorCordova (7.4.3)
+  - CapacitorScreenReader (7.0.2):
+    - Capacitor
+  - Sentry/HybridSDK (8.56.2)
+  - SentryCapacitor (2.4.0):
+    - Capacitor
+    - Sentry/HybridSDK (= 8.56.2)
+
+DEPENDENCIES:
+  - "Capacitor (from `../../../../node_modules/@capacitor/ios`)"
+  - "CapacitorApp (from `../../../../node_modules/@capacitor/app`)"
+  - "CapacitorCamera (from `../../../../node_modules/@capacitor/camera`)"
+  - "CapacitorCordova (from `../../../../node_modules/@capacitor/ios`)"
+  - "CapacitorScreenReader (from `../../../../node_modules/@capacitor/screen-reader`)"
+  - "SentryCapacitor (from `../../../../node_modules/@sentry/capacitor`)"
+
+SPEC REPOS:
+  trunk:
+    - Sentry
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../../../node_modules/@capacitor/ios"
+  CapacitorApp:
+    :path: "../../../../node_modules/@capacitor/app"
+  CapacitorCamera:
+    :path: "../../../../node_modules/@capacitor/camera"
+  CapacitorCordova:
+    :path: "../../../../node_modules/@capacitor/ios"
+  CapacitorScreenReader:
+    :path: "../../../../node_modules/@capacitor/screen-reader"
+  SentryCapacitor:
+    :path: "../../../../node_modules/@sentry/capacitor"
+
+SPEC CHECKSUMS:
+  Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
+  CapacitorApp: 26587c2ce485d88ddb39adb21cac64f8e481afe3
+  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
+  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
+  CapacitorScreenReader: 218f3bd7ed11e6bf24ec15f5636acb404d5c840d
+  Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
+  SentryCapacitor: 2d8a3a6ed63df2b7aceabad353b0d8556ed24035
+
+PODFILE CHECKSUM: ed669f3ff7850ce55a356f4dd74923ec03184ac3
+
+COCOAPODS: 1.16.2
