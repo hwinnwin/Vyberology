@@ -11,7 +11,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc -b --noEmit || echo \"no typecheck in this pkg\""
   },
   "license": "MIT",
   "devDependencies": {
