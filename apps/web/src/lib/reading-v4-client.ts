@@ -3,6 +3,8 @@
 
 import { createClient } from "@supabase/supabase-js";
 
+const V4_FLAG = (import.meta.env.VITE_V4_ENABLED ?? "false").toLowerCase() === "true";
+
 interface CaptureInput {
   raw: string;
   context?: string;
@@ -38,6 +40,9 @@ export class ReadingV4Client {
   private supabase: ReturnType<typeof createClient>;
 
   constructor(supabaseUrl: string, supabaseKey: string) {
+    if (!V4_FLAG) {
+      throw new Error("Reading V4 client requested while V4 feature flag is disabled.");
+    }
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
@@ -48,6 +53,10 @@ export class ReadingV4Client {
     input: CaptureInput,
     options: GenerateReadingOptions = {}
   ): Promise<GeneratedReading> {
+    if (!V4_FLAG) {
+      throw new Error("V4 reading generation is currently disabled.");
+    }
+
     const { explain = false, storeInDatabase = true } = options;
 
     // Get current user ID if storing in database
@@ -133,9 +142,15 @@ export class ReadingV4Client {
 let clientInstance: ReadingV4Client | null = null;
 
 export function getReadingV4Client(): ReadingV4Client {
+  if (!V4_FLAG) {
+    throw new Error("V4 reading service is disabled.");
+  }
+
   if (!clientInstance) {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseKey =
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+      import.meta.env.VITE_SUPABASE_ANON_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
       throw new Error("Missing Supabase environment variables");
@@ -147,8 +162,14 @@ export function getReadingV4Client(): ReadingV4Client {
   return clientInstance;
 }
 
+export const isReadingV4Enabled = () => V4_FLAG;
+
 // React hook example (optional)
 export function useReadingV4() {
+  if (!V4_FLAG) {
+    throw new Error("useReadingV4 invoked while V4 readings are disabled.");
+  }
+
   const client = getReadingV4Client();
 
   const generateReading = async (

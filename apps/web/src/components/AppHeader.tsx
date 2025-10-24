@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react"; // added by Lumen (Stage 4A)
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Home } from "lucide-react";
 import vybeLogo from "@/assets/vybe-logo.png";
@@ -34,39 +34,39 @@ export const AppHeader = ({ className }: AppHeaderProps) => {
 
   const isRootRoute = location.pathname === "/";
 
+  const handleBack = useCallback(async () => {
+    if (hasUnsavedChanges) {
+      const confirmed = await confirmNavigation();
+      if (!confirmed) return;
+    }
+    goBack();
+  }, [confirmNavigation, goBack, hasUnsavedChanges]);
+
+  const handleHome = useCallback(async () => {
+    if (hasUnsavedChanges && location.pathname !== "/") {
+      const confirmed = await confirmNavigation();
+      if (!confirmed) return;
+    }
+    goHome();
+  }, [confirmNavigation, goHome, hasUnsavedChanges, location.pathname]);
+
   // Keyboard shortcuts: Alt+← (Back), Alt+Home (Home)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey) {
         if (e.key === "ArrowLeft" && !isRootRoute) {
           e.preventDefault();
-          handleBack();
+          void handleBack();
         } else if (e.key === "Home") {
           e.preventDefault();
-          handleHome();
+          void handleHome();
         }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isRootRoute, hasUnsavedChanges]);
-
-  const handleBack = async () => {
-    if (hasUnsavedChanges) {
-      const confirmed = await confirmNavigation();
-      if (!confirmed) return;
-    }
-    goBack();
-  };
-
-  const handleHome = async () => {
-    if (hasUnsavedChanges && location.pathname !== "/") {
-      const confirmed = await confirmNavigation();
-      if (!confirmed) return;
-    }
-    goHome();
-  };
+  }, [handleBack, handleHome, isRootRoute]);
 
   // Generate breadcrumb items
   const getBreadcrumbs = () => {

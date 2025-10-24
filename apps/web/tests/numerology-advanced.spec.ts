@@ -144,7 +144,7 @@ describe('chakra mapping utilities', () => {
   });
 
   it('falls back gracefully when chakra key unknown', () => {
-    expect(prettyChakra('mystic' as any)).toBe('Chakra');
+    expect(prettyChakra('mystic')).toBe('Chakra');
   });
 });
 

@@ -1,6 +1,6 @@
-// added by Lumen (Stage 4A OCR typing)
-export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+import type { Result } from "@vybe/reading-engine"; // added by Lumen (Stage 4A)
 
+// added by Lumen (Stage 4A OCR typing)
 export type OcrRequest = {
   imageUrl: string;
   lang?: string;

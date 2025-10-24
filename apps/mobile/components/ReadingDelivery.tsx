@@ -20,7 +20,7 @@ type ReadingDeliveryProps = {
   };
 };
 
-const BLOCK_LABELS: Array<{ key: keyof ReadingBlocks; heading: string }> = [
+const BLOCK_LABELS: { key: keyof ReadingBlocks; heading: string }[] = [
   { key: "elemental", heading: "Elemental Focus" },
   { key: "chakra", heading: "Chakra Guidance" },
   { key: "resonance", heading: "Resonance" },

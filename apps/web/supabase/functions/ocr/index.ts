@@ -4,51 +4,83 @@ import {
   prepareOcrResult,
   type OcrRequest,
   type OcrDeps,
-  type Result,
   type OcrOk,
   type OcrErr,
 } from "./handler.ts";
+import type { Result } from "@vybe/reading-engine";
+import { ServerTimer } from "../_lib/serverTiming.ts";
 
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 serve(async (req) => {
+  const timer = new ServerTimer();
   const { headers, allowed } = buildCors(req.headers.get("origin"));
   const jsonHeaders = { ...headers, ...JSON_HEADERS };
 
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(null, { status: 204, headers: h });
   }
 
   if (!allowed) {
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
     return new Response(JSON.stringify({ error: "Origin not allowed" }), {
       status: 403,
-      headers: jsonHeaders,
+      headers: h,
     });
   }
 
-  if (!(await passesRateLimit(req, "ocr"))) {
+  const rateSpan = timer.start("db");
+  const withinLimit = await passesRateLimit(req, "ocr");
+  timer.end(rateSpan);
+
+  if (!withinLimit) {
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
       status: 429,
-      headers: jsonHeaders,
+      headers: h,
     });
   }
 
   let payload: unknown;
   try {
+    const parseSpan = timer.start("parse");
     payload = await req.json();
+    timer.end(parseSpan);
   } catch {
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
     return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
       status: 400,
-      headers: jsonHeaders,
+      headers: h,
     });
   }
 
-  const result = await prepareOcrResult({ runOcr }, payload);
+  const renderSpan = timer.start("render");
+  const result = await prepareOcrResult(
+    {
+      runOcr: async (input) => {
+        const span = timer.start("openai");
+        try {
+          return await runOcr(input);
+        } finally {
+          timer.end(span);
+        }
+      },
+    },
+    payload
+  );
+  timer.end(renderSpan);
 
-  return respond(result, jsonHeaders);
+  return respond(result, jsonHeaders, timer);
 });
 
-function respond(result: Result<OcrOk, OcrErr>, headers: Record<string, string>) {
+function respond(result: Result<OcrOk, OcrErr>, headersInit: Record<string, string>, timer: ServerTimer) {
+  const headers = new Headers(headersInit);
+  timer.apply(headers);
   if (!result.ok) {
     return new Response(JSON.stringify({ error: result.error.message }), {
       status: result.error.code === "BAD_REQUEST" ? 400 : 500,

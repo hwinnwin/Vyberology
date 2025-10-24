@@ -45,5 +45,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Vyberology uses the camera to capture numbers for readings.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Vyberology uses the microphone for optional voice commands.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Vyberology accesses your photo library to import images for frequency analysis.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Vyberology saves exported reading snapshots when you choose to download them.</string>
 </dict>
 </plist>

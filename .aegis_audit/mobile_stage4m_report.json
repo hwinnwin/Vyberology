@@ -1,0 +1,15 @@
+{
+  "stage": "4M-Expo-iOS",
+  "status": "done",
+  "devices_booted": 1,
+  "doctor_blockers": 0,
+  "artifacts": {
+    "expo_doctor": ".aegis_audit/mobile_expo_doctor.txt",
+    "sim_list": ".aegis_audit/mobile_sim_devices_after.txt",
+    "expo_start_log": ".aegis_audit/mobile_expo_start_log.txt"
+  },
+  "notes": [
+    "iOS target enforced via expo-build-properties (>=15.1 with newArch).",
+    "Expo pinned to 54.0.20; JSON import assertions replaced with require()."
+  ]
+}

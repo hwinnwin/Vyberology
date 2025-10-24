@@ -1,43 +1,57 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"; // added by Lumen (Stage 4A PR1-DI)
-import { buildCors, passesRateLimit } from "../_shared/security.ts"; // added by Lumen (Stage 4A PR1-DI)
-import { prepareReadResult } from "./handler.ts"; // added by Lumen (Stage 4A PR1-DI)
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { buildCors, passesRateLimit } from "../_shared/security.ts";
+import { ServerTimer } from "../_lib/serverTiming.ts";
+import { prepareReadResult } from "./handler.ts";
 
-serve(async (req) => { // added by Lumen (Stage 4A PR1-DI)
-  const { headers, allowed } = buildCors(req.headers.get("origin")); // added by Lumen (Stage 4A PR1-DI)
-  const jsonHeaders = { ...headers, "Content-Type": "application/json" }; // added by Lumen (Stage 4A PR1-DI)
+serve(async (req) => {
+  const timer = new ServerTimer();
+  const { headers, allowed } = buildCors(req.headers.get("origin"));
+  const jsonHeaders = { ...headers, "Content-Type": "application/json" };
 
-  if (req.method === "OPTIONS") { // added by Lumen (Stage 4A PR1-DI)
-    return new Response(null, { status: 204, headers }); // added by Lumen (Stage 4A PR1-DI)
-  } // added by Lumen (Stage 4A PR1-DI)
+  const respond = (body: string, status: number) => {
+    const headersObj = new Headers(jsonHeaders);
+    timer.apply(headersObj);
+    return new Response(body, { status, headers: headersObj });
+  };
 
-  if (!allowed) { // added by Lumen (Stage 4A PR1-DI)
-    return new Response(JSON.stringify({ error: "Origin not allowed" }), { status: 403, headers: jsonHeaders }); // added by Lumen (Stage 4A PR1-DI)
-  } // added by Lumen (Stage 4A PR1-DI)
+  if (req.method === "OPTIONS") {
+    return respond("", 204);
+  }
 
-  if (!(await passesRateLimit(req, "read"))) { // added by Lumen (Stage 4A PR1-DI)
-    return new Response( // added by Lumen (Stage 4A PR1-DI)
-      JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), // added by Lumen (Stage 4A PR1-DI)
-      { status: 429, headers: jsonHeaders }, // added by Lumen (Stage 4A PR1-DI)
-    ); // added by Lumen (Stage 4A PR1-DI)
-  } // added by Lumen (Stage 4A PR1-DI)
+  if (!allowed) {
+    return respond(JSON.stringify({ error: "Origin not allowed" }), 403);
+  }
 
-  let payload: unknown; // added by Lumen (Stage 4A PR1-DI)
-  try { // added by Lumen (Stage 4A PR1-DI)
-    payload = await req.json(); // added by Lumen (Stage 4A PR1-DI)
-  } catch { // added by Lumen (Stage 4A PR1-DI)
-    return new Response(JSON.stringify({ error: "Invalid JSON payload" }), { status: 400, headers: jsonHeaders }); // added by Lumen (Stage 4A PR1-DI)
-  } // added by Lumen (Stage 4A PR1-DI)
+  const rateSpan = timer.start("db");
+  const withinLimit = await passesRateLimit(req, "read");
+  timer.end(rateSpan);
 
-  try { // added by Lumen (Stage 4A PR1-DI)
-    const result = prepareReadResult(payload); // added by Lumen (Stage 4A PR1-DI)
-    if (!result.ok) { // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify({ error: result.error.message }), { status: 400, headers: jsonHeaders }); // added by Lumen (Stage 4A PR1-DI)
-    } // added by Lumen (Stage 4A PR1-DI)
+  if (!withinLimit) {
+    return respond(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), 429);
+  }
 
-    return new Response(JSON.stringify(result.value), { status: 200, headers: jsonHeaders }); // added by Lumen (Stage 4A PR1-DI)
-  } catch (error) { // added by Lumen (Stage 4A PR1-DI)
-    console.error("Error:", error); // added by Lumen (Stage 4A PR1-DI)
-    const message = error instanceof Error ? error.message : "Unknown error occurred"; // added by Lumen (Stage 4A PR1-DI)
-    return new Response(JSON.stringify({ error: message }), { status: 500, headers: jsonHeaders }); // added by Lumen (Stage 4A PR1-DI)
-  } // added by Lumen (Stage 4A PR1-DI)
-}); // added by Lumen (Stage 4A PR1-DI)
+  let payload: unknown;
+  try {
+    const parseSpan = timer.start("parse");
+    payload = await req.json();
+    timer.end(parseSpan);
+  } catch {
+    return respond(JSON.stringify({ error: "Invalid JSON payload" }), 400);
+  }
+
+  try {
+    const renderSpan = timer.start("render");
+    const result = prepareReadResult(payload);
+    timer.end(renderSpan);
+
+    if (!result.ok) {
+      return respond(JSON.stringify({ error: result.error.message }), 400);
+    }
+
+    return respond(JSON.stringify(result.value), 200);
+  } catch (error) {
+    console.error("Error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error occurred";
+    return respond(JSON.stringify({ error: message }), 500);
+  }
+});

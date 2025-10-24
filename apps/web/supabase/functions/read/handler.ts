@@ -1,23 +1,9 @@
-// added by Lumen (Stage 4A PR1-DI)
-export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }; // added by Lumen (Stage 4A PR1-DI)
+import type { CoreNumbers, NumerologyValue, Result } from "@vybe/reading-engine"; // added by Lumen (Stage 4A)
 
+// added by Lumen (Stage 4A PR1-DI)
 export type ReadRequest = { fullName: string; dob: string }; // added by Lumen (Stage 4A PR1-DI)
 
 export type ReadErr = { code: "BAD_REQUEST"; message: string }; // added by Lumen (Stage 4A PR1-DI)
-
-export interface NumerologyValue { // added by Lumen (Stage 4A PR1-DI)
-  raw: number;
-  value: number;
-  isMaster: boolean;
-} // added by Lumen (Stage 4A PR1-DI)
-
-export interface CoreNumbers { // added by Lumen (Stage 4A PR1-DI)
-  lifePath: NumerologyValue;
-  expression: NumerologyValue;
-  soulUrge: NumerologyValue;
-  personality: NumerologyValue;
-  maturity: NumerologyValue;
-} // added by Lumen (Stage 4A PR1-DI)
 
 export type ChakraName = "Root" | "Sacral" | "Solar Plexus" | "Heart" | "Throat" | "Third Eye" | "Crown"; // added by Lumen (Stage 4A PR1-DI)
 

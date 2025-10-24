@@ -1,49 +1,51 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"; // added by Lumen (Stage 4A compare typing)
-import { buildCors, passesRateLimit } from "../_shared/security.ts"; // added by Lumen (Stage 4A compare typing)
-import { prepareCompareResult } from "./handler.ts"; // added by Lumen (Stage 4A compare typing)
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { buildCors, passesRateLimit } from "../_shared/security.ts";
+import { ServerTimer } from "../_lib/serverTiming.ts";
+import { prepareCompareResult } from "./handler.ts";
 
-serve(async (req) => { // added by Lumen (Stage 4A compare typing)
+serve(async (req) => {
+  const timer = new ServerTimer();
   const { headers, allowed } = buildCors(req.headers.get("origin"));
   const jsonHeaders = { ...headers, "Content-Type": "application/json" };
 
+  const responseWith = (body: string, status: number) => {
+    const headersObj = new Headers(jsonHeaders);
+    timer.apply(headersObj);
+    return new Response(body, { status, headers: headersObj });
+  };
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers });
+    return responseWith("", 204);
   }
 
   if (!allowed) {
-    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
-      status: 403,
-      headers: jsonHeaders,
-    });
+    return responseWith(JSON.stringify({ error: "Origin not allowed" }), 403);
   }
 
-  if (!(await passesRateLimit(req, "compare"))) {
-    return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
-      status: 429,
-      headers: jsonHeaders,
-    });
+  const rateSpan = timer.start("db");
+  const withinLimit = await passesRateLimit(req, "compare");
+  timer.end(rateSpan);
+
+  if (!withinLimit) {
+    return responseWith(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), 429);
   }
 
   let payload: unknown;
   try {
+    const parseSpan = timer.start("parse");
     payload = await req.json();
+    timer.end(parseSpan);
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
-      status: 400,
-      headers: jsonHeaders,
-    });
+    return responseWith(JSON.stringify({ error: "Invalid JSON payload" }), 400);
   }
 
+  const renderSpan = timer.start("render");
   const result = prepareCompareResult(payload);
+  timer.end(renderSpan);
+
   if (!result.ok) {
-    return new Response(JSON.stringify({ error: result.error.message }), {
-      status: 400,
-      headers: jsonHeaders,
-    });
+    return responseWith(JSON.stringify({ error: result.error.message }), 400);
   }
 
-  return new Response(JSON.stringify(result.value), {
-    status: 200,
-    headers: jsonHeaders,
-  });
+  return responseWith(JSON.stringify(result.value), 200);
 });

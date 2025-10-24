@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate"; // added by Lumen (Stage 4A)
 
 export default {
   darkMode: ["class"],
@@ -109,5 +110,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate], // added by Lumen (Stage 4A)
 } satisfies Config;

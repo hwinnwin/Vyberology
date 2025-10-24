@@ -110,7 +110,10 @@ describe("renderVolumeIV", () => {
   });
 
   it("produces deterministic mappings for supported cores", () => {
-    (Object.keys(CORE_EXPECTATIONS) as Array<keyof typeof CORE_EXPECTATIONS>).forEach((core) => {
+    const coreKeys = Object.keys(CORE_EXPECTATIONS)
+      .map((value) => Number(value))
+      .filter((core): core is keyof typeof CORE_EXPECTATIONS => core in CORE_EXPECTATIONS);
+    coreKeys.forEach((core) => {
       const { blocks } = renderVolumeIV({ coreNumber: Number(core), tokens: [] });
       const expectations = CORE_EXPECTATIONS[core];
 

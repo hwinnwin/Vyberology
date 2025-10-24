@@ -1,6 +1,8 @@
-const JSON_HEADERS = { "Content-Type": "application/json" } as const; // added by Lumen (Stage 4A PR1-DI)
+import type { Result } from "@vybe/reading-engine"; // added by Lumen (Stage 4A)
+import { securityHeaders } from "../_lib/securityHeaders.ts";
+import { ServerTimer } from "../_lib/serverTiming.ts";
 
-export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }; // added by Lumen (Stage 4A PR1-DI)
+const JSON_HEADERS = { "Content-Type": "application/json", ...securityHeaders } as const; // added by Lumen (Stage 4A PR1-DI)
 
 export type ReadingErr = // added by Lumen (Stage 4A PR1-DI)
   | { code: "UNAUTHORIZED"; message: string } // added by Lumen (Stage 4A PR1-DI)
@@ -191,41 +193,54 @@ export function isReadingPayload(value: unknown): value is ReadingPayload { // a
 
 export function handlerFactory(deps: Deps) { // added by Lumen (Stage 4A PR1-DI)
   return async function handler(req: Request): Promise<Response> { // added by Lumen (Stage 4A PR1-DI)
+    const timer = new ServerTimer();
+    const respond = (payload: unknown, status: number) => {
+      const headers = new Headers(JSON_HEADERS);
+      timer.apply(headers);
+      return new Response(JSON.stringify(payload), { status, headers });
+    };
+
     const auth = deps.requireJwtHeader(req); // added by Lumen (Stage 4A PR1-DI)
     if (!auth.ok) { // added by Lumen (Stage 4A PR1-DI)
       const response: Result<never, ReadingErr> = { ok: false, error: { code: "UNAUTHORIZED", message: "Missing JWT" } }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 401, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 401); // added by Lumen (Stage 4A PR1-DI)
     } // added by Lumen (Stage 4A PR1-DI)
 
     let payloadUnknown: unknown; // added by Lumen (Stage 4A PR1-DI)
     try { // added by Lumen (Stage 4A PR1-DI)
+      const parseSpan = timer.start("parse");
       payloadUnknown = await req.json(); // added by Lumen (Stage 4A PR1-DI)
+      timer.end(parseSpan);
     } catch { // added by Lumen (Stage 4A PR1-DI)
       const response: Result<never, ReadingErr> = { ok: false, error: { code: "BAD_REQUEST", message: "Invalid JSON payload" } }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 400, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 400); // added by Lumen (Stage 4A PR1-DI)
     } // added by Lumen (Stage 4A PR1-DI)
 
     if (!isReadingPayload(payloadUnknown)) { // added by Lumen (Stage 4A PR1-DI)
       const response: Result<never, ReadingErr> = { ok: false, error: { code: "BAD_REQUEST", message: "Invalid payload" } }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 400, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 400); // added by Lumen (Stage 4A PR1-DI)
     } // added by Lumen (Stage 4A PR1-DI)
 
     const payload = payloadUnknown as ReadingPayload; // added by Lumen (Stage 4A PR1-DI)
 
     try { // added by Lumen (Stage 4A PR1-DI)
+      const dbSpan = timer.start("db");
       deps.ensureSupabaseClient(); // added by Lumen (Stage 4A PR1-DI)
+      timer.end(dbSpan);
     } catch (error) { // added by Lumen (Stage 4A PR1-DI)
       const response: Result<never, ReadingErr> = { ok: false, error: { code: "ENGINE_ERROR", message: error instanceof Error ? error.message : "Failed to initialize Supabase client" } }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 500, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 500); // added by Lumen (Stage 4A PR1-DI)
     } // added by Lumen (Stage 4A PR1-DI)
 
     try { // added by Lumen (Stage 4A PR1-DI)
+      const renderSpan = timer.start("render");
       const value = buildReading(payload); // added by Lumen (Stage 4A PR1-DI)
+      timer.end(renderSpan);
       const response: Result<ReadingOk, ReadingErr> = { ok: true, value }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 200, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 200); // added by Lumen (Stage 4A PR1-DI)
     } catch (error) { // added by Lumen (Stage 4A PR1-DI)
       const response: Result<never, ReadingErr> = { ok: false, error: { code: "ENGINE_ERROR", message: error instanceof Error ? error.message : "Unknown error" } }; // added by Lumen (Stage 4A PR1-DI)
-      return new Response(JSON.stringify(response), { status: 500, headers: JSON_HEADERS }); // added by Lumen (Stage 4A PR1-DI)
+      return respond(response, 500); // added by Lumen (Stage 4A PR1-DI)
     } // added by Lumen (Stage 4A PR1-DI)
   }; // added by Lumen (Stage 4A PR1-DI)
 } // added by Lumen (Stage 4A PR1-DI)

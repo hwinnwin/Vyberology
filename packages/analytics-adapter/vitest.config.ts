@@ -5,10 +5,12 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
-      lines: 0.9,
-      functions: 0.9,
-      statements: 0.9,
-      branches: 0.75
+      thresholds: {
+        lines: 90,
+        functions: 90,
+        statements: 90,
+        branches: 75
+      }
     },
     include: ["src/**/*.test.ts"]
   }

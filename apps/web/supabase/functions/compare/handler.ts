@@ -1,6 +1,6 @@
-// added by Lumen (Stage 4A compare typing)
-export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }; // added by Lumen (Stage 4A compare typing)
+import type { CoreNumbers, NumerologyValue, Result } from "@vybe/reading-engine"; // added by Lumen (Stage 4A)
 
+// added by Lumen (Stage 4A compare typing)
 export type CompareRequest = { // added by Lumen (Stage 4A compare typing)
   aName: string;
   aDob: string;
@@ -9,20 +9,6 @@ export type CompareRequest = { // added by Lumen (Stage 4A compare typing)
 };
 
 export type CompareErr = { code: "BAD_REQUEST"; message: string }; // added by Lumen (Stage 4A compare typing)
-
-export interface NumerologyValue { // added by Lumen (Stage 4A compare typing)
-  raw: number;
-  value: number;
-  isMaster: boolean;
-}
-
-export interface CoreNumbers { // added by Lumen (Stage 4A compare typing)
-  lifePath: NumerologyValue;
-  expression: NumerologyValue;
-  soulUrge: NumerologyValue;
-  personality: NumerologyValue;
-  maturity: NumerologyValue;
-}
 
 export type ChakraName = 'Root' | 'Sacral' | 'Solar Plexus' | 'Heart' | 'Throat' | 'Third Eye' | 'Crown'; // added by Lumen (Stage 4A compare typing)
 
