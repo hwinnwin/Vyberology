@@ -11,18 +11,19 @@ concurrency:
 
 jobs:
   setup:
-    name: Setup Node + npm cache
+    name: Install dependencies
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-      - name: Use npm@10.9.3
-        run: npm i -g npm@10.9.3
-      - name: Install (root + workspaces)
-        run: npm ci
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
 
   lint-typecheck:
     runs-on: ubuntu-latest
@@ -30,13 +31,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - name: npm install
-        run: npm ci
+        with:
+          node-version: '20'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
       - name: Lint
-        run: npm run lint --workspace apps/web
+        run: pnpm --filter apps/web run lint
       - name: Typecheck
-        run: npm run typecheck --workspace apps/web
+        run: pnpm --filter apps/web run typecheck
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -44,11 +50,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - name: npm install
-        run: npm ci
+        with:
+          node-version: '20'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
       - name: Run unit tests with coverage
-        run: npm run test:coverage --workspace apps/web
+        run: pnpm --filter apps/web run test:coverage
       - name: Enforce coverage gate (≥60% lines)
         run: |
           node -e "
@@ -71,13 +82,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - name: npm install
-        run: npm ci
+        with:
+          node-version: '20'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
       - name: Install Playwright browsers
-        working-directory: apps/web
-        run: npx playwright install --with-deps
+        run: pnpm --filter apps/web exec playwright install --with-deps
       - name: Build web
-        run: npm run build --workspace apps/web
+        run: pnpm --filter apps/web run build
       - name: Run e2e (smoke)
-        run: npm run e2e --workspace apps/web
+        run: pnpm --filter apps/web run e2e
