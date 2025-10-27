@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@vybe/analytics-adapter": path.resolve(__dirname, "../../packages/analytics-adapter/dist/index.js"),
     },
   },
   build: {

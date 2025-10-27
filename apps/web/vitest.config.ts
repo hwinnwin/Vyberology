@@ -43,6 +43,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@vybe/analytics-adapter': path.resolve(__dirname, './src/test/mocks/analytics-adapter.ts'),
     },
   },
 });
