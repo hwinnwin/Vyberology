@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Calculator, Hash, BookOpen, Heart, Clock, Settings, Calendar, Camera, Image as ImageIcon, Send } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import vybeLogo from "@/assets/vybe-logo.png";
 import { Footer } from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { saveReading } from "@/lib/readingHistory";
-import { capturePhoto, pickPhoto, checkCameraPermission, requestCameraPermission, PermissionStatus } from "@/lib/permissions";
+import { checkCameraPermission, requestCameraPermission } from "@/lib/permissions";
 import { PermissionPrompt } from "@/components/PermissionPrompt";
-import { captureError } from "@/lib/sentry";
+import { useTimeCapture } from "@/features/capture/hooks/useTimeCapture";
+import { useTextInput } from "@/features/capture/hooks/useTextInput";
+import { useImageProcessing } from "@/features/capture/hooks/useImageProcessing";
 
 interface Reading {
   input_text: string;
@@ -32,19 +32,83 @@ interface Reading {
 }
 
 const Index = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [reading, setReading] = useState<Reading | null>(null);
-  const [capturedAt, setCapturedAt] = useState<string>("");
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [cameraPermissionStatus, setCameraPermissionStatus] = useState<PermissionStatus>('prompt');
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
-  const [textInput, setTextInput] = useState<string>("");
-  const [processingStep, setProcessingStep] = useState<string>("");
-  const [isInCooldown, setIsInCooldown] = useState(false);
+  const [combinedReading, setCombinedReading] = useState<Reading | null>(null);
+  const [combinedCapturedAt, setCombinedCapturedAt] = useState<string>("");
+
+  // Time capture hook
+  const timeCapture = useTimeCapture(
+    (reading) => {
+      setCombinedReading(reading);
+      setCombinedCapturedAt(timeCapture.capturedAt);
+      toast({
+        title: "Vybe captured! 🌟",
+        description: `Reading generated for ${reading.input_text}`,
+      });
+    },
+    (error) => {
+      toast({
+        title: "Processing failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    }
+  );
+
+  // Text input hook
+  const textInput = useTextInput(
+    (reading) => {
+      setCombinedReading(reading);
+      setCombinedCapturedAt(textInput.capturedAt);
+      toast({
+        title: "Reading generated! 🌟",
+        description: "Your vybe reading is ready",
+      });
+    },
+    (error) => {
+      toast({
+        title: "Processing failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    },
+    () => {
+      toast({
+        title: "No input",
+        description: "Please enter numbers or text",
+        variant: "destructive",
+      });
+    }
+  );
+
+  // Image processing hook
+  const imageProcessing = useImageProcessing(
+    (readings) => {
+      setCombinedReading(readings[0]);
+      setCombinedCapturedAt(imageProcessing.capturedAt);
+      toast({
+        title: "Vybe captured! 🌟",
+        description: `Found ${readings.length} frequency signal(s)`,
+        duration: 4000,
+      });
+    },
+    (error) => {
+      toast({
+        title: error.title,
+        description: error.message,
+        variant: "destructive",
+        duration: 5000,
+      });
+    },
+    () => {
+      setShowPermissionPrompt(true);
+    }
+  );
+
+  // Determine combined processing state
+  const isProcessing = timeCapture.isProcessing || textInput.isProcessing || imageProcessing.isProcessing;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,464 +121,14 @@ const Index = () => {
   useEffect(() => {
     const checkPermissions = async () => {
       const cameraResult = await checkCameraPermission();
-      setCameraPermissionStatus(cameraResult.status);
+      imageProcessing.setCameraPermissionStatus(cameraResult.status);
     };
     checkPermissions();
   }, []);
 
-  const handleCaptureTime = async () => {
-    setIsProcessing(true);
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-    setCapturedAt(now.toLocaleString());
-
-    try {
-      const { data, error } = await supabase.functions.invoke("vybe-reading", {
-        body: {
-          inputs: [
-            { label: 'Time', value: timeString }
-          ],
-          depth: 'standard'
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.reading) {
-        // Store as markdown content
-        const newReading = {
-          input_text: timeString,
-          normalized_number: '',
-          numerology_data: {
-            headline: 'Vyberology Reading',
-            keywords: [],
-            guidance: data.reading
-          },
-          chakra_data: {
-            name: '',
-            element: '',
-            focus: '',
-            color: '#6B46C1'
-          }
-        };
-
-        setReading(newReading);
-
-        // Save to history
-        saveReading({
-          inputType: 'time',
-          inputValue: timeString,
-          reading: data.reading,
-        });
-
-        toast({
-          title: "Vybe captured! 🌟",
-          description: `Reading generated for ${timeString}`,
-        });
-      }
-    } catch (error) {
-      console.error("Error processing time:", error);
-      toast({
-        title: "Processing failed",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  /**
-   * Compress image if it's too large
-   */
-  const compressImage = async (file: File, maxSizeMB: number = 5): Promise<File> => {
-    console.log('[OCR] Original image size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-
-    // If file is already small enough, return it
-    if (file.size <= maxSizeMB * 1024 * 1024) {
-      console.log('[OCR] Image size is acceptable, no compression needed');
-      return file;
-    }
-
-    console.log('[OCR] Image is too large, compressing...');
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-
-          // Calculate new dimensions (max 1920x1920)
-          const maxDimension = 1920;
-          if (width > maxDimension || height > maxDimension) {
-            if (width > height) {
-              height = (height / width) * maxDimension;
-              width = maxDimension;
-            } else {
-              width = (width / height) * maxDimension;
-              height = maxDimension;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('Failed to get canvas context'));
-            return;
-          }
-
-          ctx.drawImage(img, 0, 0, width, height);
-
-          // Try different quality levels until we get under maxSizeMB
-          const tryCompress = (quality: number) => {
-            canvas.toBlob((blob) => {
-              if (!blob) {
-                reject(new Error('Failed to compress image'));
-                return;
-              }
-
-              const compressedSize = blob.size / 1024 / 1024;
-              console.log('[OCR] Compressed to:', compressedSize.toFixed(2), 'MB at quality', quality);
-
-              if (compressedSize <= maxSizeMB || quality <= 0.3) {
-                const compressedFile = new File([blob], file.name, { type: 'image/jpeg' });
-                resolve(compressedFile);
-              } else {
-                // Try lower quality
-                tryCompress(quality - 0.1);
-              }
-            }, 'image/jpeg', quality);
-          };
-
-          tryCompress(0.8);
-        };
-        img.onerror = () => reject(new Error('Failed to load image'));
-        img.src = e.target?.result as string;
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleCameraCapture = async () => {
-    if (isInCooldown) {
-      console.log('[OCR] Camera capture blocked - in cooldown period');
-      return;
-    }
-
-    if (cameraPermissionStatus === 'denied') {
-      setShowPermissionPrompt(true);
-      return;
-    }
-
-    try {
-      console.log('[OCR] Starting camera capture...');
-      const result = await capturePhoto();
-
-      if (!result.success) {
-        if (result.error && !result.error.includes('cancel')) {
-          console.error('[OCR] Camera capture failed:', result.error);
-          toast({
-            title: "Camera Error",
-            description: result.error,
-            variant: "destructive",
-            duration: 5000,
-          });
-
-          if (result.error.includes('denied')) {
-            setCameraPermissionStatus('denied');
-            setShowPermissionPrompt(true);
-          }
-        }
-        return;
-      }
-
-      if (result.data) {
-        console.log('[OCR] Camera capture successful, processing image...');
-        const response = await fetch(result.data);
-        const blob = await response.blob();
-        const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
-
-        setSelectedImage(file);
-        setPreviewUrl(result.data);
-        setCameraPermissionStatus('granted');
-
-        // Automatically process the image
-        await processImage(file);
-      }
-    } catch (error) {
-      console.error("[OCR] Camera capture error:", error);
-      toast({
-        title: "Camera failed",
-        description: "Unable to capture photo",
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
-  };
-
-  const handlePickPhoto = async () => {
-    if (isInCooldown) {
-      console.log('[OCR] Photo picker blocked - in cooldown period');
-      return;
-    }
-
-    try {
-      console.log('[OCR] Opening photo picker...');
-      const result = await pickPhoto();
-
-      if (!result.success) {
-        if (result.error && !result.error.includes('cancel')) {
-          console.error('[OCR] Photo picker failed:', result.error);
-          toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-            duration: 5000,
-          });
-        }
-        return;
-      }
-
-      if (result.data) {
-        console.log('[OCR] Photo selected, processing image...');
-        const response = await fetch(result.data);
-        const blob = await response.blob();
-        const file = new File([blob], "selected-image.jpg", { type: "image/jpeg" });
-
-        setSelectedImage(file);
-        setPreviewUrl(result.data);
-
-        // Automatically process the image
-        await processImage(file);
-      }
-    } catch (error) {
-      console.error("[OCR] Photo picker error:", error);
-      toast({
-        title: "Selection failed",
-        description: "Unable to pick image",
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
-  };
-
-  const processImage = async (imageFile: File) => {
-    const startTime = Date.now();
-    console.log('[OCR] ========== Starting OCR Process ==========');
-    console.log('[OCR] File name:', imageFile.name);
-    console.log('[OCR] File type:', imageFile.type);
-    console.log('[OCR] File size:', (imageFile.size / 1024 / 1024).toFixed(2), 'MB');
-
-    setIsProcessing(true);
-    setProcessingStep("Preparing image...");
-    setCapturedAt(new Date().toLocaleString());
-
-    try {
-      // Step 1: Compress image if needed
-      setProcessingStep("Optimizing image size...");
-      let processedFile = imageFile;
-
-      try {
-        processedFile = await compressImage(imageFile, 5);
-        console.log('[OCR] Final file size:', (processedFile.size / 1024 / 1024).toFixed(2), 'MB');
-      } catch (compressionError) {
-        console.error('[OCR] Image compression failed:', compressionError);
-        // Continue with original file if compression fails
-        console.log('[OCR] Continuing with original file...');
-      }
-
-      // Step 2: Upload to OCR service
-      setProcessingStep("Uploading to AI vision...");
-      console.log('[OCR] Creating FormData and uploading...');
-
-      const formData = new FormData();
-      formData.append("screenshot", processedFile);
-
-      console.log('[OCR] Calling Supabase OCR function...');
-      const { data, error } = await supabase.functions.invoke("ocr", {
-        body: formData,
-      });
-
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log('[OCR] Response received in', elapsed, 'seconds');
-
-      if (error) {
-        console.error("[OCR] Supabase function error:", error);
-
-        // Report to Sentry
-        captureError(error, {
-          context: 'OCR Processing - Supabase Function Error',
-          level: 'error',
-          tags: {
-            feature: 'ocr',
-            operation: 'invoke-function',
-          },
-          extra: {
-            fileSize: processedFile.size,
-            fileName: processedFile.name,
-            fileType: processedFile.type,
-            errorData: data,
-          },
-        });
-
-        throw new Error(data?.message || "OCR processing failed");
-      }
-
-      // Step 3: Process results
-      setProcessingStep("Analyzing numbers...");
-      console.log('[OCR] OCR response:', data);
-
-      if (data.error) {
-        console.error('[OCR] API error in response:', data.error, data.message);
-
-        // Report to Sentry
-        captureError(new Error(data.error), {
-          context: 'OCR Processing - API Error',
-          level: 'error',
-          tags: {
-            feature: 'ocr',
-            operation: 'api-response',
-            status: data.status,
-          },
-          extra: {
-            fileSize: processedFile.size,
-            errorMessage: data.message,
-            errorDetails: data.details,
-          },
-        });
-
-        throw new Error(data.message || data.error);
-      }
-
-      if (data.readings && data.readings.length > 0) {
-        console.log('[OCR] Success! Found', data.readings.length, 'readings');
-
-        // Show the first reading on the index page
-        const firstReading = data.readings[0];
-        setReading(firstReading);
-
-        // Save all readings to history
-        data.readings.forEach((r: Reading) => {
-          console.log('[OCR] Saving reading to history:', r.input_text);
-          saveReading({
-            inputType: 'image',
-            inputValue: r.input_text,
-            reading: r.numerology_data.guidance,
-          });
-        });
-
-        toast({
-          title: "Vybe captured! 🌟",
-          description: `Found ${data.readings.length} frequency signal(s)`,
-          duration: 4000,
-        });
-
-        // Clear the preview after successful processing
-        setPreviewUrl(null);
-        setSelectedImage(null);
-        setProcessingStep("");
-
-        console.log('[OCR] ========== OCR Process Complete ==========');
-      } else {
-        console.warn('[OCR] No readings found in response');
-        toast({
-          title: "No numbers detected",
-          description: "Try an image with visible numbers, times, or patterns",
-          variant: "destructive",
-          duration: 5000,
-        });
-
-        setProcessingStep("");
-      }
-    } catch (error) {
-      console.error("[OCR] ========== OCR Process Failed ==========");
-      console.error("[OCR] Error details:", error);
-
-      let errorTitle = "Processing failed";
-      let errorMessage = "Please try again";
-
-      if (error instanceof Error) {
-        console.error("[OCR] Error message:", error.message);
-        console.error("[OCR] Error stack:", error.stack);
-
-        // Parse different error types
-        if (error.message.includes('timeout') || error.message.includes('timed out')) {
-          errorTitle = "Timeout Error";
-          errorMessage = "Image processing took too long. Try a smaller image or check your connection.";
-        } else if (error.message.includes('not found') || error.message.includes('404')) {
-          errorTitle = "Service Error";
-          errorMessage = "OCR service not found. Please contact support.";
-        } else if (error.message.includes('too large') || error.message.includes('size')) {
-          errorTitle = "Image Too Large";
-          errorMessage = "Image file is too large. Please try a smaller image.";
-        } else if (error.message.includes('OpenAI') || error.message.includes('API')) {
-          errorTitle = "AI Service Error";
-          errorMessage = error.message + " - Please try again later.";
-        } else if (error.message.includes('encoding')) {
-          errorTitle = "Image Format Error";
-          errorMessage = "Failed to process image format. Try a different image.";
-        } else if (error.message.includes('quota') || error.message.includes('rate limit')) {
-          errorTitle = "Service Limit Reached";
-          errorMessage = "Too many requests. Please wait a moment and try again.";
-        } else {
-          errorMessage = error.message;
-        }
-
-        // Report to Sentry
-        captureError(error, {
-          context: 'OCR Processing - Complete Failure',
-          level: 'error',
-          tags: {
-            feature: 'ocr',
-            operation: 'process-image',
-            errorType: errorTitle,
-          },
-          extra: {
-            fileSize: imageFile.size,
-            fileName: imageFile.name,
-            fileType: imageFile.type,
-            errorMessage: error.message,
-            elapsed: ((Date.now() - startTime) / 1000).toFixed(2) + 's',
-          },
-        });
-      }
-
-      toast({
-        title: errorTitle,
-        description: errorMessage,
-        variant: "destructive",
-        duration: 6000,
-      });
-
-      setProcessingStep("");
-
-      // Start cooldown to prevent rapid retries
-      setIsInCooldown(true);
-      console.log('[OCR] Starting 3-second cooldown...');
-      setTimeout(() => {
-        setIsInCooldown(false);
-        console.log('[OCR] Cooldown complete');
-      }, 3000);
-    } finally {
-      setIsProcessing(false);
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
-      console.log('[OCR] Total processing time:', elapsed, 'seconds');
-    }
-  };
-
   const handleRequestCameraPermission = async () => {
     const result = await requestCameraPermission();
-    setCameraPermissionStatus(result.status);
+    imageProcessing.setCameraPermissionStatus(result.status);
     setShowPermissionPrompt(false);
 
     if (result.status === 'granted') {
@@ -525,82 +139,13 @@ const Index = () => {
     }
   };
 
-  const handleTextSubmit = async () => {
-    if (!textInput.trim()) {
-      toast({
-        title: "No input",
-        description: "Please enter numbers or text",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsProcessing(true);
-    setCapturedAt(new Date().toLocaleString());
-
-    try {
-      const { data, error } = await supabase.functions.invoke("vybe-reading", {
-        body: {
-          inputs: [{ label: 'Input', value: textInput }],
-          depth: 'standard'
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.reading) {
-        const newReading = {
-          input_text: textInput,
-          normalized_number: '',
-          numerology_data: {
-            headline: 'Vyberology Reading',
-            keywords: [],
-            guidance: data.reading
-          },
-          chakra_data: {
-            name: '',
-            element: '',
-            focus: '',
-            color: '#6B46C1'
-          }
-        };
-
-        setReading(newReading);
-
-        // Save to history
-        saveReading({
-          inputType: 'manual',
-          inputValue: textInput,
-          reading: data.reading,
-        });
-
-        // Clear input after successful submission
-        setTextInput("");
-
-        toast({
-          title: "Reading generated! 🌟",
-          description: "Your vybe reading is ready",
-        });
-      }
-    } catch (error) {
-      console.error("Error processing text:", error);
-      toast({
-        title: "Processing failed",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
       {/* Permission Prompt Modal */}
       {showPermissionPrompt && (
         <PermissionPrompt
           permissionType="camera"
-          status={cameraPermissionStatus}
+          status={imageProcessing.cameraPermissionStatus}
           onRequest={handleRequestCameraPermission}
           onDismiss={() => setShowPermissionPrompt(false)}
           variant="modal"
@@ -645,7 +190,7 @@ const Index = () => {
                   })}
                 </p>
                 <Button
-                  onClick={handleCaptureTime}
+                  onClick={timeCapture.captureTime}
                   disabled={isProcessing}
                   className="relative inline-flex h-auto min-w-[220px] flex-col items-center gap-3 rounded-full bg-white px-6 py-5 font-semibold text-lf-indigo shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-lf-aurora disabled:cursor-not-allowed disabled:opacity-60 w-full sm:w-auto animate-pulse"
                   style={{ animationDuration: '3s' }}
@@ -676,12 +221,12 @@ const Index = () => {
                   <div className="flex gap-2">
                     <Textarea
                       placeholder="Enter numbers or ask a question... (e.g., 11:11, 222, or 'What does 333 mean?')"
-                      value={textInput}
-                      onChange={(e) => setTextInput(e.target.value)}
+                      value={textInput.textInput}
+                      onChange={(e) => textInput.setTextInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                           e.preventDefault();
-                          handleTextSubmit();
+                          textInput.submitText();
                         }
                       }}
                       disabled={isProcessing}
@@ -689,8 +234,8 @@ const Index = () => {
                     />
                   </div>
                   <Button
-                    onClick={handleTextSubmit}
-                    disabled={isProcessing || !textInput.trim()}
+                    onClick={textInput.submitText}
+                    disabled={isProcessing || !textInput.textInput.trim()}
                     className="w-full gap-2 bg-lf-gradient hover:shadow-glow"
                   >
                     <Send className="h-4 w-4" />
@@ -702,14 +247,14 @@ const Index = () => {
               {/* Quick Capture Buttons */}
               <div className="flex flex-col items-center gap-3 mb-4">
                 {/* Processing Step Indicator */}
-                {processingStep && (
+                {imageProcessing.processingStep && (
                   <div className="text-sm text-lf-aurora animate-pulse">
-                    {processingStep}
+                    {imageProcessing.processingStep}
                   </div>
                 )}
 
                 {/* Cooldown Message */}
-                {isInCooldown && !isProcessing && (
+                {imageProcessing.isInCooldown && !isProcessing && (
                   <div className="text-sm text-lf-violet">
                     Please wait before trying again...
                   </div>
@@ -717,22 +262,22 @@ const Index = () => {
 
                 <div className="flex flex-wrap items-center justify-center gap-3">
                   <Button
-                    onClick={handleCameraCapture}
-                    disabled={isProcessing || isInCooldown}
+                    onClick={imageProcessing.handleCameraCapture}
+                    disabled={isProcessing || imageProcessing.isInCooldown}
                     variant="outline"
                     className="gap-2 border-lf-aurora text-lf-aurora hover:bg-lf-aurora/10 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Camera className="h-4 w-4" />
-                    {isInCooldown ? "Wait..." : "Take Photo"}
+                    {imageProcessing.isInCooldown ? "Wait..." : "Take Photo"}
                   </Button>
                   <Button
-                    onClick={handlePickPhoto}
-                    disabled={isProcessing || isInCooldown}
+                    onClick={imageProcessing.handlePickPhoto}
+                    disabled={isProcessing || imageProcessing.isInCooldown}
                     variant="outline"
                     className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10 disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <ImageIcon className="h-4 w-4" />
-                    {isInCooldown ? "Wait..." : "Choose Image"}
+                    {imageProcessing.isInCooldown ? "Wait..." : "Choose Image"}
                   </Button>
                 </div>
               </div>
@@ -764,11 +309,11 @@ const Index = () => {
       </div>
 
       {/* Reading Result */}
-      {reading && (
+      {combinedReading && (
         <div className="container mx-auto px-6 pb-16">
           <div className="mx-auto max-w-4xl">
             <div className="mb-4 text-center flex items-center justify-center gap-4">
-              <p className="text-sm text-lf-slate">Captured at {capturedAt}</p>
+              <p className="text-sm text-lf-slate">Captured at {combinedCapturedAt}</p>
               <Link to="/history">
                 <Button variant="ghost" size="sm" className="gap-2 text-lf-violet hover:text-lf-aurora">
                   <Calendar className="h-4 w-4" />
@@ -779,7 +324,7 @@ const Index = () => {
             <Card className="border-lf-violet/30 bg-lf-ink/60 p-8 backdrop-blur transition-all hover:border-lf-violet hover:shadow-glow">
               <div className="prose prose-invert max-w-none">
                 <div className="whitespace-pre-wrap text-white" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-                  {reading.numerology_data.guidance}
+                  {combinedReading.numerology_data.guidance}
                 </div>
               </div>
             </Card>
