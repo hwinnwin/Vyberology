@@ -1,4 +1,5 @@
 import { buildCors, passesRateLimit, createSupabaseClient } from '../_shared/security.ts';
+import { createLogger, extractRequestContext } from "../_shared/errorLogger.ts";
 
 const C = (value: string | null | undefined, length: number) => (value ?? '').slice(0, length);
 const J = (payload: unknown, length: number) =>
@@ -23,11 +24,36 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 Deno.serve(async (req) => {
+  const requestId = crypto.randomUUID();
+  const environment = (Deno.env.get('ENV') || 'staging') as 'staging' | 'production';
+
+  const logger = createLogger(
+    Deno.env.get('SUPABASE_URL') || '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+    { environment, service: 'edge:function:log-error', requestId }
+  );
+
   const origin = req.headers.get('origin');
   const { headers, allowed } = buildCors(origin);
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers });
-  if (!allowed) return new Response('Origin not allowed', { status: 403, headers });
-  if (!(await passesRateLimit(req, 'log-error'))) return new Response('Rate limit exceeded', { status: 429, headers });
+
+  if (!allowed) {
+    await logger.warn('CORS origin not allowed', {
+      code: 'CORS_ORIGIN_NOT_ALLOWED',
+      details: { origin },
+      ...extractRequestContext(req),
+    });
+    return new Response('Origin not allowed', { status: 403, headers });
+  }
+
+  if (!(await passesRateLimit(req, 'log-error'))) {
+    await logger.warn('Rate limit exceeded', {
+      code: 'RATE_LIMIT_EXCEEDED',
+      details: { endpoint: 'log-error' },
+      ...extractRequestContext(req),
+    });
+    return new Response('Rate limit exceeded', { status: 429, headers });
+  }
 
   try {
     const bodyJson = await req.json();
@@ -57,8 +83,26 @@ Deno.serve(async (req) => {
       meta: isRecord(body.meta) ? (body.meta as Record<string, unknown>) : {},
     };
     const { error } = await sb.rpc('write_error_log', payload);
+    if (error) {
+      await logger.warn('RPC write_error_log failed (degraded mode)', {
+        code: 'RPC_WRITE_ERROR',
+        details: { rpcError: error.message },
+        ...extractRequestContext(req),
+      });
+    }
     return new Response(error ? 'Logged (degraded)' : 'Logged', { status: 200, headers });
-  } catch {
+  } catch (err) {
+    await logger.error(
+      err instanceof Error ? err.message : 'Unknown error occurred',
+      {
+        code: 'UNHANDLED_ERROR',
+        details: {
+          errorType: typeof err,
+          stack: err instanceof Error ? err.stack : undefined,
+        },
+        ...extractRequestContext(req),
+      }
+    );
     return new Response('Bad Request', { status: 400, headers });
   }
 });

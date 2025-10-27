@@ -9,10 +9,20 @@ import {
 } from "./handler.ts";
 import type { Result } from "@vybe/reading-engine";
 import { ServerTimer } from "../_lib/serverTiming.ts";
+import { createLogger, extractRequestContext } from "../_shared/errorLogger.ts";
 
 const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 serve(async (req) => {
+  const requestId = crypto.randomUUID();
+  const environment = (Deno.env.get('ENV') || 'staging') as 'staging' | 'production';
+
+  const logger = createLogger(
+    Deno.env.get('SUPABASE_URL') || '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+    { environment, service: 'edge:function:ocr', requestId }
+  );
+
   const timer = new ServerTimer();
   const { headers, allowed } = buildCors(req.headers.get("origin"));
   const jsonHeaders = { ...headers, ...JSON_HEADERS };
@@ -24,6 +34,11 @@ serve(async (req) => {
   }
 
   if (!allowed) {
+    await logger.warn('CORS origin not allowed', {
+      code: 'CORS_ORIGIN_NOT_ALLOWED',
+      details: { origin: req.headers.get("origin") },
+      ...extractRequestContext(req),
+    });
     const h = new Headers(jsonHeaders);
     timer.apply(h);
     return new Response(JSON.stringify({ error: "Origin not allowed" }), {
@@ -37,6 +52,11 @@ serve(async (req) => {
   timer.end(rateSpan);
 
   if (!withinLimit) {
+    await logger.warn('Rate limit exceeded', {
+      code: 'RATE_LIMIT_EXCEEDED',
+      details: { endpoint: 'ocr' },
+      ...extractRequestContext(req),
+    });
     const h = new Headers(jsonHeaders);
     timer.apply(h);
     return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
@@ -50,7 +70,12 @@ serve(async (req) => {
     const parseSpan = timer.start("parse");
     payload = await req.json();
     timer.end(parseSpan);
-  } catch {
+  } catch (err) {
+    await logger.warn('Invalid JSON payload', {
+      code: 'INVALID_JSON',
+      details: { error: err instanceof Error ? err.message : String(err) },
+      ...extractRequestContext(req),
+    });
     const h = new Headers(jsonHeaders);
     timer.apply(h);
     return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
@@ -59,23 +84,43 @@ serve(async (req) => {
     });
   }
 
-  const renderSpan = timer.start("render");
-  const result = await prepareOcrResult(
-    {
-      runOcr: async (input) => {
-        const span = timer.start("openai");
-        try {
-          return await runOcr(input);
-        } finally {
-          timer.end(span);
-        }
+  try {
+    const renderSpan = timer.start("render");
+    const result = await prepareOcrResult(
+      {
+        runOcr: async (input) => {
+          const span = timer.start("openai");
+          try {
+            return await runOcr(input, logger, req);
+          } finally {
+            timer.end(span);
+          }
+        },
       },
-    },
-    payload
-  );
-  timer.end(renderSpan);
+      payload
+    );
+    timer.end(renderSpan);
 
-  return respond(result, jsonHeaders, timer);
+    return respond(result, jsonHeaders, timer);
+  } catch (err) {
+    await logger.error(
+      err instanceof Error ? err.message : 'Unknown error occurred',
+      {
+        code: 'UNHANDLED_ERROR',
+        details: {
+          errorType: typeof err,
+          stack: err instanceof Error ? err.stack : undefined,
+        },
+        ...extractRequestContext(req),
+      }
+    );
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: h,
+    });
+  }
 });
 
 function respond(result: Result<OcrOk, OcrErr>, headersInit: Record<string, string>, timer: ServerTimer) {
@@ -90,9 +135,14 @@ function respond(result: Result<OcrOk, OcrErr>, headersInit: Record<string, stri
   return new Response(JSON.stringify(result.value), { status: 200, headers });
 }
 
-async function runOcr(payload: OcrRequest & { mode: "fast" | "accurate" }) {
+async function runOcr(payload: OcrRequest & { mode: "fast" | "accurate" }, logger: ReturnType<typeof createLogger>, req: Request) {
   const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
   if (!OPENAI_API_KEY) {
+    await logger.error('OpenAI API key not configured', {
+      code: 'MISSING_API_KEY',
+      details: { env: Deno.env.get('ENV') || 'staging' },
+      ...extractRequestContext(req),
+    });
     throw new Error("OpenAI API key not configured");
   }
 
@@ -128,6 +178,19 @@ async function runOcr(payload: OcrRequest & { mode: "fast" | "accurate" }) {
 
   if (!response.ok) {
     const details = await response.text();
+    await logger.error('OpenAI API error', {
+      code: response.status === 429 ? 'OPENAI_RATE_LIMIT' :
+            response.status === 402 ? 'OPENAI_CREDITS_DEPLETED' :
+            'OPENAI_API_ERROR',
+      details: {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: details.substring(0, 500),
+        model,
+        mode: payload.mode,
+      },
+      ...extractRequestContext(req),
+    });
     throw new Error(`OpenAI error ${response.status}: ${details}`);
   }
 
