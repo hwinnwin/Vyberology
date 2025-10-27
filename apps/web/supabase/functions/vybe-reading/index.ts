@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { buildCors, passesRateLimit } from "../_shared/security.ts";
 import { ServerTimer } from "../_lib/serverTiming.ts";
+import { createLogger, extractRequestContext } from "../_shared/errorLogger.ts";
 
 const LUMEN_TONE = `You are Lumen. Style: simple, warm, direct. Intelligently detect input type (time/repeating numbers/date) and omit sections without data.
 
@@ -101,6 +102,20 @@ const isVybeReadingRequest = (value: unknown): value is VybeReadingRequest =>
 
 serve(async (req) => {
   const timer = new ServerTimer();
+  const requestId = crypto.randomUUID();
+  const environment = (Deno.env.get('ENV') || 'staging') as 'staging' | 'production';
+
+  // Initialize error logger for this request
+  const logger = createLogger(
+    Deno.env.get('SUPABASE_URL') || '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+    {
+      environment,
+      service: 'edge:function:vybe-reading',
+      requestId,
+    }
+  );
+
   const { headers, allowed } = buildCors(req.headers.get('origin'));
   const jsonHeaders = { ...headers, 'Content-Type': 'application/json' };
   const respond = (payload: unknown, status: number) => {
@@ -140,6 +155,11 @@ serve(async (req) => {
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
    if (!OPENAI_API_KEY) {
       console.error('OPENAI_API_KEY not configured');
+      await logger.error('OpenAI API key not configured', {
+        code: 'MISSING_API_KEY',
+        details: { env: environment },
+        ...extractRequestContext(req),
+      });
       return respond({ error: 'API key not configured' }, 500);
     }
 
@@ -177,13 +197,28 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
 
     if (!response.ok) {
       timer.end(openaiSpan);
+      const errorText = await response.text();
+
+      await logger.error('OpenAI API error', {
+        code: response.status === 429 ? 'OPENAI_RATE_LIMIT' :
+              response.status === 402 ? 'OPENAI_CREDITS_DEPLETED' :
+              'OPENAI_API_ERROR',
+        details: {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText.substring(0, 500), // Limit size
+          model,
+          depth,
+        },
+        ...extractRequestContext(req),
+      });
+
       if (response.status === 429) {
         return respond({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
         return respond({ error: "AI credits depleted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
       console.error('OpenAI error:', response.status, errorText);
       return respond({ error: `AI service error: ${response.status}` }, 500);
     }
@@ -198,6 +233,19 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
 
   } catch (error) {
     console.error('Error in vybe-reading function:', error);
+
+    await logger.error(
+      error instanceof Error ? error.message : 'Unknown error occurred',
+      {
+        code: 'UNHANDLED_ERROR',
+        details: {
+          errorType: typeof error,
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        ...extractRequestContext(req),
+      }
+    );
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return respond({ error: errorMessage }, 500);
   }
