@@ -24,6 +24,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm --filter ./packages/... --if-present run build
 
   lint-typecheck:
     runs-on: ubuntu-latest
@@ -39,6 +41,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm --filter ./packages/... --if-present run build
       - name: Lint
         run: pnpm --filter ./apps/web run lint
       - name: Typecheck
