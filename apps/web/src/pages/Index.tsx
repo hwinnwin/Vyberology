@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Calculator, Hash, BookOpen, Heart, Clock, Settings, Calendar, Camera, Image as ImageIcon, Send } from "lucide-react";
+import { Sparkles, Calculator, Hash, BookOpen, Heart, Settings, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
-import vybeLogo from "@/assets/vybe-logo.png";
 import { Footer } from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
 import { checkCameraPermission, requestCameraPermission } from "@/lib/permissions";
@@ -12,6 +10,7 @@ import { PermissionPrompt } from "@/components/PermissionPrompt";
 import { useTimeCapture } from "@/features/capture/hooks/useTimeCapture";
 import { useTextInput } from "@/features/capture/hooks/useTextInput";
 import { useImageProcessing } from "@/features/capture/hooks/useImageProcessing";
+import { CaptureTabs } from "@/features/capture/components/CaptureTabs";
 
 interface Reading {
   input_text: string;
@@ -33,7 +32,6 @@ interface Reading {
 
 const Index = () => {
   const { toast } = useToast();
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [showPermissionPrompt, setShowPermissionPrompt] = useState(false);
   const [combinedReading, setCombinedReading] = useState<Reading | null>(null);
   const [combinedCapturedAt, setCombinedCapturedAt] = useState<string>("");
@@ -110,13 +108,6 @@ const Index = () => {
   // Determine combined processing state
   const isProcessing = timeCapture.isProcessing || textInput.isProcessing || imageProcessing.isProcessing;
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
   // Check camera permission on mount
   useEffect(() => {
     const checkPermissions = async () => {
@@ -168,121 +159,21 @@ const Index = () => {
               Turn numbers into resonance. Modern numerology and frequency readings that transform names, birthdates, and repeating numbers into personal guidance.
             </p>
 
-            {/* Main Vybe Button */}
-            <div className="mb-8 flex flex-col items-center">
-              <Card className="mb-6 border-lf-aurora/30 bg-lf-gradient p-8 text-center shadow-glow inline-block">
-                <div className="mb-4 flex items-center justify-center gap-3">
-                  <Clock className="h-8 w-8 text-white" />
-                  <span className="font-display text-6xl font-bold text-white">
-                    {currentTime.toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}
-                  </span>
-                </div>
-                <p className="mb-6 text-white/80">
-                  {currentTime.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-                <Button
-                  onClick={timeCapture.captureTime}
-                  disabled={isProcessing}
-                  className="relative inline-flex h-auto min-w-[220px] flex-col items-center gap-3 rounded-full bg-white px-6 py-5 font-semibold text-lf-indigo shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-2 focus:ring-lf-aurora disabled:cursor-not-allowed disabled:opacity-60 w-full sm:w-auto animate-pulse"
-                  style={{ animationDuration: '3s' }}
-                >
-                  {isProcessing ? (
-                    <span className="text-lg">Capturing...</span>
-                  ) : (
-                    <>
-                      <span className="text-lg">What's the</span>
-                      <span className="relative grid place-items-center rounded-full bg-white p-3 shadow-lg ring-2 ring-lf-violet/30">
-                        {/* Oscillating rings */}
-                        <span className="absolute inset-0 rounded-full bg-lf-violet/20 animate-ping" style={{ animationDuration: '2s' }}></span>
-                        <span className="absolute inset-0 rounded-full bg-lf-aurora/20 animate-pulse" style={{ animationDuration: '3s' }}></span>
-                        <img src={vybeLogo} alt="Vybe" className="h-12 w-12 relative z-10" />
-                      </span>
-                    </>
-                  )}
-                </Button>
-              </Card>
-
-              {/* Text Input for Numbers/Chat */}
-              <Card className="mb-4 w-full max-w-2xl border-lf-violet/30 bg-lf-ink/60 p-6 backdrop-blur">
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold text-white mb-2">Enter Numbers or Ask a Question</h3>
-                    <p className="text-sm text-lf-slate">Type numbers (11:11, 222, etc.) or ask about your vybe</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Textarea
-                      placeholder="Enter numbers or ask a question... (e.g., 11:11, 222, or 'What does 333 mean?')"
-                      value={textInput.textInput}
-                      onChange={(e) => textInput.setTextInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          textInput.submitText();
-                        }
-                      }}
-                      disabled={isProcessing}
-                      className="min-h-24 border-lf-violet/30 bg-lf-midnight/50 text-white placeholder:text-lf-slate resize-none"
-                    />
-                  </div>
-                  <Button
-                    onClick={textInput.submitText}
-                    disabled={isProcessing || !textInput.textInput.trim()}
-                    className="w-full gap-2 bg-lf-gradient hover:shadow-glow"
-                  >
-                    <Send className="h-4 w-4" />
-                    {isProcessing ? "Processing..." : "Get Reading"}
-                  </Button>
-                </div>
-              </Card>
-
-              {/* Quick Capture Buttons */}
-              <div className="flex flex-col items-center gap-3 mb-4">
-                {/* Processing Step Indicator */}
-                {imageProcessing.processingStep && (
-                  <div className="text-sm text-lf-aurora animate-pulse">
-                    {imageProcessing.processingStep}
-                  </div>
-                )}
-
-                {/* Cooldown Message */}
-                {imageProcessing.isInCooldown && !isProcessing && (
-                  <div className="text-sm text-lf-violet">
-                    Please wait before trying again...
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <Button
-                    onClick={imageProcessing.handleCameraCapture}
-                    disabled={isProcessing || imageProcessing.isInCooldown}
-                    variant="outline"
-                    className="gap-2 border-lf-aurora text-lf-aurora hover:bg-lf-aurora/10 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <Camera className="h-4 w-4" />
-                    {imageProcessing.isInCooldown ? "Wait..." : "Take Photo"}
-                  </Button>
-                  <Button
-                    onClick={imageProcessing.handlePickPhoto}
-                    disabled={isProcessing || imageProcessing.isInCooldown}
-                    variant="outline"
-                    className="gap-2 border-lf-violet text-lf-violet hover:bg-lf-violet/10 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    {imageProcessing.isInCooldown ? "Wait..." : "Choose Image"}
-                  </Button>
-                </div>
-              </div>
-
-              <Link to="/get-vybe">
+            {/* Capture Tabs - Unified Interface */}
+            <div className="mb-8 flex flex-col items-center w-full">
+              <CaptureTabs
+                onTimeCapture={timeCapture.captureTime}
+                textValue={textInput.textInput}
+                onTextChange={textInput.setTextInput}
+                onTextSubmit={textInput.submitText}
+                onCameraCapture={imageProcessing.handleCameraCapture}
+                onPickPhoto={imageProcessing.handlePickPhoto}
+                processingStep={imageProcessing.processingStep}
+                isInCooldown={imageProcessing.isInCooldown}
+                isProcessing={isProcessing}
+              />
+              
+              <Link to="/get-vybe" className="mt-4">
                 <Button variant="ghost" className="gap-2 text-lf-slate hover:text-lf-aurora text-sm">
                   <Settings className="h-4 w-4" />
                   Advanced Options
