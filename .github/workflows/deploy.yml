@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
       - name: Build shared packages
-        run: pnpm --filter ./packages/... --if-present run build
+        run: pnpm --filter ./packages/** --if-present run build
 
       - name: Build web
         run: pnpm --filter ./apps/web run build

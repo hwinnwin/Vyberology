@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
       - name: Build shared packages
-        run: pnpm --filter ./packages/... --if-present run build
+        run: pnpm --filter ./packages/** --if-present run build
 
   lint-typecheck:
     runs-on: ubuntu-latest
@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
       - name: Build shared packages
-        run: pnpm --filter ./packages/... --if-present run build
+        run: pnpm --filter ./packages/** --if-present run build
       - name: Lint
         run: pnpm --filter ./apps/web run lint
       - name: Typecheck
@@ -63,7 +63,7 @@ jobs:
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
       - name: Build shared packages
-        run: pnpm --filter ./packages/... --if-present run build
+        run: pnpm --filter ./packages/** --if-present run build
       - name: Run unit tests with coverage
         run: pnpm --filter ./apps/web run test:coverage
       - name: Enforce coverage gate (≥60% lines)
