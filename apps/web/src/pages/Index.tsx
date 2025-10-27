@@ -7,10 +7,13 @@ import { Footer } from "@/components/Footer";
 import { useToast } from "@/components/ui/use-toast";
 import { checkCameraPermission, requestCameraPermission } from "@/lib/permissions";
 import { PermissionPrompt } from "@/components/PermissionPrompt";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { useTimeCapture } from "@/features/capture/hooks/useTimeCapture";
 import { useTextInput } from "@/features/capture/hooks/useTextInput";
 import { useImageProcessing } from "@/features/capture/hooks/useImageProcessing";
 import { CaptureTabs } from "@/features/capture/components/CaptureTabs";
+import { getErrorMessage, getRecoveryAction } from "@/lib/errorMessages";
+import { ToastAction } from "@/components/ui/toast";
 
 interface Reading {
   input_text: string;
@@ -93,11 +96,24 @@ const Index = () => {
       });
     },
     (error) => {
+      const errorMsg = getErrorMessage(error.message);
       toast({
-        title: error.title,
-        description: error.message,
+        title: errorMsg.title,
+        description: errorMsg.description,
         variant: "destructive",
         duration: 5000,
+        action: errorMsg.action ? (
+          <ToastAction
+            altText={getRecoveryAction(errorMsg.action)}
+            onClick={() => {
+              if (errorMsg.action === 'settings') {
+                window.open('app-settings:', '_blank');
+              }
+            }}
+          >
+            {getRecoveryAction(errorMsg.action)}
+          </ToastAction>
+        ) : undefined,
       });
     },
     () => {
@@ -132,6 +148,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
+      {/* Onboarding Modal */}
+      <OnboardingModal />
+
       {/* Permission Prompt Modal */}
       {showPermissionPrompt && (
         <PermissionPrompt
