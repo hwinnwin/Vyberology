@@ -24,8 +24,6 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
-      - name: Build analytics adapter
-        run: pnpm --filter @vybe/analytics-adapter --if-present run build
 
   lint-typecheck:
     runs-on: ubuntu-latest
@@ -41,8 +39,6 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
-      - name: Build analytics adapter
-        run: pnpm --filter @vybe/analytics-adapter --if-present run build
       - name: Lint
         run: pnpm --filter ./apps/web run lint
       - name: Typecheck
@@ -62,8 +58,6 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
-      - name: Build analytics adapter
-        run: pnpm --filter @vybe/analytics-adapter --if-present run build
       - name: Run unit tests with coverage
         run: pnpm --filter ./apps/web run test:coverage
       - name: Enforce coverage gate (≥60% lines)
