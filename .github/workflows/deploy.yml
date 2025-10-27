@@ -31,6 +31,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build analytics adapter
+        run: pnpm --filter @vybe/analytics-adapter run build
       - name: Build web
         run: pnpm --filter ./apps/web run build
 
