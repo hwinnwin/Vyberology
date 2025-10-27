@@ -23,12 +23,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - name: npm install
-        run: npm ci
-
+        with:
+          node-version: '20'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
       - name: Build web
-        run: npm run build --workspace apps/web
+        run: pnpm --filter ./apps/web run build
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
