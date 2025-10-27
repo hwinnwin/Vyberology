@@ -40,7 +40,11 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Supabase login & link
+      - name: Supabase login
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase login
+      - name: Supabase link
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
