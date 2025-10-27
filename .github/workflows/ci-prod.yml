@@ -1,0 +1,72 @@
+name: vybe-ci-prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Corepack + pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@9.15.4 --activate
+          pnpm -v
+
+      - name: Install
+        run: pnpm -r install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Unit tests
+        run: pnpm run test --silent
+
+      - name: Verify image digests
+        run: bash scripts/verify-image-digests.sh
+
+  perf:
+    needs: build-test
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates gnupg
+          curl -s https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install -y k6
+
+      - name: Run k6 (staging)
+        env:
+          BASE_URL: ${{ secrets.VYBE_STAGING_URL }}
+          AUTH: ${{ secrets.VYBE_STAGING_TOKEN }}
+        run: |
+          mkdir -p perf .aegis_audit
+          k6 run perf/k6-reading.js --env BASE_URL="$BASE_URL" --env AUTH="$AUTH" --out json=perf/k6-raw.json || true
+
+      - name: Collect perf artifacts + refresh hashes
+        run: |
+          mv perf/k6-summary.json .aegis_audit/k6-summary.json || true
+          node scripts/hash-artifacts.mjs > .aegis_audit/checksums.json
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vybe-audit
+          path: |
+            .aegis_audit/**
+            perf/k6-raw.json
+          if-no-files-found: ignore

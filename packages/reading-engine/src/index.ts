@@ -1,5 +1,16 @@
 type ElementKey = "fire" | "air" | "earth" | "water";
 
+export type {
+  ReadingInput,
+  ReadingText,
+  ReadingBlock,
+  CoreNumbers,
+  Result,
+  NumerologyValue,
+  MasterNumber,
+  Digit,
+} from "./types";
+
 export type NumberUnit = "time" | "percent" | "temperature" | "count" | "plain";
 export type NumberToken = {
   raw: string;
@@ -444,7 +455,7 @@ export function renderVolumeIV(
     profile,
     anchors,
     tokens,
-    temperatureToken,
+    ...(temperatureToken ? { temperatureToken } : {}),
   };
 
   const baseResonance = tonePreset.resonanceIntro(deliveryContext).trim();
@@ -510,7 +521,7 @@ export function renderVolumeIV(
       }
     : undefined;
 
-  return { text, blocks, rationale };
+  return rationale ? { text, blocks, rationale } : { text, blocks };
 }
 
 // added by Claude Code (Stage A - IP Protection)

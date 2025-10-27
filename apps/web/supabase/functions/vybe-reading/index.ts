@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { buildCors, passesRateLimit } from "../_shared/security.ts";
+import { ServerTimer } from "../_lib/serverTiming.ts";
+import { createLogger, extractRequestContext } from "../_shared/errorLogger.ts";
 
 const LUMEN_TONE = `You are Lumen. Style: simple, warm, direct. Intelligently detect input type (time/repeating numbers/date) and omit sections without data.
 
@@ -80,47 +82,85 @@ Relax into what's here. Next steps feel natural when you stay light.
 "Good things reach you when you stay calm and ready."
 `.trim();
 
+type DepthMode = "lite" | "standard" | "deep";
+type InputField = { label: string; value: string | number };
+type VybeReadingRequest = { inputs: InputField[]; depth?: DepthMode };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isInputField = (value: unknown): value is InputField =>
+  isRecord(value) &&
+  typeof value.label === 'string' &&
+  (typeof value.value === 'string' || typeof value.value === 'number');
+
+const isVybeReadingRequest = (value: unknown): value is VybeReadingRequest =>
+  isRecord(value) &&
+  Array.isArray(value.inputs) &&
+  value.inputs.every(isInputField) &&
+  (value.depth === undefined || value.depth === 'lite' || value.depth === 'standard' || value.depth === 'deep');
+
 serve(async (req) => {
+  const timer = new ServerTimer();
+  const requestId = crypto.randomUUID();
+  const environment = (Deno.env.get('ENV') || 'staging') as 'staging' | 'production';
+
+  // Initialize error logger for this request
+  const logger = createLogger(
+    Deno.env.get('SUPABASE_URL') || '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+    {
+      environment,
+      service: 'edge:function:vybe-reading',
+      requestId,
+    }
+  );
+
   const { headers, allowed } = buildCors(req.headers.get('origin'));
   const jsonHeaders = { ...headers, 'Content-Type': 'application/json' };
+  const respond = (payload: unknown, status: number) => {
+    const headersObj = new Headers(jsonHeaders);
+    timer.apply(headersObj);
+    return new Response(JSON.stringify(payload), { status, headers: headersObj });
+  };
 
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
+    return respond("", 204);
   }
 
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
-      status: 403,
-      headers: jsonHeaders,
-    });
+    return respond({ error: 'Origin not allowed' }, 403);
   }
 
-  if (!(await passesRateLimit(req, 'vybe-reading'))) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }), {
-      status: 429,
-      headers: jsonHeaders,
-    });
+  const rateSpan = timer.start("db");
+  const withinLimit = await passesRateLimit(req, 'vybe-reading');
+  timer.end(rateSpan);
+
+  if (!withinLimit) {
+    return respond({ error: 'Rate limit exceeded. Please try again shortly.' }, 429);
   }
 
   try {
-    const { inputs, depth = "standard" } = await req.json();
-    
-    console.log('Vybe reading request:', { inputs, depth });
-
-    if (!inputs || inputs.length === 0) {
-      return new Response(JSON.stringify({ error: 'inputs array is required' }), {
-        status: 400,
-        headers: jsonHeaders,
-      });
+    const parseSpan = timer.start("parse");
+    const payload = await req.json();
+    timer.end(parseSpan);
+    if (!isVybeReadingRequest(payload) || payload.inputs.length === 0) {
+      return respond({ error: 'inputs array is required' }, 400);
     }
 
+    const { inputs, depth = "standard" } = payload;
+
+    console.log('Vybe reading request:', { inputs, depth });
+
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
+   if (!OPENAI_API_KEY) {
       console.error('OPENAI_API_KEY not configured');
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
-        status: 500,
-        headers: jsonHeaders,
+      await logger.error('OpenAI API key not configured', {
+        code: 'MISSING_API_KEY',
+        details: { env: environment },
+        ...extractRequestContext(req),
       });
+      return respond({ error: 'API key not configured' }, 500);
     }
 
     const lengthHint =
@@ -131,11 +171,12 @@ serve(async (req) => {
     const model = "gpt-4o-mini";
     const maxTokens = depth === "deep" ? 900 : depth === "lite" ? 300 : 500;
 
-    const userPrompt = `Reading for: ${inputs.map((i: any) => `${i.label}: ${i.value}`).join(", ")}
+    const userPrompt = `Reading for: ${inputs.map((input) => `${input.label}: ${input.value}`).join(", ")}
 Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengthHint}`.trim();
 
     console.log('Calling OpenAI with model:', model);
 
+    const openaiSpan = timer.start("openai");
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -155,42 +196,57 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
     });
 
     if (!response.ok) {
+      timer.end(openaiSpan);
+      const errorText = await response.text();
+
+      await logger.error('OpenAI API error', {
+        code: response.status === 429 ? 'OPENAI_RATE_LIMIT' :
+              response.status === 402 ? 'OPENAI_CREDITS_DEPLETED' :
+              'OPENAI_API_ERROR',
+        details: {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText.substring(0, 500), // Limit size
+          model,
+          depth,
+        },
+        ...extractRequestContext(req),
+      });
+
       if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
-          status: 429,
-          headers: jsonHeaders,
-        });
+        return respond({ error: "Rate limit exceeded. Please try again in a moment." }, 429);
       }
       if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits depleted. Please add credits to continue." }), {
-          status: 402,
-          headers: jsonHeaders,
-        });
+        return respond({ error: "AI credits depleted. Please add credits to continue." }, 402);
       }
-      const errorText = await response.text();
       console.error('OpenAI error:', response.status, errorText);
-      return new Response(JSON.stringify({ error: `AI service error: ${response.status}` }), {
-        status: 500,
-        headers: jsonHeaders,
-      });
+      return respond({ error: `AI service error: ${response.status}` }, 500);
     }
 
     const data = await response.json();
+    timer.end(openaiSpan);
     const reading = data.choices?.[0]?.message?.content?.trim() || 'No output.';
     
     console.log('Generated reading length:', reading.length);
 
-    return new Response(JSON.stringify({ reading }), {
-      status: 200,
-      headers: jsonHeaders,
-    });
+    return respond({ reading }, 200);
 
   } catch (error) {
     console.error('Error in vybe-reading function:', error);
+
+    await logger.error(
+      error instanceof Error ? error.message : 'Unknown error occurred',
+      {
+        code: 'UNHANDLED_ERROR',
+        details: {
+          errorType: typeof error,
+          stack: error instanceof Error ? error.stack : undefined,
+        },
+        ...extractRequestContext(req),
+      }
+    );
+
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(JSON.stringify({ error: errorMessage }), {
-      status: 500,
-      headers: jsonHeaders,
-    });
+    return respond({ error: errorMessage }, 500);
   }
 });

@@ -22,7 +22,7 @@ interface Snapshot {
 class AnalyticsClient {
   private enabled: boolean;
   private adapters: AnalyticsAdapter[];
-  private onError?: (error: unknown) => void;
+  private onError: ((error: unknown) => void) | undefined;
   private baseContext: AnalyticsEventProps;
 
   constructor(config: AnalyticsConfig = {}) {
@@ -49,7 +49,6 @@ class AnalyticsClient {
         if (this.onError) {
           this.onError(error);
         } else if (process.env.NODE_ENV !== "production") {
-          // eslint-disable-next-line no-console
           console.warn(`[analytics:${adapter.name}] failed`, error);
         }
       }

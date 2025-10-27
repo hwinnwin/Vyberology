@@ -1,234 +1,209 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { buildCors, passesRateLimit } from "../_shared/security.ts";
+import {
+  prepareOcrResult,
+  type OcrRequest,
+  type OcrDeps,
+  type OcrOk,
+  type OcrErr,
+} from "./handler.ts";
+import type { Result } from "@vybe/reading-engine";
+import { ServerTimer } from "../_lib/serverTiming.ts";
+import { createLogger, extractRequestContext } from "../_shared/errorLogger.ts";
 
-// Numerology engine
-const NUMEROLOGY_MAP: Record<string, any> = {
-  '0': { headline: 'Divine Zero', keywords: ['infinite potential', 'reset', 'source'], guidance: 'You stand at the threshold of infinite possibility.' },
-  '1': { headline: 'The Initiator', keywords: ['new beginning', 'leadership', 'independence'], guidance: 'You are being called to step forward and lead.' },
-  '2': { headline: 'The Harmonizer', keywords: ['balance', 'cooperation', 'partnership'], guidance: 'Seek harmony and balance.' },
-  '3': { headline: 'The Creator', keywords: ['joy', 'expression', 'creativity'], guidance: 'Express yourself freely.' },
-  '4': { headline: 'The Builder', keywords: ['structure', 'foundation', 'stability'], guidance: 'Build solid foundations.' },
-  '5': { headline: 'Freedom Seeker', keywords: ['change', 'adapt', 'freedom'], guidance: 'Embrace change and new experiences.' },
-  '6': { headline: 'The Nurturer', keywords: ['care', 'harmony', 'responsibility'], guidance: 'Care for yourself and others.' },
-  '7': { headline: 'The Seeker', keywords: ['wisdom', 'spirit', 'introspection'], guidance: 'Seek deeper understanding.' },
-  '8': { headline: 'The Powerhouse', keywords: ['abundance', 'authority', 'power'], guidance: 'Step into your power.' },
-  '9': { headline: 'The Humanitarian', keywords: ['completion', 'legacy', 'wisdom'], guidance: 'A cycle is completing.' },
-  '11': { headline: 'The Visionary', keywords: ['intuition', 'downloads', 'spiritual insight'], guidance: 'You are receiving divine downloads.' },
-  '22': { headline: 'The Master Builder', keywords: ['architecture', 'legacy', 'manifestation'], guidance: 'You have the power to build something lasting.' },
-  '33': { headline: 'The Master Teacher', keywords: ['love', 'healing', 'compassion'], guidance: 'You are here to heal and teach through love.' },
-  '44': { headline: 'The Master Organizer', keywords: ['systems', 'empire', 'discipline'], guidance: 'Build powerful systems and structures.' }
-};
-
-const CHAKRA_MAP: Record<string, any> = {
-  '1': { name: 'Root Chakra', element: 'Earth', focus: 'grounding, survival, security', color: 'red' },
-  '2': { name: 'Sacral Chakra', element: 'Water', focus: 'creativity, emotion, sensuality', color: 'orange' },
-  '3': { name: 'Solar Plexus Chakra', element: 'Fire', focus: 'power, confidence, action', color: 'yellow' },
-  '4': { name: 'Heart Chakra', element: 'Air', focus: 'love, compassion, connection', color: 'green' },
-  '5': { name: 'Throat Chakra', element: 'Sound', focus: 'communication, truth, expression', color: 'blue' },
-  '6': { name: 'Third Eye Chakra', element: 'Light', focus: 'intuition, vision, insight', color: 'indigo' },
-  '7': { name: 'Crown Chakra', element: 'Thought', focus: 'consciousness, unity, enlightenment', color: 'violet' },
-  '8': { name: 'Earth Star Chakra', element: 'Earth', focus: 'connection to Earth, ancestors', color: 'brown' },
-  '9': { name: 'Soul Star Chakra', element: 'Spirit', focus: 'divine purpose, cosmic connection', color: 'white' }
-};
-
-function normalizeNumber(input: string): string {
-  const cleaned = input.replace(/[^\d:%]/g, '');
-  const digits = cleaned.replace(/[:%]/g, '');
-  if (!digits) return '0';
-  return reduceToCore(digits);
-}
-
-function reduceToCore(numStr: string): string {
-  let num = parseInt(numStr);
-  const masterNumbers = [11, 22, 33, 44];
-  while (num > 9 && !masterNumbers.includes(num)) {
-    num = num.toString().split('').reduce((sum, digit) => sum + parseInt(digit), 0);
-  }
-  return num.toString();
-}
-
-function getNumerologyMeaning(number: string) {
-  return NUMEROLOGY_MAP[number] || NUMEROLOGY_MAP['0'];
-}
-
-function getChakraMeaning(number: string) {
-  if (number === '11') return { ...CHAKRA_MAP['7'], amplified: true, message: 'Crown chakra amplified' };
-  if (number === '22') return { ...CHAKRA_MAP['1'], amplified: true, message: 'Root chakra amplified' };
-  if (number === '33') return { ...CHAKRA_MAP['4'], amplified: true, message: 'Heart chakra amplified' };
-  if (number === '44') return { ...CHAKRA_MAP['8'], amplified: true, message: 'Earth Star amplified' };
-  return CHAKRA_MAP[number] || CHAKRA_MAP['1'];
-}
-
-function extractNumbers(text: string): string[] {
-  const patterns = [
-    /\b\d+:\d+(?::\d+)?\b/g,  // Times
-    /\b\d+%\b/g,               // Percentages
-    /\b\d+\b/g,                // Numbers
-  ];
-  const numbers: Set<string> = new Set();
-  for (const pattern of patterns) {
-    const matches = text.match(pattern);
-    if (matches) matches.forEach(match => numbers.add(match));
-  }
-  return Array.from(numbers);
-}
+const JSON_HEADERS = { "Content-Type": "application/json" } as const;
 
 serve(async (req) => {
-  const { headers, allowed } = buildCors(req.headers.get('origin'));
-  const jsonHeaders = { ...headers, 'Content-Type': 'application/json' };
+  const requestId = crypto.randomUUID();
+  const environment = (Deno.env.get('ENV') || 'staging') as 'staging' | 'production';
 
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
+  const logger = createLogger(
+    Deno.env.get('SUPABASE_URL') || '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+    { environment, service: 'edge:function:ocr', requestId }
+  );
+
+  const timer = new ServerTimer();
+  const { headers, allowed } = buildCors(req.headers.get("origin"));
+  const jsonHeaders = { ...headers, ...JSON_HEADERS };
+
+  if (req.method === "OPTIONS") {
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(null, { status: 204, headers: h });
   }
 
   if (!allowed) {
-    return new Response(JSON.stringify({ error: 'Origin not allowed' }), {
+    await logger.warn('CORS origin not allowed', {
+      code: 'CORS_ORIGIN_NOT_ALLOWED',
+      details: { origin: req.headers.get("origin") },
+      ...extractRequestContext(req),
+    });
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(JSON.stringify({ error: "Origin not allowed" }), {
       status: 403,
-      headers: jsonHeaders,
+      headers: h,
     });
   }
 
-  if (!(await passesRateLimit(req, 'ocr'))) {
-    return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again shortly.' }), {
+  const rateSpan = timer.start("db");
+  const withinLimit = await passesRateLimit(req, "ocr");
+  timer.end(rateSpan);
+
+  if (!withinLimit) {
+    await logger.warn('Rate limit exceeded', {
+      code: 'RATE_LIMIT_EXCEEDED',
+      details: { endpoint: 'ocr' },
+      ...extractRequestContext(req),
+    });
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
       status: 429,
-      headers: jsonHeaders,
+      headers: h,
+    });
+  }
+
+  let payload: unknown;
+  try {
+    const parseSpan = timer.start("parse");
+    payload = await req.json();
+    timer.end(parseSpan);
+  } catch (err) {
+    await logger.warn('Invalid JSON payload', {
+      code: 'INVALID_JSON',
+      details: { error: err instanceof Error ? err.message : String(err) },
+      ...extractRequestContext(req),
+    });
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(JSON.stringify({ error: "Invalid JSON payload" }), {
+      status: 400,
+      headers: h,
     });
   }
 
   try {
-    console.log('OCR function called');
-    const formData = await req.formData();
-    const file = formData.get('screenshot') as File;
-
-    if (!file) {
-      return new Response(JSON.stringify({ error: 'screenshot file is required' }), {
-        status: 400,
-        headers: jsonHeaders,
-      });
-    }
-
-    console.log('File received:', file.size, 'bytes, type:', file.type);
-
-    // Check file size (max 20MB)
-    if (file.size > 20 * 1024 * 1024) {
-      return new Response(JSON.stringify({ error: 'Image too large', message: 'Please use an image smaller than 20MB' }), {
-        status: 400,
-        headers: jsonHeaders,
-      });
-    }
-
-    // Convert to base64
-    const bytes = await file.arrayBuffer();
-    console.log('ArrayBuffer size:', bytes.byteLength);
-
-    // For very large images, this can fail
-    try {
-      const uint8Array = new Uint8Array(bytes);
-      const base64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
-      const mimeType = file.type || 'image/jpeg';
-      console.log('Base64 encoded, length:', base64.length);
-    } catch (e) {
-      console.error('Base64 encoding failed:', e);
-      return new Response(JSON.stringify({ error: 'Image encoding failed', message: 'Try a smaller image' }), {
-        status: 500,
-        headers: jsonHeaders,
-      });
-    }
-
-    const uint8Array = new Uint8Array(bytes);
-    const base64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
-    const mimeType = file.type || 'image/jpeg';
-
-    // Call OpenAI Vision
-    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) {
-      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
-        status: 500,
-        headers: jsonHeaders,
-      });
-    }
-
-    console.log('Calling OpenAI Vision API...');
-    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
+    const renderSpan = timer.start("render");
+    const result = await prepareOcrResult(
+      {
+        runOcr: async (input) => {
+          const span = timer.start("openai");
+          try {
+            return await runOcr(input, logger, req);
+          } finally {
+            timer.end(span);
+          }
+        },
       },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: 'Extract ALL numbers from this image. Include times (11:11), percentages (75%), repeating numbers (222), phone numbers, license plates, prices, etc. Return just the numbers you see, one per line.'
-            },
-            {
-              type: 'image_url',
-              image_url: { url: `data:${mimeType};base64,${base64}` }
-            }
-          ]
-        }],
-        max_tokens: 500
-      })
-    });
+      payload
+    );
+    timer.end(renderSpan);
 
-    if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('OpenAI error:', aiResponse.status, errorText);
-
-      // Return detailed error to user for debugging
-      return new Response(JSON.stringify({
-        error: 'OpenAI API Error',
-        status: aiResponse.status,
-        details: errorText,
-        message: `OpenAI returned ${aiResponse.status}. Check your API key and credits.`
-      }), {
-        status: 500,
-        headers: jsonHeaders,
-      });
-    }
-
-    const aiData = await aiResponse.json();
-    const raw_text = aiData.choices[0]?.message?.content || '';
-    console.log('Extracted text:', raw_text);
-
-    // Extract and process numbers
-    const numbers = extractNumbers(raw_text);
-    console.log('Found numbers:', numbers);
-
-    const readings = [];
-    for (const numText of numbers) {
-      const normalized_number = normalizeNumber(numText);
-      const numerology = getNumerologyMeaning(normalized_number);
-      const chakra = getChakraMeaning(normalized_number);
-
-      readings.push({
-        input_text: numText,
-        normalized_number,
-        numerology_data: numerology,
-        chakra_data: chakra,
-        context: 'Extracted from image',
-        tags: ['ocr', 'screenshot'],
-      });
-    }
-
-    console.log('Returning', readings.length, 'readings');
-
-    return new Response(JSON.stringify({ raw_text, numbers, readings }), {
-      status: 200,
-      headers: jsonHeaders,
-    });
-
-  } catch (error) {
-    console.error('OCR error:', error);
-    return new Response(JSON.stringify({
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }), {
+    return respond(result, jsonHeaders, timer);
+  } catch (err) {
+    await logger.error(
+      err instanceof Error ? err.message : 'Unknown error occurred',
+      {
+        code: 'UNHANDLED_ERROR',
+        details: {
+          errorType: typeof err,
+          stack: err instanceof Error ? err.stack : undefined,
+        },
+        ...extractRequestContext(req),
+      }
+    );
+    const h = new Headers(jsonHeaders);
+    timer.apply(h);
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: jsonHeaders,
+      headers: h,
     });
   }
 });
+
+function respond(result: Result<OcrOk, OcrErr>, headersInit: Record<string, string>, timer: ServerTimer) {
+  const headers = new Headers(headersInit);
+  timer.apply(headers);
+  if (!result.ok) {
+    return new Response(JSON.stringify({ error: result.error.message }), {
+      status: result.error.code === "BAD_REQUEST" ? 400 : 500,
+      headers,
+    });
+  }
+  return new Response(JSON.stringify(result.value), { status: 200, headers });
+}
+
+async function runOcr(payload: OcrRequest & { mode: "fast" | "accurate" }, logger: ReturnType<typeof createLogger>, req: Request) {
+  const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+  if (!OPENAI_API_KEY) {
+    await logger.error('OpenAI API key not configured', {
+      code: 'MISSING_API_KEY',
+      details: { env: Deno.env.get('ENV') || 'staging' },
+      ...extractRequestContext(req),
+    });
+    throw new Error("OpenAI API key not configured");
+  }
+
+  const prompt = [
+    "Extract ALL numbers from this image.",
+    "Include times (11:11), percentages (75%), repeating numbers (222),",
+    "phone numbers, license plates, prices, order IDs, etc.",
+    "Return the numbers you see, one per line."
+  ].join(" ");
+
+  const model = payload.mode === "fast" ? "gpt-4o-mini" : "gpt-4o-mini";
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 500,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: `${prompt}${payload.lang ? ` Language hint: ${payload.lang}.` : ""}` },
+            { type: "image_url", image_url: { url: payload.imageUrl } },
+          ],
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    await logger.error('OpenAI API error', {
+      code: response.status === 429 ? 'OPENAI_RATE_LIMIT' :
+            response.status === 402 ? 'OPENAI_CREDITS_DEPLETED' :
+            'OPENAI_API_ERROR',
+      details: {
+        status: response.status,
+        statusText: response.statusText,
+        errorText: details.substring(0, 500),
+        model,
+        mode: payload.mode,
+      },
+      ...extractRequestContext(req),
+    });
+    throw new Error(`OpenAI error ${response.status}: ${details}`);
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content ?? "";
+  const usage = data.usage ?? {};
+
+  return {
+    text,
+    meta: {
+      model,
+      mode: payload.mode,
+      usage,
+    },
+  };
+}

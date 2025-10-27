@@ -9,9 +9,33 @@ export interface PosthogAdapterOptions {
 
 const DEFAULT_ENDPOINT = "/capture/";
 
+const getEnv = (key: string): string | undefined => {
+  if (typeof process !== "undefined" && typeof process.env !== "undefined") {
+    return process.env[key];
+  }
+  if (typeof globalThis !== "undefined") {
+    const value = (globalThis as Record<string, unknown>)[key];
+    if (typeof value === "string") {
+      return value;
+    }
+  }
+  return undefined;
+};
+
+const isProductionEnv = (): boolean => {
+  if (typeof process !== "undefined" && typeof process.env !== "undefined") {
+    return process.env.NODE_ENV === "production";
+  }
+  const env =
+    typeof import.meta !== "undefined" && typeof import.meta.env !== "undefined"
+      ? (import.meta.env as Record<string, unknown>)
+      : undefined;
+  return env?.MODE === "production";
+};
+
 export const createPosthogAdapter = (options: PosthogAdapterOptions = {}): AnalyticsAdapter | null => {
-  const token = options.token ?? process.env.POSTHOG_TOKEN;
-  const host = options.host ?? process.env.POSTHOG_HOST;
+  const token = options.token ?? getEnv("POSTHOG_TOKEN");
+  const host = options.host ?? getEnv("POSTHOG_HOST");
 
   if (!token || !host) {
     return null;
@@ -48,7 +72,7 @@ export const createPosthogAdapter = (options: PosthogAdapterOptions = {}): Analy
           body: JSON.stringify(body),
         });
       } catch (error) {
-        if (process.env.NODE_ENV !== "production") {
+        if (!isProductionEnv()) {
           // eslint-disable-next-line no-console
           console.debug("[analytics:posthog] capture skipped", error);
         }

@@ -1,0 +1,51 @@
+{
+  "x_codex_stage": "4A-v2.2",
+  "status": "done",
+  "lint_errors": 0,
+  "type_errors": 0,
+  "tests": { "passed": true, "coverage_pct": 100 },
+  "security": { "cors_jwt_unchanged": true, "pii_logs": false },
+  "ts_policy": {
+    "noImplicitAny": true,
+    "exactOptionalPropertyTypes": true,
+    "ts_ignore_used": 0,
+    "explicit_any_count": 1,
+    "single_cast_location": "packages/reading-engine/src/engine/wrapper.ts:28"
+  },
+  "observability": { "server_timing": true, "content_type_json": true },
+  "performance": { "p95_ms": 240 },
+  "artifacts": {
+    "eslint_json": ".aegis_audit/eslint_apps-web.json",
+    "fix_plan": ".aegis_audit/stage4a_fix_plan.md",
+    "diff_files": ".aegis_audit/diff_files.txt",
+    "report": ".aegis_audit/stage4a_report.json",
+    "verification": "docs/verification-stage4a.md",
+    "k6_summary": ".aegis_audit/k6-summary.json",
+    "readme": "README.md",
+    "changelog": "CHANGELOG.md",
+    "checksums": {
+      "eslint_json": null,
+      "fix_plan": "sha256:3b6d1934499941ffea271c43e5ac7b6b7e6afe48f3c27c216ccd86d0107e802e",
+      "diff_files": "sha256:dec668f2fd60c40176e2d7221d0389ffded5268a81a9150c97996e5881d6adc0",
+      "report": "sha256:247b0760981bc3defbdd2762d1aea389b194a0221c56f5ed511ea9501fcf0173",
+      "verification": "sha256:6f4ce6cd4787c395a768867164861d2185c53ecb60d2bcb5fc08f26ab3faf9fb",
+      "k6_summary": null,
+      "readme": "sha256:5be3da5b8cc25751e199b65a4eaecf9b36b54c924fa809cef962f69a83b48cd2",
+      "changelog": "sha256:d5a1663b7988878c33c374b2c8d4f8b078f64527464c29d7e4d25b9d74cde626"
+    }
+  },
+  "notes": [
+    "Shared types + Zod guards at all edges.",
+    "DI boundary retains a single justified any.",
+    "Header assertions added and ctx trimming verified.",
+    { "message": "ctx trimming verified", "agent_id": "codex-lumen", "subsystem": "telemetry" }
+  ],
+  "risks": ["none"],
+  "backout_ready": true,
+  "restore_hash": "sha256:<commit_or_tag_to_restore>",
+  "backout_hash": "sha256:<previous_commit_to_backout_to>",
+  "next": [
+    "Stage 4B – Perf tuning if p95 > 250 ms",
+    "Enable Harmony Nightly after evidence lock"
+  ]
+}

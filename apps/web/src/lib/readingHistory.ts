@@ -14,6 +14,19 @@ export interface HistoricalReading {
 
 const STORAGE_KEY = 'vyberology_reading_history';
 const MAX_HISTORY_ITEMS = 100;
+const isDebugLogging = import.meta.env.DEV || import.meta.env.VITE_DEBUG === 'true';
+
+const logPIISafe = (...args: unknown[]) => {
+  if (isDebugLogging) {
+    console.log('[ReadingHistory]', ...args);
+  }
+};
+
+const logErrorSafe = (...args: unknown[]) => {
+  if (isDebugLogging) {
+    console.error('[ReadingHistory]', ...args);
+  }
+};
 
 /**
  * Generate a unique ID (fallback for older browsers)
@@ -31,11 +44,11 @@ const generateId = (): string => {
  */
 export const saveReading = (reading: Omit<HistoricalReading, 'id' | 'timestamp'>): void => {
   try {
-    console.log('[ReadingHistory] Attempting to save reading:', reading.inputType, reading.inputValue);
+    logPIISafe('Attempting to save reading', reading.inputType, reading.inputValue);
 
     // Check if localStorage is available
     if (typeof localStorage === 'undefined') {
-      console.error('[ReadingHistory] localStorage is not available');
+      logErrorSafe('localStorage is not available');
       return;
     }
 
@@ -46,7 +59,7 @@ export const saveReading = (reading: Omit<HistoricalReading, 'id' | 'timestamp'>
       timestamp: new Date().toISOString(),
     };
 
-    console.log('[ReadingHistory] Created new reading with ID:', newReading.id);
+    logPIISafe('Created new reading with ID', newReading.id);
 
     // Add to beginning of array (most recent first)
     history.unshift(newReading);
@@ -57,11 +70,11 @@ export const saveReading = (reading: Omit<HistoricalReading, 'id' | 'timestamp'>
     }
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    console.log('[ReadingHistory] Successfully saved. Total readings:', history.length);
+    logPIISafe('Successfully saved. Total readings', history.length);
   } catch (error) {
-    console.error('[ReadingHistory] Failed to save reading to history:', error);
+    logErrorSafe('Failed to save reading to history', error);
     if (error instanceof Error) {
-      console.error('[ReadingHistory] Error details:', error.message, error.stack);
+      logErrorSafe('Error details', error.message, error.stack);
 
       // Report to Sentry
       captureError(error, {
@@ -87,24 +100,24 @@ export const saveReading = (reading: Omit<HistoricalReading, 'id' | 'timestamp'>
 export const getReadingHistory = (): HistoricalReading[] => {
   try {
     if (typeof localStorage === 'undefined') {
-      console.error('[ReadingHistory] localStorage is not available for reading');
+      logErrorSafe('localStorage is not available for reading');
       return [];
     }
 
     const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('[ReadingHistory] Retrieved history, found:', stored ? 'data exists' : 'no data');
+    logPIISafe('Retrieved history, found', stored ? 'data exists' : 'no data');
 
     if (!stored) {
       return [];
     }
 
     const parsed = JSON.parse(stored);
-    console.log('[ReadingHistory] Parsed history, count:', parsed.length);
+    logPIISafe('Parsed history, count', parsed.length);
     return parsed;
   } catch (error) {
-    console.error('[ReadingHistory] Failed to load reading history:', error);
+    logErrorSafe('Failed to load reading history', error);
     if (error instanceof Error) {
-      console.error('[ReadingHistory] Error details:', error.message);
+      logErrorSafe('Error details', error.message);
 
       // Report to Sentry
       captureError(error, {
@@ -137,7 +150,7 @@ export const deleteReading = (id: string): void => {
     const filtered = history.filter(r => r.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   } catch (error) {
-    console.error('Failed to delete reading:', error);
+    logErrorSafe('Failed to delete reading', error);
   }
 };
 
@@ -148,7 +161,7 @@ export const clearHistory = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error('Failed to clear history:', error);
+    logErrorSafe('Failed to clear history', error);
   }
 };
 

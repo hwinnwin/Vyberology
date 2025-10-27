@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "if [ \"$NETLIFY\" = \"true\" ] && [ \"$(uname)\" = \"Linux\" ]; then npm install @rollup/rollup-linux-x64-gnu@^4 --no-save --prefer-offline || npm install @rollup/rollup-linux-x64-gnu@^4 --no-save; fi",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",

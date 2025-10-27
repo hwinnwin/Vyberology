@@ -1,0 +1,39 @@
+{
+  "stage": "4M-Expo-iOS",
+  "status": "blocked",
+  "expo": {
+    "sdk": "54",
+    "doctor_blockers": 3,
+    "packages_aligned": true
+  },
+  "simulator": {
+    "devices_booted": 0,
+    "created_device": null,
+    "runtime": null
+  },
+  "start": {
+    "metro_started": false,
+    "ios_launch_attempted": false,
+    "first_error": "No iOS simulator runtime installed"
+  },
+  "artifacts": {
+    "expo_doctor": ".aegis_audit/mobile_expo_doctor.txt",
+    "sim_before": ".aegis_audit/mobile_sim_devices_before.txt",
+    "sim_after": ".aegis_audit/mobile_sim_devices_after.txt",
+    "expo_start_log": ".aegis_audit/mobile_expo_start_log.txt",
+    "report": ".aegis_audit/stage4m_mobile_report.json"
+  },
+  "notes": [
+    "Expo packages bumped to SDK 54 compatible versions",
+    "Expo doctor still flags ios.deploymentTarget and custom metro config",
+    "No iOS simulator runtimes installed so device creation/boot blocked"
+  ],
+  "risks": [
+    "Local Xcode installation lacks an iOS runtime"
+  ],
+  "next": [
+    "Install an iOS Simulator runtime via Xcode ▸ Settings ▸ Platforms ▸ iOS",
+    "Re-run pnpm --filter mobile exec npx expo-doctor to confirm config fixes",
+    "Retry pnpm --filter mobile start -- --ios after a simulator is bootable"
+  ]
+}

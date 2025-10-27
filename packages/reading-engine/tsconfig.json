@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,
@@ -10,10 +10,13 @@
   },
   "include": [
     "src",
-    "v4"
+    "src/__tests__",
+    "src/**/*.json",
+    "v4",
+    "vitest.config.ts"
   ],
   "exclude": [
-    "src/**/*.test.ts",
-    "v4/**/*.test.ts"
+    "dist",
+    "coverage"
   ]
 }

@@ -124,7 +124,7 @@ export function semanticsFor(n: number): Semantic {
 }
 
 // Optional: pretty label helpers for UI
-export function prettyChakra(key: ChakraKey): string {
+export function prettyChakra(key: ChakraKey | string): string {
   const map: Record<ChakraKey, string> = {
     root: "Root",
     sacral: "Sacral",
@@ -137,7 +137,10 @@ export function prettyChakra(key: ChakraKey): string {
     "heart+throat": "Heart × Throat",
     "solar+root": "Solar × Root",
   };
-  return map[key] ?? "Chakra";
+  if (typeof key === "string" && key in map) {
+    return map[key as ChakraKey];
+  }
+  return "Chakra";
 }
 
 export function prettyElement(key: ElementKey | ElementKey[]): string {

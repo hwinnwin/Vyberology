@@ -97,15 +97,10 @@ export function assembleReading(input: CaptureInput, options?: AssembleOptions):
 
   let explain: ExplainPayload | undefined;
   if (options?.explain) {
-    explain = buildExplainPayload(
-      input,
-      reading,
-      primaryMotif,
-      mergedConfig.phrasebook
-    );
+    explain = buildExplainPayload(input, reading, primaryMotif);
   }
 
-  return { reading, explain };
+  return explain ? { reading, explain } : { reading };
 }
 
 function mergeConfig(overrides?: Partial<ReadingConfig>): ReadingConfig {
@@ -396,21 +391,22 @@ function selectHeadline(tokens: TokenInfo[], motif: Motif | undefined): string {
 function buildExplainPayload(
   input: CaptureInput,
   reading: VybeReading,
-  motif: Motif | undefined,
-  phrasebook: Phrasebook
+  motif: Motif | undefined
 ): ExplainPayload {
+  const explainInput: ExplainPayload["input"] = {
+    raw: input.raw,
+    ...(input.context !== undefined ? { context: input.context } : {}),
+    ...(input.entryNo !== undefined ? { entryNo: input.entryNo } : {}),
+  };
+
   return {
-    input: {
-      raw: input.raw,
-      context: input.context,
-      entryNo: input.entryNo,
-    },
+    input: explainInput,
     tokens: reading.numerology.tokens.map((token) => ({
       raw: token.raw,
       type: token.type,
       flags: token.flags,
       reduction: token.reduction,
-      bucket: token.bucket,
+      ...(token.bucket !== undefined ? { bucket: token.bucket } : {}),
     })),
     motifs: reading.numerology.notes,
     coreFrequency: reading.numerology.coreFrequency,

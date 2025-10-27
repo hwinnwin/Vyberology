@@ -1,17 +1,18 @@
 import Tesseract from "tesseract.js";
 import type { NumberToken, NumberUnit } from "@vybe/reading-engine";
 
+type ImageSource = string | File | Blob; // added by Lumen (Stage 4A)
+
 const TIME = /\b(?:(?:[01]?\d|2[0-3]):[0-5]\d(?:\s?(?:AM|PM|am|pm))?)\b/;
 const TEMP = /\b-?\d{1,3}\s?(?:°\s?)?(?:C|F|°C|°F)\b/;
 const PERCENT = /\b\d{1,3}(?:[.,]\d{1,2})?\s?%\b/;
 const COUNT = /\b\d{1,3}(?:[.,]\d{3})+\b/;
 const PLAIN = /\b\d{1,4}\b/;
 
-export async function recognizeText(src: string | File | Blob) {
-  const worker = await Tesseract.createWorker({
-    tessedit_char_whitelist: "0123456789:%°CFcf .:-APMapm",
-  } as any);
-  const { data } = await worker.recognize(src as any);
+export async function recognizeText(src: ImageSource) {
+  const worker = await Tesseract.createWorker();
+  await worker.setParameters({ tessedit_char_whitelist: "0123456789:%°CFcf .:-APMapm" });
+  const { data } = await worker.recognize(src as Tesseract.ImageLike);
   await worker.terminate();
   return { text: data.text ?? "", confidence: (data.confidence ?? 0) / 100 };
 }
@@ -50,4 +51,8 @@ export function parseTokens(text: string, baseConf = 0.7): NumberToken[] {
   return tokens
     .filter((t, i, a) => a.findIndex((x) => x.raw === t.raw && x.unit === t.unit) === i)
     .sort((a, b) => b.confidence - a.confidence);
+}
+
+export function extractNumbers(input: string): number[] { // added by Lumen (Stage 4A)
+  return (input.match(/\d+/g) ?? []).map(Number); // added by Lumen (Stage 4A)
 }
