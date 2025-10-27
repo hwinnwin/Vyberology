@@ -1,4 +1,4 @@
-import { securityHeaders } from "../../apps/web/supabase/functions/_lib/securityHeaders.ts";
+import { securityHeaders } from "../_shared/security.ts";
 
 const HEADERS: HeadersInit = {
   ...securityHeaders,
