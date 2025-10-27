@@ -90,11 +90,9 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
-      - name: Build shared packages
-        run: pnpm --filter ./packages/... --if-present run build
       - name: Install Playwright browsers
-        run: pnpm --filter ./apps/web exec playwright install --with-deps
+        run: pnpm dlx playwright@1.49.0 install --with-deps
       - name: Build web
         run: pnpm --filter ./apps/web run build
       - name: Run e2e (smoke)
-        run: pnpm --filter ./apps/web run e2e
+        run: pnpm dlx playwright@1.49.0 test --config apps/web/playwright.config.ts
