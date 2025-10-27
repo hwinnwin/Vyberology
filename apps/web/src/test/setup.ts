@@ -70,6 +70,14 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
+// Mock analytics adapter
+vi.mock('@vybe/analytics-adapter', () => ({
+  configureAnalytics: vi.fn(),
+  track: vi.fn(() => Promise.resolve()),
+  createPosthogAdapter: vi.fn(() => ({ track: vi.fn() })),
+  createGA4Adapter: vi.fn(() => ({ track: vi.fn() })),
+}));
+
 // Mock Capacitor
 vi.mock('@capacitor/core', () => ({
   Capacitor: {
