@@ -62,6 +62,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm --filter ./packages/... --if-present run build
       - name: Run unit tests with coverage
         run: pnpm --filter ./apps/web run test:coverage
       - name: Enforce coverage gate (≥60% lines)
@@ -94,6 +96,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build shared packages
+        run: pnpm --filter ./packages/... --if-present run build
       - name: Install Playwright browsers
         run: pnpm --filter ./apps/web exec playwright install --with-deps
       - name: Build web
