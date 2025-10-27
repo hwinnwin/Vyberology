@@ -90,6 +90,8 @@ jobs:
         run: corepack prepare pnpm@9.15.4 --activate
       - name: Install dependencies (pnpm)
         run: pnpm install --frozen-lockfile
+      - name: Build analytics adapter
+        run: pnpm --filter @vybe/analytics-adapter run build
       - name: Install Playwright browsers
         run: pnpm dlx playwright@1.49.0 install --with-deps
       - name: Build web
