@@ -1,5 +1,4 @@
 name: Deploy (Web + Supabase)
-
 on:
   workflow_dispatch:
   push:
@@ -7,15 +6,12 @@ on:
     paths:
       - 'apps/web/**'
       - '.github/workflows/deploy.yml'
-
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   id-token: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -35,7 +31,6 @@ jobs:
         run: pnpm --filter @vybe/analytics-adapter run build
       - name: Build web
         run: pnpm --filter ./apps/web run build
-
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
@@ -72,8 +67,7 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
           set +x
-          supabase db push \
-            --project-ref "$SUPABASE_PROJECT_REF"
+          supabase db push --yes
       - name: Deploy edge functions
         shell: bash
         env:
@@ -81,13 +75,11 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
           set +x
-          supabase functions deploy vybe-reading --project-ref "$SUPABASE_PROJECT_REF"
-          supabase functions deploy ocr --project-ref "$SUPABASE_PROJECT_REF"
-          supabase functions deploy read --project-ref "$SUPABASE_PROJECT_REF"
-          supabase functions deploy compare --project-ref "$SUPABASE_PROJECT_REF"
-          supabase functions deploy log-error --project-ref "$SUPABASE_PROJECT_REF"
-          supabase functions deploy error-digest --project-ref "$SUPABASE_PROJECT_REF"
-
+          for fn in vybe-reading ocr read compare log-error error-digest; do
+            supabase functions deploy "$fn" \
+              --project-ref "$SUPABASE_PROJECT_REF" \
+              --token "$SUPABASE_ACCESS_TOKEN"
+          done
       # ---- choose one hosting target; keep others commented ----
       # Vercel:
       # - name: Deploy to Vercel
@@ -98,7 +90,6 @@ jobs:
       #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       #     working-directory: apps/web
       #     github-comment: false
-
       # Netlify:
       - name: Deploy to Netlify
         uses: netlify/actions/cli@3185065f4ab2f6df6f2ef41ee013626e1c02a426
@@ -108,7 +99,6 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Post-release tag
         if: ${{ success() }}
         run: |
