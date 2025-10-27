@@ -93,8 +93,8 @@ jobs:
       - name: Build analytics adapter
         run: pnpm --filter @vybe/analytics-adapter run build
       - name: Install Playwright browsers
-        run: pnpm dlx playwright@1.49.0 install --with-deps
+        run: pnpm --filter ./apps/web exec playwright install --with-deps
       - name: Build web
         run: pnpm --filter ./apps/web run build
       - name: Run e2e (smoke)
-        run: pnpm dlx playwright@1.49.0 test --config apps/web/playwright.config.ts
+        run: pnpm --filter ./apps/web exec playwright test
