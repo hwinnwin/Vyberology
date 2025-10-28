@@ -78,9 +78,7 @@ jobs:
         run: |
           set +x
           for fn in vybe-reading ocr read compare log-error error-digest; do
-            supabase functions deploy "$fn" \
-              --project-ref "$SUPABASE_PROJECT_REF" \
-              --token "$SUPABASE_ACCESS_TOKEN"
+            supabase functions deploy "$fn" --project-ref "$SUPABASE_PROJECT_REF"
           done
       # ---- choose one hosting target; keep others commented ----
       # Vercel:
