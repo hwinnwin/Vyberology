@@ -92,13 +92,12 @@ jobs:
       #     github-comment: false
       # Netlify:
       - name: Deploy to Netlify
-        uses: netlify/actions/cli@3185065f4ab2f6df6f2ef41ee013626e1c02a426
-        with:
-          args: deploy --dir=apps/web/dist --prod
+        working-directory: apps/web
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx netlify-cli deploy --dir=dist --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
       - name: Post-release tag
         if: ${{ success() }}
         run: |
