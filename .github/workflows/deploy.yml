@@ -67,8 +67,8 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
           set +x
-          # Mark remote-only migration as already applied
-          supabase migration repair --status applied 20250929023015 || true
+          # Mark remote-only migration as reverted (ignore it)
+          supabase migration repair --status reverted 20250929023015 || true
           supabase db push --yes
       - name: Deploy edge functions
         shell: bash
