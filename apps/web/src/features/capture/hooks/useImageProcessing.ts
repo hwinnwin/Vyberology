@@ -248,16 +248,27 @@ export function useImageProcessing(
         console.log('[OCR] Continuing with original file...');
       }
 
-      // Step 2: Upload to OCR service
+      // Step 2: Convert image to base64 data URL
+      setProcessingStep("Preparing image for AI vision...");
+      console.log('[OCR] Converting image to base64...');
+
+      const imageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(processedFile);
+      });
+
+      console.log('[OCR] Image converted to base64, length:', imageBase64.length);
+
+      // Step 3: Upload to OCR service
       setProcessingStep("Uploading to AI vision...");
-      console.log('[OCR] Creating FormData and uploading...');
-
-      const formData = new FormData();
-      formData.append("screenshot", processedFile);
-
       console.log('[OCR] Calling Supabase OCR function...');
       const { data, error } = await supabase.functions.invoke("ocr", {
-        body: formData,
+        body: {
+          imageUrl: imageBase64,
+          mode: "fast",
+        },
       });
 
       const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
