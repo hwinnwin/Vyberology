@@ -282,12 +282,22 @@ const GetVybe = () => {
         imageSize: selectedImage.size,
       });
 
-      const formData = new FormData();
-      formData.append("screenshot", selectedImage);
+      // Convert image to base64 data URL for OCR function
+      const base64Image = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(selectedImage);
+      });
 
-      // Call OCR without timeout
+      console.log('Sending OCR request with base64 image, length:', base64Image.length);
+
+      // Call OCR with JSON payload containing base64 imageUrl
       const { data, error } = await supabase.functions.invoke("ocr", {
-        body: formData,
+        body: {
+          imageUrl: base64Image,
+          mode: "fast"
+        },
       });
 
       if (error) {
@@ -298,22 +308,6 @@ const GetVybe = () => {
         console.error("Full error object:", JSON.stringify(error, null, 2));
         console.error("Full data object:", JSON.stringify(data, null, 2));
         console.error("=======================================");
-
-        // Show multiple alerts to get all details
-        alert("Error Message: " + (error.message || "No message"));
-
-        if (data) {
-          alert("Data exists: " + typeof data);
-          alert("Data.message: " + (data.message || "none"));
-          alert("Data.error: " + (data.error || "none"));
-          alert("Data.details: " + (data.details || "none"));
-          alert("Data.status: " + (data.status || "none"));
-        } else {
-          alert("Data is null/undefined");
-        }
-
-        alert("Error name: " + error.name);
-        alert("Error stack first 200 chars: " + (error.stack ? error.stack.substring(0, 200) : "no stack"));
 
         // Capture error in Sentry with full details
         captureError(error, {
