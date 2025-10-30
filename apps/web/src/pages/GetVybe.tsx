@@ -359,13 +359,34 @@ const GetVybe = () => {
 
       console.log('Sending OCR request with base64 image, length:', base64Image.length);
 
-      // Call OCR with JSON payload containing base64 imageUrl
-      const { data, error } = await supabase.functions.invoke("ocr", {
-        body: {
-          imageUrl: base64Image,
-          mode: "fast"
-        },
-      });
+      // Get auth token for edge function call
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+      // Call OCR edge function directly with fetch to ensure auth headers
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ocr`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            imageUrl: base64Image,
+            mode: "fast"
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('OCR HTTP error:', response.status, errorText);
+        throw new Error(`OCR failed: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      const error = null;
 
       if (error) {
         console.error("========== OCR Process Failed ==========");
