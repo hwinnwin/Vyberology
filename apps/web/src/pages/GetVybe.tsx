@@ -92,54 +92,121 @@ const GetVybe = () => {
     try {
       addBreadcrumb('Time capture started', { time: timeString });
 
-      const { data, error } = await supabase.functions.invoke("vybe-reading", {
-        body: {
-          inputs: [
-            { label: 'Time', value: timeString }
-          ],
-          depth: 'standard'
-        },
-      });
+      // Get auth session for edge function call
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-      if (error) {
-        captureError(error, {
-          context: 'Time Capture - Vybe Reading',
-          level: 'error',
-          tags: { service: 'vybe-reading', function: 'time-capture' },
-          extra: { time: timeString },
-        });
-        throw error;
+      // Call edge function with streaming
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vybe-reading`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inputs: [{ label: 'Time', value: timeString }],
+            depth: 'standard'
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to generate reading: ${response.status}`);
       }
 
-      if (data?.reading) {
-        // Store as markdown content
-        setReadings([{
-          input_text: timeString,
-          normalized_number: '',
-          numerology_data: {
-            headline: 'Vyberology Reading',
-            keywords: [],
-            guidance: data.reading
-          },
-          chakra_data: {
-            name: '',
-            element: '',
-            focus: '',
-            color: '#6B46C1'
+      // Check if response is streamed or regular JSON
+      const contentType = response.headers.get('content-type');
+
+      if (contentType?.includes('text/event-stream')) {
+        // Handle streaming response
+        let fullReading = '';
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n\n').filter(line => line.trim().startsWith('data:'));
+
+            for (const line of lines) {
+              const data = line.replace(/^data:\s*/, '');
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.content) {
+                  fullReading += parsed.content;
+                  // Update reading in real-time
+                  setReadings([{
+                    input_text: timeString,
+                    normalized_number: '',
+                    numerology_data: {
+                      headline: 'Vyberology Reading',
+                      keywords: [],
+                      guidance: fullReading
+                    },
+                    chakra_data: {
+                      name: '',
+                      element: '',
+                      focus: '',
+                      color: '#6B46C1'
+                    }
+                  }]);
+                }
+              } catch (e) {
+                // Skip invalid JSON
+              }
+            }
           }
-        }]);
+        }
 
-        // Save to history
-        saveReading({
-          inputType: 'time',
-          inputValue: timeString,
-          reading: data.reading,
-        });
+        // Save complete reading to history
+        if (fullReading) {
+          saveReading({
+            inputType: 'time',
+            inputValue: timeString,
+            reading: fullReading,
+          });
 
-        toast({
-          title: "Vybe captured! 🌟",
-          description: `Reading generated for ${timeString}`,
-        });
+          toast({
+            title: "Vybe captured! 🌟",
+            description: `Reading generated for ${timeString}`,
+          });
+        }
+      } else {
+        // Handle regular JSON response (cached reading)
+        const data = await response.json();
+        if (data?.reading) {
+          setReadings([{
+            input_text: timeString,
+            normalized_number: '',
+            numerology_data: {
+              headline: 'Vyberology Reading',
+              keywords: [],
+              guidance: data.reading
+            },
+            chakra_data: {
+              name: '',
+              element: '',
+              focus: '',
+              color: '#6B46C1'
+            }
+          }]);
+
+          saveReading({
+            inputType: 'time',
+            inputValue: timeString,
+            reading: data.reading,
+          });
+
+          toast({
+            title: "Vybe captured! 🌟",
+            description: `Reading generated for ${timeString}${data.cached ? ' (instant)' : ''}`,
+          });
+        }
       }
     } catch (error) {
       console.error("Error processing time:", error);
