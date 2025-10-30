@@ -125,7 +125,9 @@ serve(async (req) => {
   };
 
   if (req.method === 'OPTIONS') {
-    return respond("", 204);
+    const headersObj = new Headers(jsonHeaders);
+    timer.apply(headersObj);
+    return new Response(null, { status: 204, headers: headersObj });
   }
 
   if (!allowed) {
