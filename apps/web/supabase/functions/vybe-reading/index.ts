@@ -164,12 +164,12 @@ serve(async (req) => {
     }
 
     const lengthHint =
-      depth === "lite" ? "~150–200 words." :
-      depth === "deep" ? "~600–800 words." :
-      "~300–400 words.";
+      depth === "lite" ? "~200–300 words." :
+      depth === "deep" ? "~800–1200 words." :
+      "~400–600 words.";
 
     const model = "gpt-4o-mini";
-    const maxTokens = depth === "deep" ? 900 : depth === "lite" ? 300 : 500;
+    const maxTokens = depth === "deep" ? 1500 : depth === "lite" ? 400 : 800;
 
     const userPrompt = `Reading for: ${inputs.map((input) => `${input.label}: ${input.value}`).join(", ")}
 Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengthHint}`.trim();

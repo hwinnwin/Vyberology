@@ -48,7 +48,16 @@ export async function generateReading(input: {
     });
 
     if (error) {
-      console.error('Edge function error:', error);
+      // Log full error details for debugging
+      console.error('Edge function error:', {
+        error,
+        message: error.message,
+        context: error.context,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        fullError: JSON.stringify(error, null, 2)
+      });
 
       // Capture error in Sentry with context
       captureError(error, {
@@ -57,11 +66,15 @@ export async function generateReading(input: {
         tags: {
           service: 'supabase-edge-function',
           function: 'generate-reading',
+          errorCode: error.code || 'unknown',
         },
         extra: {
           hasName: !!input.fullName,
           hasDob: !!input.dobISO,
           depth: input.depth,
+          errorMessage: error.message,
+          errorDetails: error.details,
+          errorContext: error.context,
         },
       });
 

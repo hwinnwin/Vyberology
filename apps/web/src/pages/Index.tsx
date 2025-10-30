@@ -174,8 +174,11 @@ const Index = () => {
             <h1 className="mb-6 font-display text-6xl font-bold leading-tight text-white lg:text-7xl">
               Decode Your Life's Frequency
             </h1>
-            <p className="mb-8 text-xl text-lf-slate">
-              Turn numbers into resonance. Modern numerology and frequency readings that transform names, birthdates, and repeating numbers into personal guidance.
+            <p className="mb-4 text-xl text-lf-slate">
+              The world's first trauma-informed numerology platform. Transform names, birthdates, and repeating numbers into personalized guidance.
+            </p>
+            <p className="mb-8 text-lg text-lf-aurora font-semibold">
+              Integrating ancient wisdom with modern consciousness science
             </p>
 
             {/* Capture Tabs - Unified Interface */}
@@ -242,8 +245,82 @@ const Index = () => {
         </div>
       )}
 
+      {/* Revolutionary Features Banner */}
+      <div className="container mx-auto px-6 py-16">
+        <div className="mx-auto max-w-5xl">
+          <Card className="border-lf-aurora/30 bg-gradient-to-br from-lf-violet/20 via-lf-ink/80 to-lf-midnight/80 p-12 backdrop-blur-xl">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-lf-aurora/10 border border-lf-aurora/30 mb-4">
+                <Sparkles className="h-4 w-4 text-lf-aurora" />
+                <span className="text-sm font-semibold text-lf-aurora uppercase tracking-wide">Coming Soon: Vybe State</span>
+              </div>
+              <h2 className="font-display text-4xl font-bold text-white mb-4">
+                Beyond Traditional Numerology
+              </h2>
+              <p className="text-lg text-lf-slate max-w-3xl mx-auto">
+                We're building the first consciousness tracking system that integrates Polyvagal Theory,
+                Heart Rate Variability, and trauma-informed practices with your numerological blueprint.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 mt-8">
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-lf-aurora/20 flex items-center justify-center">
+                  <Heart className="h-6 w-6 text-lf-aurora" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-2">Trauma-Informed Guidance</h3>
+                  <p className="text-sm text-lf-slate">
+                    Detect shutdown states and receive appropriate support—not toxic positivity.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-lf-violet/20 flex items-center justify-center">
+                  <Sparkles className="h-6 w-6 text-lf-violet" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-2">Consciousness Mapping</h3>
+                  <p className="text-sm text-lf-slate">
+                    Track your emotional frequency from survival states to transcendent awareness.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-lf-indigo/20 flex items-center justify-center">
+                  <BookOpen className="h-6 w-6 text-lf-indigo" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-2">Science-Backed</h3>
+                  <p className="text-sm text-lf-slate">
+                    Integrates real biometric data (HRV, brainwaves) with spiritual wisdom.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-lf-pink/20 flex items-center justify-center">
+                  <Calculator className="h-6 w-6 text-lf-pink" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-2">Life Path Integration</h3>
+                  <p className="text-sm text-lf-slate">
+                    Personalized practices based on your unique numerological profile.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+
       {/* Features Grid */}
       <div className="container mx-auto px-6 py-16">
+        <h2 className="text-center font-display text-4xl font-bold text-white mb-12">
+          Available Now
+        </h2>
         <div className="grid gap-8 md:grid-cols-3">
           <Card className="border-white/10 bg-lf-ink/60 p-8 backdrop-blur transition-all hover:border-lf-violet hover:shadow-glow">
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-lf-gradient">

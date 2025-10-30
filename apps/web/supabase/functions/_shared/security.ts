@@ -163,3 +163,9 @@ export function requireJwt(req: Request): JwtCheckResult {
 
   return { ok: true, token: match[1] };
 }
+
+export function optionalJwt(req: Request): { token: string | null } {
+  const authorization = req.headers.get('Authorization') ?? '';
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  return { token: match?.[1] ?? null };
+}
