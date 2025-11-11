@@ -27,8 +27,8 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          // Split vendor code into separate chunks
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Don't split React into a separate chunk to avoid lazy() race conditions
+          // React needs to be available when App.tsx evaluates lazy imports
           'ui-vendor': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
