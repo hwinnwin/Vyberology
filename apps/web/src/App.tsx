@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, ComponentType } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,18 +11,60 @@ import { isFeatureEnabled } from "@/lib/featureFlags";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { trackAnalyticsEvent } from "@/lib/analytics";
 
-// Lazy load pages for better code splitting
-const Index = lazy(() => import("./pages/Index"));
-const Brand = lazy(() => import("./pages/Brand"));
-const NumerologyReader = lazy(() => import("./pages/NumerologyReader"));
-const Compatibility = lazy(() => import("./pages/Compatibility"));
-const GetVybe = lazy(() => import("./pages/GetVybe"));
-const History = lazy(() => import("./pages/History"));
-const Settings = lazy(() => import("./pages/Settings"));
-const Privacy = lazy(() => import("./pages/Privacy"));
-const Terms = lazy(() => import("./pages/Terms"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const OcrDebug = lazy(() => import("./dev/OcrDebug"));
+// Helper function to safely lazy load components with better error handling
+const safeLazy = <T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
+  componentName?: string
+) => {
+  return lazy(() =>
+    importFn()
+      .then((module) => {
+        // Ensure the module has a default export
+        if (!module || !module.default) {
+          console.error(`Module ${componentName || 'unknown'} does not have a default export`, module);
+          throw new Error(`Invalid module: missing default export in ${componentName || 'component'}`);
+        }
+        return module;
+      })
+      .catch((error) => {
+        console.error(`Error loading module ${componentName || 'unknown'}:`, error);
+        // Return a fallback component that shows an error
+        return {
+          default: (() => (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lf-midnight via-lf-ink to-lf-midnight">
+              <div className="text-center p-8">
+                <p className="text-red-400 text-xl mb-4">Failed to load {componentName || 'component'}</p>
+                <p className="text-lf-slate mb-6">Please try reloading the page</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-6 py-3 bg-lf-gradient text-white rounded-lg hover:shadow-glow"
+                >
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          )) as T,
+        };
+      })
+  );
+};
+
+// Lazy load pages for better code splitting with safe lazy loading
+const Index = safeLazy(() => import("./pages/Index"), "Index");
+const Brand = safeLazy(() => import("./pages/Brand"), "Brand");
+const NumerologyReader = safeLazy(() => import("./pages/NumerologyReader"), "NumerologyReader");
+const Compatibility = safeLazy(() => import("./pages/Compatibility"), "Compatibility");
+const GetVybe = safeLazy(() => import("./pages/GetVybe"), "GetVybe");
+const History = safeLazy(() => import("./pages/History"), "History");
+const Settings = safeLazy(() => import("./pages/Settings"), "Settings");
+const Privacy = safeLazy(() => import("./pages/Privacy"), "Privacy");
+const Terms = safeLazy(() => import("./pages/Terms"), "Terms");
+const NotFound = safeLazy(() => import("./pages/NotFound"), "NotFound");
+
+// Only load OcrDebug in development - use a no-op component in production
+const OcrDebug = import.meta.env.DEV
+  ? safeLazy(() => import("./dev/OcrDebug"), "OcrDebug")
+  : lazy(() => Promise.resolve({ default: () => null }));
 
 const queryClient = new QueryClient({
   defaultOptions: {
