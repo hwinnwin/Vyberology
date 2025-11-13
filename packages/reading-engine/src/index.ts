@@ -531,3 +531,7 @@ export {
   generateReadingV4,
   isFeatureEnabled as isV4ReadingEnabled,
 } from "@vybe/reading-core-private";
+
+// Five-Number Oracle
+export * from "./oracle";
+export * from "./numerology";

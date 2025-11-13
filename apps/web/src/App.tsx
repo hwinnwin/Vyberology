@@ -17,6 +17,7 @@ const Brand = lazy(() => import("./pages/Brand"));
 const NumerologyReader = lazy(() => import("./pages/NumerologyReader"));
 const Compatibility = lazy(() => import("./pages/Compatibility"));
 const GetVybe = lazy(() => import("./pages/GetVybe"));
+const Oracle = lazy(() => import("./pages/Oracle"));
 const History = lazy(() => import("./pages/History"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -61,6 +62,7 @@ const AppRouter = () => {
             <Route path="/numerology" element={<NumerologyReader />} />
             <Route path="/compatibility" element={<Compatibility />} />
             <Route path="/get-vybe" element={<GetVybe />} />
+            <Route path="/oracle" element={<Oracle />} />
             <Route path="/history" element={<History />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/privacy" element={<Privacy />} />
