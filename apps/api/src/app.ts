@@ -11,6 +11,11 @@ import { parseRoute } from './routes/parse.js';
 import { composeRoute } from './routes/compose.js';
 import { readRoute } from './routes/read.js';
 import { healthRoute } from './routes/health.js';
+import { historyRoute } from './routes/history.js';
+import { notesRoute } from './routes/notes.js';
+import { tagsRoute } from './routes/tags.js';
+import { exportsRoute } from './routes/exports.js';
+import { analyticsRoute } from './routes/analytics.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -29,11 +34,16 @@ export async function buildApp() {
     openapi: {
       info: {
         title: 'Vyberology API',
-        description: 'Volume 1 & 2 Reading Engine API - Deterministic numerology and narrative composition',
-        version: '0.1.0',
+        description: 'Volumes I, II & V - Deterministic numerology, narrative composition, and integration layer',
+        version: '0.3.0',
       },
       tags: [
-        { name: 'readings', description: 'Reading generation endpoints' },
+        { name: 'readings', description: 'Reading generation endpoints (Volumes I & II)' },
+        { name: 'history', description: 'Reading history and search (Volume V)' },
+        { name: 'notes', description: 'Journaling and notes (Volume V)' },
+        { name: 'tags', description: 'Tag management (Volume V)' },
+        { name: 'exports', description: 'Data export (Volume V)' },
+        { name: 'analytics', description: 'Usage analytics (Volume V)' },
         { name: 'system', description: 'System and health endpoints' },
       ],
     },
@@ -62,10 +72,20 @@ export async function buildApp() {
   });
 
   // Register routes
+  // System
   await fastify.register(healthRoute);
+
+  // Volumes I & II
   await fastify.register(parseRoute);
   await fastify.register(composeRoute);
   await fastify.register(readRoute);
+
+  // Volume V (Integration Layer)
+  await fastify.register(historyRoute);
+  await fastify.register(notesRoute);
+  await fastify.register(tagsRoute);
+  await fastify.register(exportsRoute);
+  await fastify.register(analyticsRoute);
 
   return fastify;
 }

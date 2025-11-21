@@ -157,3 +157,9 @@ export const StoredReadingSchema = z.object({
 });
 
 export type StoredReading = z.infer<typeof StoredReadingSchema>;
+
+// ============================================================================
+// Volume V Types (Integration Layer)
+// ============================================================================
+
+export * from './volume-v.js';
