@@ -16,6 +16,8 @@ import { notesRoute } from './routes/notes.js';
 import { tagsRoute } from './routes/tags.js';
 import { exportsRoute } from './routes/exports.js';
 import { analyticsRoute } from './routes/analytics.js';
+import { keysRoute } from './routes/keys.js';
+import { webhooksRoute } from './routes/webhooks.js';
 
 export async function buildApp() {
   const fastify = Fastify({
@@ -34,8 +36,8 @@ export async function buildApp() {
     openapi: {
       info: {
         title: 'Vyberology API',
-        description: 'Volumes I, II & V - Deterministic numerology, narrative composition, and integration layer',
-        version: '0.3.0',
+        description: 'Volumes I, II, V & VI - Deterministic numerology, narrative composition, integration layer, and transmission layer',
+        version: '0.4.0',
       },
       tags: [
         { name: 'readings', description: 'Reading generation endpoints (Volumes I & II)' },
@@ -44,6 +46,8 @@ export async function buildApp() {
         { name: 'tags', description: 'Tag management (Volume V)' },
         { name: 'exports', description: 'Data export (Volume V)' },
         { name: 'analytics', description: 'Usage analytics (Volume V)' },
+        { name: 'keys', description: 'API key management (Volume VI)' },
+        { name: 'webhooks', description: 'Webhook subscriptions (Volume VI)' },
         { name: 'system', description: 'System and health endpoints' },
       ],
     },
@@ -86,6 +90,10 @@ export async function buildApp() {
   await fastify.register(tagsRoute);
   await fastify.register(exportsRoute);
   await fastify.register(analyticsRoute);
+
+  // Volume VI (Transmission Layer)
+  await fastify.register(keysRoute);
+  await fastify.register(webhooksRoute);
 
   return fastify;
 }

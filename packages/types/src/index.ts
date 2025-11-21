@@ -163,3 +163,9 @@ export type StoredReading = z.infer<typeof StoredReadingSchema>;
 // ============================================================================
 
 export * from './volume-v.js';
+
+// ============================================================================
+// Volume VI Types (Transmission Layer)
+// ============================================================================
+
+export * from './volume-vi.js';
