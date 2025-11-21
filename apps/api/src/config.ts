@@ -13,4 +13,9 @@ export const config = {
     unauth: 30, // requests per minute
     auth: 300,  // requests per minute
   },
+  supabase: {
+    url: process.env.SUPABASE_URL || '',
+    anonKey: process.env.SUPABASE_ANON_KEY || '',
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+  },
 };
