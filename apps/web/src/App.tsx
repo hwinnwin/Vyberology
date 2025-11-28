@@ -21,6 +21,11 @@ const History = lazy(() => import("./pages/History"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const Luminous = lazy(() => import("./pages/Luminous"));
+const LuminousQuiz = lazy(() => import("./pages/LuminousQuiz"));
+const LuminousBookBuilder = lazy(() => import("./pages/LuminousBookBuilder"));
+const LuminousCheckout = lazy(() => import("./pages/LuminousCheckout"));
+const LuminousThankYou = lazy(() => import("./pages/LuminousThankYou"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OcrDebug = import.meta.env.DEV ? lazy(() => import("./dev/OcrDebug")) : null;
 
@@ -65,6 +70,11 @@ const AppRouter = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/luminous" element={<Luminous />} />
+            <Route path="/luminous/quiz" element={<LuminousQuiz />} />
+            <Route path="/luminous/book" element={<LuminousBookBuilder />} />
+            <Route path="/luminous/checkout" element={<LuminousCheckout />} />
+            <Route path="/luminous/thank-you" element={<LuminousThankYou />} />
             {import.meta.env.DEV && OcrDebug && <Route path="/dev/ocr" element={<OcrDebug />} />}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
