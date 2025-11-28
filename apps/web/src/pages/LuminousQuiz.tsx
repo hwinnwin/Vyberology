@@ -115,19 +115,18 @@ const LuminousQuiz = () => {
           </Button>
         </div>
 
-          {result && (
-            <Card className="bg-slate-900/70 border-slate-800">
-              <CardHeader>
-                <CardTitle className="text-slate-100">Your Order of Light</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-slate-200">
-                <p className="text-lg font-semibold">{result.finalOrder}</p>
-                <p className="text-sm text-slate-400">Secondary Order: {result.secondaryOrder}</p>
-                <p>Lumenheart: {result.lumenheart}</p>
-                <p>Life Path: {result.lifePath} ({formatDate(dob)})</p>
-                <div className="grid md:grid-cols-2 gap-3 pt-2">
-                  <div>
-                    <p className="font-semibold mb-1">Light traits</p>
+        {result && (
+          <Card className="bg-slate-900/70 border-slate-800">
+            <CardHeader>
+              <CardTitle className="text-slate-100">Your Order of Light</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-slate-200">
+              <p className="text-lg font-semibold">{result.finalOrder}</p>
+              <p>Lumenheart: {result.lumenheart}</p>
+              <p>Life Path: {result.lifePath} ({formatDate(dob)})</p>
+              <div className="grid md:grid-cols-2 gap-3 pt-2">
+                <div>
+                  <p className="font-semibold mb-1">Light traits</p>
                   <ul className="list-disc list-inside text-slate-300">
                     {orders[result.finalOrder].lightTraits.map((trait) => (
                       <li key={trait}>{trait}</li>

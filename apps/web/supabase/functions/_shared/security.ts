@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { securityHeaders } from '../_lib/securityHeaders.ts';
 
 const fallbackOrigins = [
+  'https://vyberology.com',
   'https://vyberology.app',
   'https://beta.vyberology.app',
   'capacitor://localhost',

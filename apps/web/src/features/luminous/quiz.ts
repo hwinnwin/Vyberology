@@ -55,18 +55,12 @@ export const scoreQuiz = (answers: string[], dob: string): QuizResult => {
     scores[weightOrder] += 3;
   }
 
-  const [finalOrder, secondaryOrder] = [...orderKeys]
-    .sort((a, b) => {
-      if (scores[b] === scores[a]) {
-        return orderKeys.indexOf(a) - orderKeys.indexOf(b);
-      }
-      return scores[b] - scores[a];
-    })
-    .slice(0, 2);
+  const finalOrder = orderKeys.reduce((currentTop, candidate) =>
+    scores[candidate] > scores[currentTop] ? candidate : currentTop
+  , orderKeys[0]);
 
   return {
     finalOrder,
-    secondaryOrder: secondaryOrder ?? finalOrder,
     scores,
     lifePath,
     lumenheart: orders[finalOrder].defaultLumenheart,

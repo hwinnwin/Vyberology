@@ -13,8 +13,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Dawnbearer: {
     name: "Dawnbearer",
     sigil: "dawnbearer",
-    tagline: "Ignite the horizon",
-    essence: "radiant optimism, hope, and guiding light",
     originBlockId: "dawnbearer_origin",
     trialBlockId: "dawnbearer_trial",
     destinyBlockId: "dawnbearer_destiny",
@@ -26,8 +24,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Heartforged: {
     name: "Heartforged",
     sigil: "heartforged",
-    tagline: "Forge devotion into action",
-    essence: "steadfast courage fueled by compassion",
     originBlockId: "heartforged_origin",
     trialBlockId: "heartforged_trial",
     destinyBlockId: "heartforged_destiny",
@@ -39,8 +35,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Starweaver: {
     name: "Starweaver",
     sigil: "starweaver",
-    tagline: "Thread patterns into destiny",
-    essence: "pattern-sight, tranquil insight, and graceful synthesis",
     originBlockId: "starweaver_origin",
     trialBlockId: "starweaver_trial",
     destinyBlockId: "starweaver_destiny",
@@ -52,8 +46,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Stonecaller: {
     name: "Stonecaller",
     sigil: "stonecaller",
-    tagline: "Anchor the world with patience",
-    essence: "grounded resolve, steadiness, and devotion to foundations",
     originBlockId: "stonecaller_origin",
     trialBlockId: "stonecaller_trial",
     destinyBlockId: "stonecaller_destiny",
@@ -65,8 +57,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Stormbound: {
     name: "Stormbound",
     sigil: "stormbound",
-    tagline: "Ride the change, shape the winds",
-    essence: "dynamic motion, adaptive force, courageous disruption",
     originBlockId: "stormbound_origin",
     trialBlockId: "stormbound_trial",
     destinyBlockId: "stormbound_destiny",
@@ -78,8 +68,6 @@ export const orders: Record<OrderKey, OrderDefinition> = {
   Shadowmancer: {
     name: "Shadowmancer",
     sigil: "shadowmancer",
-    tagline: "Guard the unseen currents",
-    essence: "subtle intuition, veiled empathy, and tactical patience",
     originBlockId: "shadowmancer_origin",
     trialBlockId: "shadowmancer_trial",
     destinyBlockId: "shadowmancer_destiny",

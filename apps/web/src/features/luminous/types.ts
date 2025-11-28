@@ -9,8 +9,6 @@ export type OrderKey =
 export interface OrderDefinition {
   name: OrderKey;
   sigil: string;
-  tagline: string;
-  essence: string;
   originBlockId: string;
   trialBlockId: string;
   destinyBlockId: string;
@@ -31,7 +29,6 @@ export interface StoryBlocks {
 
 export interface QuizResult {
   finalOrder: OrderKey;
-  secondaryOrder: OrderKey;
   scores: Record<OrderKey, number>;
   lifePath: number;
   lumenheart: string;
