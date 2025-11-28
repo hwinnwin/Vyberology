@@ -100,6 +100,33 @@ const isVybeReadingRequest = (value: unknown): value is VybeReadingRequest =>
   value.inputs.every(isInputField) &&
   (value.depth === undefined || value.depth === 'lite' || value.depth === 'standard' || value.depth === 'deep');
 
+// Simple cache for common time readings (11:11, 22:22, etc.)
+const readingCache = new Map<string, { reading: string; timestamp: number }>();
+const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+
+function getCacheKey(inputs: InputField[], depth: DepthMode): string {
+  return JSON.stringify({ inputs, depth });
+}
+
+function getCachedReading(key: string): string | null {
+  const cached = readingCache.get(key);
+  if (!cached) return null;
+  if (Date.now() - cached.timestamp > CACHE_TTL) {
+    readingCache.delete(key);
+    return null;
+  }
+  return cached.reading;
+}
+
+function cacheReading(key: string, reading: string): void {
+  readingCache.set(key, { reading, timestamp: Date.now() });
+  // Keep cache size reasonable
+  if (readingCache.size > 100) {
+    const firstKey = readingCache.keys().next().value;
+    readingCache.delete(firstKey);
+  }
+}
+
 serve(async (req) => {
   const timer = new ServerTimer();
   const requestId = crypto.randomUUID();
@@ -125,7 +152,9 @@ serve(async (req) => {
   };
 
   if (req.method === 'OPTIONS') {
-    return respond("", 204);
+    const headersObj = new Headers(jsonHeaders);
+    timer.apply(headersObj);
+    return new Response(null, { status: 204, headers: headersObj });
   }
 
   if (!allowed) {
@@ -152,6 +181,14 @@ serve(async (req) => {
 
     console.log('Vybe reading request:', { inputs, depth });
 
+    // Check cache for common readings
+    const cacheKey = getCacheKey(inputs, depth);
+    const cachedReading = getCachedReading(cacheKey);
+    if (cachedReading) {
+      console.log('Cache hit for:', cacheKey);
+      return respond({ reading: cachedReading, cached: true }, 200);
+    }
+
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
    if (!OPENAI_API_KEY) {
       console.error('OPENAI_API_KEY not configured');
@@ -164,12 +201,12 @@ serve(async (req) => {
     }
 
     const lengthHint =
-      depth === "lite" ? "~150–200 words." :
-      depth === "deep" ? "~600–800 words." :
-      "~300–400 words.";
+      depth === "lite" ? "~200–300 words." :
+      depth === "deep" ? "~800–1200 words." :
+      "~400–600 words.";
 
     const model = "gpt-4o-mini";
-    const maxTokens = depth === "deep" ? 900 : depth === "lite" ? 300 : 500;
+    const maxTokens = depth === "deep" ? 1500 : depth === "lite" ? 400 : 800;
 
     const userPrompt = `Reading for: ${inputs.map((input) => `${input.label}: ${input.value}`).join(", ")}
 Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengthHint}`.trim();
@@ -187,6 +224,7 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
         model,
         temperature: 0.4,
         max_tokens: maxTokens,
+        stream: true,
         messages: [
           { role: 'system', content: LUMEN_TONE },
           { role: 'assistant', content: GOLD_SHOT },
@@ -223,13 +261,63 @@ Output: sectioned format, adapt to input, show calc work, keep 11/22/33, ${lengt
       return respond({ error: `AI service error: ${response.status}` }, 500);
     }
 
-    const data = await response.json();
     timer.end(openaiSpan);
-    const reading = data.choices?.[0]?.message?.content?.trim() || 'No output.';
-    
-    console.log('Generated reading length:', reading.length);
 
-    return respond({ reading }, 200);
+    // Stream the response back to the client
+    const headers = new Headers(jsonHeaders);
+    headers.set('Content-Type', 'text/event-stream');
+    headers.set('Cache-Control', 'no-cache');
+    headers.set('Connection', 'keep-alive');
+    timer.apply(headers);
+
+    // Create a readable stream that forwards OpenAI's stream and caches the result
+    let fullReading = '';
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (!reader) {
+          controller.close();
+          return;
+        }
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n').filter(line => line.trim().startsWith('data: '));
+
+            for (const line of lines) {
+              const data = line.replace(/^data: /, '');
+              if (data === '[DONE]') continue;
+
+              try {
+                const parsed = JSON.parse(data);
+                const content = parsed.choices?.[0]?.delta?.content;
+                if (content) {
+                  fullReading += content;
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ content })}\n\n`));
+                }
+              } catch (e) {
+                // Skip invalid JSON chunks
+              }
+            }
+          }
+        } finally {
+          // Cache the complete reading
+          if (fullReading) {
+            cacheReading(cacheKey, fullReading);
+            console.log('Cached reading for:', cacheKey, 'length:', fullReading.length);
+          }
+          controller.close();
+        }
+      }
+    });
+
+    return new Response(stream, { status: 200, headers });
 
   } catch (error) {
     console.error('Error in vybe-reading function:', error);

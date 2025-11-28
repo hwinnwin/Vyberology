@@ -13,3 +13,6 @@ lerna-debug.log*
 .env*
 apps/mobile/.npm-cache/
 apps/web/.env.local
+
+# Local Netlify folder
+.netlify

@@ -8,8 +8,8 @@ export interface GA4AdapterOptions {
 }
 
 export const createGA4Adapter = (options: GA4AdapterOptions = {}): AnalyticsAdapter | null => {
-  const measurementId = options.measurementId ?? process.env.GA4_MEASUREMENT_ID;
-  const apiSecret = options.apiSecret ?? process.env.GA4_API_SECRET;
+  const measurementId = options.measurementId ?? (typeof process !== "undefined" ? process.env?.GA4_MEASUREMENT_ID : undefined);
+  const apiSecret = options.apiSecret ?? (typeof process !== "undefined" ? process.env?.GA4_API_SECRET : undefined);
 
   if (!measurementId || !apiSecret) {
     return null;
@@ -47,7 +47,7 @@ export const createGA4Adapter = (options: GA4AdapterOptions = {}): AnalyticsAdap
           body: JSON.stringify(body),
         });
       } catch (error) {
-        if (process.env.NODE_ENV !== "production") {
+        if (typeof process !== "undefined" && process.env?.NODE_ENV !== "production") {
           // eslint-disable-next-line no-console
           console.debug("[analytics:ga4] event skipped", error);
         }

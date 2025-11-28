@@ -34,6 +34,7 @@
   "scripts": {
     "preflight": "(corepack enable || corepack enable --install-directory \"$HOME/.local/bin\") && corepack prepare pnpm@9.15.4 --activate",
     "build": "turbo build",
+    "build:dev": "turbo run build:dev",
     "dev": "turbo dev",
     "lint": "pnpm -r exec eslint --ignore-pattern coverage --ignore-pattern dist --ignore-pattern build --ignore-pattern .aegis_audit .",
     "typecheck": "pnpm -r exec tsc --noEmit --pretty false",

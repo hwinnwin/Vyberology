@@ -2,6 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { securityHeaders } from '../_lib/securityHeaders.ts';
 
 const fallbackOrigins = [
+  'https://vyberology.com',
   'https://vyberology.app',
   'https://beta.vyberology.app',
   'capacitor://localhost',
@@ -162,4 +163,10 @@ export function requireJwt(req: Request): JwtCheckResult {
   }
 
   return { ok: true, token: match[1] };
+}
+
+export function optionalJwt(req: Request): { token: string | null } {
+  const authorization = req.headers.get('Authorization') ?? '';
+  const match = authorization.match(/^Bearer\s+(.+)$/i);
+  return { token: match?.[1] ?? null };
 }

@@ -1,9 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { withCors, requireJwt } from "../../apps/web/supabase/functions/_shared/security.ts";
-import { withTiming } from "../../apps/web/supabase/functions/_shared/telemetry.ts";
-import { ServerTimer } from "../../apps/web/supabase/functions/_lib/serverTiming.ts";
-import type { Result } from "@vybe/reading-engine";
+import { withCors, requireJwt } from "../_shared/security.ts";
+import { withTiming, ServerTimer } from "../_shared/telemetry.ts";
 
 // Import types (these will be bundled from private core)
 interface CaptureInput {
@@ -41,9 +39,12 @@ interface GeneratedReading {
 type Reading = GeneratedReading['reading'];
 type ReadingErrorCode = 'DISABLED' | 'INVALID_INPUT' | 'NOT_IMPLEMENTED' | 'INTERNAL';
 type ReadingError = { code: ReadingErrorCode; message: string };
+
+type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+
 serve(
   withCors(
-    withTiming(async (req) => {
+    withTiming(async (req: Request) => {
       const timer = new ServerTimer();
       const auth = requireJwt(req);
       if (!auth.ok) {

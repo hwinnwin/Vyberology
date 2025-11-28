@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { withCors, requireJwt } from "../_shared/security.ts";
+import { withCors, optionalJwt } from "../_shared/security.ts";
 import { withTiming } from "../_shared/telemetry.ts";
 import { ServerTimer } from "../_lib/serverTiming.ts";
 
@@ -24,10 +24,8 @@ serve(
   withCors(
     withTiming(async (req) => {
       const timer = new ServerTimer();
-      const auth = requireJwt(req);
-      if (!auth.ok) {
-        return auth.response;
-      }
+      // Allow both authenticated and anonymous users
+      const { token } = optionalJwt(req);
 
       try {
         const openaiKey = Deno.env.get("OPENAI_API_KEY");
@@ -65,7 +63,7 @@ serve(
         timer.end(renderSpan);
 
         const selectedModel = model || (depth === "deep" ? "gpt-4o-mini" : "gpt-4o-mini");
-        const maxTokens = depth === "deep" ? 1200 : depth === "lite" ? 400 : 700;
+        const maxTokens = depth === "deep" ? 1500 : depth === "lite" ? 400 : 900;
 
         const openaiSpan = timer.start("openai");
         const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {

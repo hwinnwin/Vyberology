@@ -4,7 +4,7 @@
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": false,
-    "rootDir": ".",
+    "rootDir": "src",
     "types": ["vite/client"]
   },
   "include": ["src", "src/__tests__", "vitest.config.ts"],

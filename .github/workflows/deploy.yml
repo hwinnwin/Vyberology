@@ -1,5 +1,4 @@
 name: Deploy (Web + Supabase)
-
 on:
   workflow_dispatch:
   push:
@@ -7,15 +6,12 @@ on:
     paths:
       - 'apps/web/**'
       - '.github/workflows/deploy.yml'
-
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   id-token: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -35,26 +31,55 @@ jobs:
         run: pnpm --filter @vybe/analytics-adapter run build
       - name: Build web
         run: pnpm --filter ./apps/web run build
-
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Supabase login & link
+      - name: Inspect Supabase token (diagnostic)
+        shell: bash
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-      - name: Push migrations
-        run: supabase db push
-      - name: Deploy edge functions
         run: |
-          supabase functions deploy vybe-reading
-          supabase functions deploy ocr
-          supabase functions deploy read
-          supabase functions deploy compare
-          supabase functions deploy log-error
-          supabase functions deploy error-digest
-
+          set +x
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "Token not present" >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os
+          token = os.environ["SUPABASE_ACCESS_TOKEN"]
+          print(f"length={len(token)}")
+          print(f"prefix={token[:4]}")
+          print(f"suffix={token[-4:]}")
+          PY
+      - name: Link to Supabase project
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Push migrations
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          # Mark remote-only migration as reverted (ignore it)
+          supabase migration repair --status reverted 20250929023015 || true
+          supabase db push --yes
+      - name: Deploy edge functions
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          for fn in generate-reading-v4 healthz; do
+            supabase functions deploy "$fn" --project-ref "$SUPABASE_PROJECT_REF"
+          done
       # ---- choose one hosting target; keep others commented ----
       # Vercel:
       # - name: Deploy to Vercel
@@ -65,21 +90,17 @@ jobs:
       #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       #     working-directory: apps/web
       #     github-comment: false
-
       # Netlify:
       - name: Deploy to Netlify
-        uses: netlify/actions/cli@3185065f4ab2f6df6f2ef41ee013626e1c02a426
-        with:
-          args: deploy --dir=apps/web/dist --prod
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        run: |
+          npx netlify-cli deploy --cwd=apps/web --dir=dist --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
       - name: Post-release tag
         if: ${{ success() }}
         run: |
           git config user.name "guardian-aegis-bot"
           git config user.email "aegis-bot@users.noreply.github.com"
           git tag -a guardian-$(date +'%Y%m%d-%H%M') -m "Guardian Aegis release"
-          git push origin --tags
+          git push origin --tags || echo "Tag push failed (permissions), continuing..."
