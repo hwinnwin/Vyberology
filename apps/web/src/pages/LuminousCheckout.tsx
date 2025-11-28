@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { orders, storyBlocks } from "@/features/luminous/data";
-import { generateLegendBook } from "@/features/luminous/pdf";
-import { QuizResult } from "@/features/luminous/types";
+import { generateLegendBook, generateResolvedLegendBook } from "@/features/luminous/pdf";
+import { QuizResult, ResolvedBook } from "@/features/luminous/types";
 
 interface CheckoutState {
   quizResult?: QuizResult;
   dob?: string;
+  resolvedBook?: ResolvedBook;
+  userName?: string;
 }
 
 const LuminousCheckout = () => {
@@ -20,7 +22,8 @@ const LuminousCheckout = () => {
   const state = (location.state as CheckoutState) || {};
   const [quizResult] = useState<QuizResult | null>(state.quizResult ?? null);
   const [dob] = useState(state.dob ?? "");
-  const [form, setForm] = useState({ name: "", email: "", dedication: "" });
+  const [resolvedBook] = useState<ResolvedBook | null>(state.resolvedBook ?? null);
+  const [form, setForm] = useState({ name: state.userName ?? "", email: "", dedication: "" });
   const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
@@ -47,10 +50,16 @@ const LuminousCheckout = () => {
     if (!quizResult || !form.name || !form.email || !dob) return;
     setIsGenerating(true);
     try {
-      const pdfBlob = generateLegendBook(
-        { name: form.name, email: form.email, dob, dedication: form.dedication },
-        quizResult
-      );
+      const pdfBlob = resolvedBook
+        ? generateResolvedLegendBook(
+            { name: form.name, email: form.email, dob, dedication: form.dedication },
+            quizResult,
+            resolvedBook
+          )
+        : generateLegendBook(
+            { name: form.name, email: form.email, dob, dedication: form.dedication },
+            quizResult
+          );
       const downloadUrl = URL.createObjectURL(pdfBlob);
       navigate("/luminous/thank-you", { state: { downloadUrl, order: quizResult.finalOrder, email: form.email } });
     } finally {
