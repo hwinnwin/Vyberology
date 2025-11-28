@@ -1,0 +1,2 @@
+{"ts":"2025-01-05T10:03:00+00:00","component":"execution","symbol":"AAPL","side":"buy","qty":6.66,"fill_px":150.0,"metrics":{"realized_pnl":0.0,"unrealized_pnl":13.2,"total_pnl":13.2,"delta_pnl":13.2,"cumulative_pnl":13.2}}
+{"ts":"2025-01-05T10:07:00+00:00","component":"execution","symbol":"AAPL","side":"sell","qty":-3.33,"fill_px":152.0,"metrics":{"realized_pnl":6.66,"unrealized_pnl":4.1,"total_pnl":10.76,"delta_pnl":10.76,"cumulative_pnl":23.96}}

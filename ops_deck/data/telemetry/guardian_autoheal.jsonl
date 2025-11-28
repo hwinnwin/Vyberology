@@ -1,0 +1,2 @@
+{"ts":"2025-01-05T10:05:00+00:00","alerts":["risk_latency_high"],"actions":["reset_risk_calculator"]}
+{"ts":"2025-01-05T10:07:30+00:00","alerts":["signal_accept_drop"],"actions":["refresh_signal_cache","notify_ops"]}

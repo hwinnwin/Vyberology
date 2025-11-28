@@ -1,0 +1,3 @@
+{"ts": null, "message": "ΔPnL -150.00 breached threshold; Sharpe 0.50 below minimum; Critical risk ratio 30.0% exceeded", "health": {"components": {"execution": {"delta_pnl": -150.0, "sharpe": 0.5, "count": 2}}, "risk_critical_ratio": 0.3}}
+{"ts": null, "message": "ΔPnL -150.00 breached threshold; Sharpe 0.50 below minimum; Critical risk ratio 30.0% exceeded", "health": {"components": {"execution": {"delta_pnl": -150.0, "sharpe": 0.5, "count": 2}}, "risk_critical_ratio": 0.3}}
+{"ts": null, "message": "ΔPnL -150.00 breached threshold; Sharpe 0.50 below minimum; Critical risk ratio 30.0% exceeded", "health": {"components": {"execution": {"delta_pnl": -150.0, "sharpe": 0.5, "count": 2}}, "risk_critical_ratio": 0.3}}
