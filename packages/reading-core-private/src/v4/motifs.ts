@@ -1,4 +1,4 @@
-import type { Motif, TimeTokenValue, TokenInfo, TokenType } from "./types";
+import type { Motif, TimeTokenValue, TokenInfo } from "./types";
 
 const ARRIVAL_KEYWORDS = ["arrive", "arriving", "arrival", "return home", "back home"];
 

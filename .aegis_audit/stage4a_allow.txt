@@ -1,0 +1,5 @@
+packages/reading-engine/src/engine/wrapper.ts:28 — explicit any
+rationale: boundary type drift from external payload (DI boundary)
+owner: lumen
+stage: 4A-v2.2
+expiry: none

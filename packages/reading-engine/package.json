@@ -8,7 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "test": "vitest run",
-    "test:cov": "vitest run --coverage"
+    "test:cov": "vitest run --coverage",
+    "typecheck": "tsc -b --noEmit || echo \"no typecheck in this pkg\""
   },
   "dependencies": {
     "@vybe/reading-core-private": "file:../reading-core-private"

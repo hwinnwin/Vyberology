@@ -1,5 +1,4 @@
 name: Deploy (Web + Supabase)
-
 on:
   workflow_dispatch:
   push:
@@ -7,15 +6,12 @@ on:
     paths:
       - 'apps/web/**'
       - '.github/workflows/deploy.yml'
-
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
-
 permissions:
   contents: read
   id-token: write
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,32 +19,67 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
-      - name: npm install
-        run: npm ci
-
+        with:
+          node-version: '20'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Use workspace pnpm version
+        run: corepack prepare pnpm@9.15.4 --activate
+      - name: Install dependencies (pnpm)
+        run: pnpm install --frozen-lockfile
+      - name: Build analytics adapter
+        run: pnpm --filter @vybe/analytics-adapter run build
       - name: Build web
-        run: npm run build --workspace apps/web
-
+        run: pnpm --filter ./apps/web run build
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
-      - name: Supabase login & link
+      - name: Inspect Supabase token (diagnostic)
+        shell: bash
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
-      - name: Push migrations
-        run: supabase db push
-      - name: Deploy edge functions
         run: |
-          supabase functions deploy vybe-reading
-          supabase functions deploy ocr
-          supabase functions deploy read
-          supabase functions deploy compare
-          supabase functions deploy log-error
-          supabase functions deploy error-digest
-
+          set +x
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "Token not present" >&2
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os
+          token = os.environ["SUPABASE_ACCESS_TOKEN"]
+          print(f"length={len(token)}")
+          print(f"prefix={token[:4]}")
+          print(f"suffix={token[-4:]}")
+          PY
+      - name: Link to Supabase project
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          supabase link --project-ref "$SUPABASE_PROJECT_REF"
+      - name: Push migrations
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          # Mark remote-only migration as reverted (ignore it)
+          supabase migration repair --status reverted 20250929023015 || true
+          supabase db push --yes
+      - name: Deploy edge functions
+        shell: bash
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          set +x
+          for fn in generate-reading-v4 healthz; do
+            supabase functions deploy "$fn" --project-ref "$SUPABASE_PROJECT_REF"
+          done
       # ---- choose one hosting target; keep others commented ----
       # Vercel:
       # - name: Deploy to Vercel
@@ -59,21 +90,17 @@ jobs:
       #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
       #     working-directory: apps/web
       #     github-comment: false
-
-      # Netlify (CLI):
-      - name: Install Netlify CLI
-        run: npm i -g netlify-cli
-      - name: Deploy to Netlify (CLI)
+      # Netlify:
+      - name: Deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
         run: |
-          netlify deploy --dir=apps/web/dist --prod
-
+          npx netlify-cli deploy --cwd=apps/web --dir=dist --prod --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
       - name: Post-release tag
         if: ${{ success() }}
         run: |
           git config user.name "guardian-aegis-bot"
           git config user.email "aegis-bot@users.noreply.github.com"
           git tag -a guardian-$(date +'%Y%m%d-%H%M') -m "Guardian Aegis release"
-          git push origin --tags
+          git push origin --tags || echo "Tag push failed (permissions), continuing..."

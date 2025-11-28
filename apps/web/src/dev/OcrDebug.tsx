@@ -6,6 +6,10 @@ import { saveReading } from "../lib/saveReading";
 import { ReadingDelivery } from "@/components/ReadingDelivery";
 import { trackAnalyticsEvent } from "@/lib/analytics";
 
+type OcrBoundingBox = [number, number, number, number]; // added by Lumen (Stage 4A)
+type RenderOptions = { explain: boolean; format?: "blocks" | "text" }; // added by Lumen (Stage 4A)
+type OcrResult = { text: string; confidence: number; box?: OcrBoundingBox }; // added by Lumen (Stage 4A)
+
 export default function OcrDebug() {
   const [img, setImg] = useState<string>("");
   const [reading, setReading] = useState<string>("");
@@ -24,7 +28,7 @@ export default function OcrDebug() {
       platform: "web",
       source: "file-input",
     });
-    const { text, confidence } = await recognizeText(file);
+    const { text, confidence }: OcrResult = await recognizeText(file);
     setRaw(text);
     const tokens = parseTokens(text, confidence);
     setTokens(tokens);
@@ -32,8 +36,10 @@ export default function OcrDebug() {
       platform: "web",
       tokenCount: tokens.length,
     });
-    const renderOptions: any = { explain: true };
-    renderOptions.format = FEAT_DELIVERY ? "blocks" : "text";
+    const renderOptions: RenderOptions = {
+      explain: true,
+      format: FEAT_DELIVERY ? "blocks" : "text",
+    }; // added by Lumen (Stage 4A)
     const out = renderVolumeIV(
       { coreNumber: 11, tokens, volume: "IV" },
       renderOptions

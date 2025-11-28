@@ -1,12 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-// CORS headers
-// TODO: Update to production domain before deployment
-// Recommended: Deno.env.get('APP_URL') || 'https://vyberology.app'
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // FIXME: Change to production domain
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { withCors, optionalJwt } from "../_shared/security.ts";
+import { withTiming } from "../_shared/telemetry.ts";
+import { ServerTimer } from "../_lib/serverTiming.ts";
 
 export type DepthMode = "lite" | "standard" | "deep";
 
@@ -25,113 +20,86 @@ interface GenerateReadingRequest {
   model?: string;
 }
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+serve(
+  withCors(
+    withTiming(async (req) => {
+      const timer = new ServerTimer();
+      // Allow both authenticated and anonymous users
+      const { token } = optionalJwt(req);
 
-  try {
-    // Get the OpenAI API key from environment variables (Supabase secrets)
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
-
-    if (!openaiKey) {
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      try {
+        const openaiKey = Deno.env.get("OPENAI_API_KEY");
+        if (!openaiKey) {
+          return jsonResponse(timer, { error: "OpenAI API key not configured" }, 500);
         }
-      );
-    }
 
-    // Parse the request body
-    const requestData: GenerateReadingRequest = await req.json();
+        const parseSpan = timer.start("parse");
+        const requestData: GenerateReadingRequest = await req.json();
+        timer.end(parseSpan);
 
-    const {
-      fullName,
-      dobISO,
-      inputs,
-      numbers,
-      includeChakra = false,
-      depth = "standard",
-      model
-    } = requestData;
+        const {
+          fullName,
+          dobISO,
+          inputs,
+          numbers,
+          includeChakra = false,
+          depth = "standard",
+          model,
+        } = requestData;
 
-    // Validate required fields
-    if (!fullName) {
-      return new Response(
-        JSON.stringify({ error: 'fullName is required' }),
-        {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        if (!fullName) {
+          return jsonResponse(timer, { error: "fullName is required" }, 400);
         }
-      );
-    }
 
-    // Build the messages for OpenAI
-    const messages = buildReadingMessages({
-      fullName,
-      dobISO,
-      inputs,
-      numbers,
-      includeChakra,
-      depth
-    });
+        const renderSpan = timer.start("render");
+        const messages = buildReadingMessages({
+          fullName,
+          dobISO,
+          inputs,
+          numbers,
+          includeChakra,
+          depth,
+        });
+        timer.end(renderSpan);
 
-    // Determine model and token limits based on depth
-    const selectedModel = model || (depth === "deep" ? "gpt-4o-mini" : "gpt-4o-mini");
-    const maxTokens = depth === "deep" ? 1200 : depth === "lite" ? 400 : 700;
+        const selectedModel = model || (depth === "deep" ? "gpt-4o-mini" : "gpt-4o-mini");
+        const maxTokens = depth === "deep" ? 1500 : depth === "lite" ? 400 : 900;
 
-    // Call OpenAI API
-    const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${openaiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: selectedModel,
-        temperature: 0.6,
-        max_tokens: maxTokens,
-        messages
-      })
-    });
+        const openaiSpan = timer.start("openai");
+        const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openaiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            temperature: 0.6,
+            max_tokens: maxTokens,
+            messages,
+          }),
+        });
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      console.error('OpenAI API error:', errorText);
-      return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${openaiResponse.status}` }),
-        {
-          status: openaiResponse.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        if (!openaiResponse.ok) {
+          const errorText = await openaiResponse.text();
+          console.error("OpenAI API error:", errorText);
+          timer.end(openaiSpan);
+          return jsonResponse(timer, { error: `OpenAI API error: ${openaiResponse.status}` }, openaiResponse.status);
         }
-      );
-    }
 
-    const data = await openaiResponse.json();
-    const reading = (data.choices[0]?.message?.content || "No output.").trim();
+        const data = await openaiResponse.json();
+        timer.end(openaiSpan);
+        const reading = (data.choices[0]?.message?.content || "No output.").trim();
 
-    return new Response(
-      JSON.stringify({ reading }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        return jsonResponse(timer, { reading });
+      } catch (error) {
+        console.error("Error in generate-reading function:", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+        return jsonResponse(timer, { error: errorMessage }, 500);
       }
-    );
-
-  } catch (error) {
-    console.error('Error in generate-reading function:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    );
-  }
-});
+    })
+  )
+);
 
 // Helper function to build messages for OpenAI
 function buildReadingMessages(params: {
@@ -190,4 +158,10 @@ Output rules:
   };
 
   return [systemMessage, userMessage];
+}
+
+function jsonResponse(timer: ServerTimer, body: unknown, status = 200): Response {
+  const headers = new Headers({ "Content-Type": "application/json" });
+  timer.apply(headers);
+  return new Response(JSON.stringify(body), { status, headers });
 }

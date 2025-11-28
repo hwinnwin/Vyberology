@@ -1,0 +1,12 @@
+{
+  "checksums": {
+    "eslint_json": null,
+    "fix_plan": "sha256:3b6d1934499941ffea271c43e5ac7b6b7e6afe48f3c27c216ccd86d0107e802e",
+    "diff_files": "sha256:dec668f2fd60c40176e2d7221d0389ffded5268a81a9150c97996e5881d6adc0",
+    "report": "sha256:247b0760981bc3defbdd2762d1aea389b194a0221c56f5ed511ea9501fcf0173",
+    "verification": "sha256:6f4ce6cd4787c395a768867164861d2185c53ecb60d2bcb5fc08f26ab3faf9fb",
+    "k6_summary": null,
+    "readme": "sha256:5be3da5b8cc25751e199b65a4eaecf9b36b54c924fa809cef962f69a83b48cd2",
+    "changelog": "sha256:d5a1663b7988878c33c374b2c8d4f8b078f64527464c29d7e4d25b9d74cde626"
+  }
+}

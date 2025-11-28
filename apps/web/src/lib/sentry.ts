@@ -2,6 +2,8 @@ import * as Sentry from '@sentry/react';
 import { Capacitor } from '@capacitor/core';
 import { init as initCapacitorSentry } from '@sentry/capacitor';
 
+type UnknownRecord = Record<string, unknown>; // added by Lumen (Stage 4A)
+
 /**
  * Initialize Sentry for error tracking and performance monitoring
  *
@@ -90,16 +92,17 @@ function scrubPII(event: Sentry.Event): Sentry.Event | null {
   // Scrub breadcrumbs (user actions leading to error)
   if (event.breadcrumbs) {
     event.breadcrumbs = event.breadcrumbs.map(breadcrumb => {
-      if (breadcrumb.data) {
+      if (breadcrumb.data && typeof breadcrumb.data === 'object') {
+        const breadcrumbData = breadcrumb.data as UnknownRecord;
         // Remove form input data
-        if (breadcrumb.data.fullName) breadcrumb.data.fullName = '[REDACTED]';
-        if (breadcrumb.data.dob) breadcrumb.data.dob = '[REDACTED]';
-        if (breadcrumb.data.name) breadcrumb.data.name = '[REDACTED]';
-        if (breadcrumb.data.dateOfBirth) breadcrumb.data.dateOfBirth = '[REDACTED]';
-        if (breadcrumb.data.aName) breadcrumb.data.aName = '[REDACTED]';
-        if (breadcrumb.data.bName) breadcrumb.data.bName = '[REDACTED]';
-        if (breadcrumb.data.aDob) breadcrumb.data.aDob = '[REDACTED]';
-        if (breadcrumb.data.bDob) breadcrumb.data.bDob = '[REDACTED]';
+        if (typeof breadcrumbData.fullName === 'string') breadcrumbData.fullName = '[REDACTED]';
+        if (typeof breadcrumbData.dob === 'string') breadcrumbData.dob = '[REDACTED]';
+        if (typeof breadcrumbData.name === 'string') breadcrumbData.name = '[REDACTED]';
+        if (typeof breadcrumbData.dateOfBirth === 'string') breadcrumbData.dateOfBirth = '[REDACTED]';
+        if (typeof breadcrumbData.aName === 'string') breadcrumbData.aName = '[REDACTED]';
+        if (typeof breadcrumbData.bName === 'string') breadcrumbData.bName = '[REDACTED]';
+        if (typeof breadcrumbData.aDob === 'string') breadcrumbData.aDob = '[REDACTED]';
+        if (typeof breadcrumbData.bDob === 'string') breadcrumbData.bDob = '[REDACTED]';
       }
 
       // Scrub message text
@@ -113,23 +116,22 @@ function scrubPII(event: Sentry.Event): Sentry.Event | null {
 
   // Scrub request data
   if (event.request?.data) {
-    const data = event.request.data;
-    if (typeof data === 'object') {
-      if (data.fullName) data.fullName = '[REDACTED]';
-      if (data.dob) data.dob = '[REDACTED]';
-      if (data.name) data.name = '[REDACTED]';
-      if (data.dateOfBirth) data.dateOfBirth = '[REDACTED]';
+    const data = event.request.data as UnknownRecord;
+    if (typeof data === 'object' && data !== null) {
+      if (typeof data.fullName === 'string') data.fullName = '[REDACTED]';
+      if (typeof data.dob === 'string') data.dob = '[REDACTED]';
+      if (typeof data.name === 'string') data.name = '[REDACTED]';
+      if (typeof data.dateOfBirth === 'string') data.dateOfBirth = '[REDACTED]';
     }
   }
 
   // Scrub extra context
   if (event.extra) {
-    Object.keys(event.extra).forEach(key => {
-      const value = event.extra![key];
+    Object.entries(event.extra).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        event.extra![key] = scrubText(value);
+        event.extra[key] = scrubText(value);
       } else if (typeof value === 'object' && value !== null) {
-        event.extra![key] = scrubObject(value);
+        event.extra[key] = scrubObject(value);
       }
     });
   }
@@ -161,21 +163,24 @@ function scrubText(text: string): string {
 /**
  * Recursively scrub object properties
  */
-function scrubObject(obj: any): any {
-  const scrubbed: any = {};
+function scrubObject(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(item => scrubObject(item));
+  }
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
 
-  Object.keys(obj).forEach(key => {
-    const value = obj[key];
+  const record = value as UnknownRecord;
+  const scrubbed: UnknownRecord = {};
 
-    // Redact sensitive keys
+  Object.entries(record).forEach(([key, entryValue]) => {
     if (['fullName', 'name', 'dob', 'dateOfBirth', 'email', 'phone'].includes(key)) {
       scrubbed[key] = '[REDACTED]';
-    } else if (typeof value === 'string') {
-      scrubbed[key] = scrubText(value);
-    } else if (typeof value === 'object' && value !== null) {
-      scrubbed[key] = scrubObject(value);
+    } else if (typeof entryValue === 'string') {
+      scrubbed[key] = scrubText(entryValue);
     } else {
-      scrubbed[key] = value;
+      scrubbed[key] = scrubObject(entryValue);
     }
   });
 
@@ -202,12 +207,12 @@ export function captureError(
   context?: {
     context?: string;
     level?: Sentry.SeverityLevel;
-    extra?: Record<string, any>;
+    extra?: UnknownRecord;
     tags?: Record<string, string>;
   }
 ) {
   // Build the event data
-  const eventData: any = {
+  const eventData: Partial<Sentry.Event> & { level: Sentry.SeverityLevel } = {
     level: context?.level || 'error',
   };
 
@@ -245,7 +250,7 @@ export function captureError(
 export function setUserContext(user: {
   id?: string;
   segment?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }) {
   // Only set non-PII user info
   Sentry.setUser({
@@ -264,7 +269,7 @@ export function setUserContext(user: {
  */
 export function addBreadcrumb(
   message: string,
-  data?: Record<string, any>,
+  data?: UnknownRecord,
   level: Sentry.SeverityLevel = 'info'
 ) {
   Sentry.addBreadcrumb({

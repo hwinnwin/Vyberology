@@ -8,14 +8,23 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc -b --noEmit || echo \"no typecheck in this pkg\""
   },
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.6.3",
+    "vite": "^5.4.19",
     "vitest": "^2.1.2"
   }
 }

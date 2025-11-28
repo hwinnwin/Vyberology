@@ -1,0 +1,15 @@
+== Devices ==
+-- iOS 26.0 --
+    iPhone 17 Pro (7E8A141A-191C-4AA4-B435-9A51ABA38743) (Shutdown) 
+    iphone 17 pro  (49D48EF2-152C-4A65-990D-3723FBAEAC74) (Shutdown) 
+    iPhone 17 Pro Max (780388A9-B457-4DEC-A698-F0442305FFE2) (Shutdown) 
+    iPhone Air (89DD8C99-D86B-4DAE-9C8A-A4B174D7F489) (Shutdown) 
+    iPhone 17 (80C792EE-FDBB-40BB-879E-129E24B8B6F0) (Shutdown) 
+    Vybe iPhone (dev) (BB70E885-C1D2-4500-9936-42E715317E56) (Booted) 
+    iPhone 16e (723DBD30-0302-4B22-9694-C5BAAA480103) (Shutdown) 
+    iPad Pro 11-inch (M4) (E68FB390-049C-4F7E-83B5-8FA2C596CAAD) (Shutdown) 
+    iPad Pro 13-inch (M4) (CC361192-CD06-40FA-A849-764D7F024C93) (Shutdown) 
+    iPad mini (A17 Pro) (71041DAA-0374-48B5-8EF0-3EA11A87AD8A) (Shutdown) 
+    iPad (A16) (10A46C9F-304C-404C-81F1-429E566F1065) (Shutdown) 
+    iPad Air 13-inch (M3) (270EE267-81AA-4ED2-89E0-05D16F04B9D8) (Shutdown) 
+    iPad Air 11-inch (M3) (493D46A1-7D0E-4072-AB68-1D357C61E0CB) (Shutdown) 

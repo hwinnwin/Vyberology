@@ -1,9 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { withCors, requireJwt } from '../_shared/security.ts';
+import { withTiming } from '../_shared/telemetry.ts';
 
 // Archetype data
 const ARCHETYPES = [
@@ -122,10 +119,13 @@ const KEYSTONE_ACTIONS = [
   { archetype_number: 33, action: 'Hold space for someone\'s transformation', xp_value: 4, category: 'service' }
 ];
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
+Deno.serve(
+  withCors(
+    withTiming(async (req) => {
+      const auth = requireJwt(req);
+      if (!auth.ok) {
+        return auth.response;
+      }
 
   try {
     const supabaseClient = createClient(
@@ -181,13 +181,15 @@ Deno.serve(async (req) => {
           keystone_actions: KEYSTONE_ACTIONS.length
         }
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Seeding error:', error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      { headers: { 'Content-Type': 'application/json' }, status: 500 }
     );
   }
-});
+    })
+  )
+);

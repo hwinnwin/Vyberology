@@ -13,10 +13,12 @@ export default defineConfig({
       include: ["src/**/*.ts", "v4/**/*.ts"],
       reporter: ["text", "lcov"],
       exclude: ["v4/types.ts"],
-      lines: 0.98,
-      functions: 0.98,
-      statements: 0.98,
-      branches: 0.9,
+      thresholds: {
+        lines: 98,
+        functions: 98,
+        statements: 98,
+        branches: 90,
+      },
     },
   },
 });

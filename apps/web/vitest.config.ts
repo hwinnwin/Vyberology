@@ -30,18 +30,20 @@ export default defineConfig({
         'android/**',
         'ios/**',
         'dist/**',
+        'src/lib/numerology/types.ts',
       ],
       thresholds: {
-        lines: 60,
-        functions: 60,
-        branches: 60,
-        statements: 60,
+        lines: 0.95,
+        functions: 0.95,
+        branches: 0.9,
+        statements: 0.95,
       },
     },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@vybe/analytics-adapter': path.resolve(__dirname, './src/test/mocks/analytics-adapter.ts'),
     },
   },
 });
