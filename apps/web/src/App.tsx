@@ -25,6 +25,7 @@ const Luminous = lazy(() => import("./pages/Luminous"));
 const LuminousQuiz = lazy(() => import("./pages/LuminousQuiz"));
 const LuminousCheckout = lazy(() => import("./pages/LuminousCheckout"));
 const LuminousThankYou = lazy(() => import("./pages/LuminousThankYou"));
+const LuminousSuccess = lazy(() => import("./pages/LuminousSuccess"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const OcrDebug = import.meta.env.DEV ? lazy(() => import("./dev/OcrDebug")) : null;
 
@@ -73,6 +74,7 @@ const AppRouter = () => {
             <Route path="/luminous/quiz" element={<LuminousQuiz />} />
             <Route path="/luminous/checkout" element={<LuminousCheckout />} />
             <Route path="/luminous/thank-you" element={<LuminousThankYou />} />
+            <Route path="/luminous/success" element={<LuminousSuccess />} />
             {import.meta.env.DEV && OcrDebug && <Route path="/dev/ocr" element={<OcrDebug />} />}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
