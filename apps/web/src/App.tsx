@@ -26,6 +26,7 @@ const LuminousQuiz = lazy(() => import("./pages/LuminousQuiz"));
 const LuminousCheckout = lazy(() => import("./pages/LuminousCheckout"));
 const LuminousThankYou = lazy(() => import("./pages/LuminousThankYou"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Daily = lazy(() => import("./pages/Daily"));
 const OcrDebug = import.meta.env.DEV ? lazy(() => import("./dev/OcrDebug")) : null;
 
 const queryClient = new QueryClient({
@@ -73,6 +74,7 @@ const AppRouter = () => {
             <Route path="/luminous/quiz" element={<LuminousQuiz />} />
             <Route path="/luminous/checkout" element={<LuminousCheckout />} />
             <Route path="/luminous/thank-you" element={<LuminousThankYou />} />
+            <Route path="/daily" element={<Daily />} />
             {import.meta.env.DEV && OcrDebug && <Route path="/dev/ocr" element={<OcrDebug />} />}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
