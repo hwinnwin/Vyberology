@@ -22,6 +22,7 @@ const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Daily = lazy(() => import("./pages/Daily"));
 const OcrDebug = import.meta.env.DEV ? lazy(() => import("./dev/OcrDebug")) : null;
 
 const queryClient = new QueryClient({
@@ -65,6 +66,7 @@ const AppRouter = () => {
             <Route path="/settings" element={<Settings />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/daily" element={<Daily />} />
             {import.meta.env.DEV && OcrDebug && <Route path="/dev/ocr" element={<OcrDebug />} />}
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
