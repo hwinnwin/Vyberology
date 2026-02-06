@@ -1,0 +1,75 @@
+{
+  "name": "@vybe/media-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Cross-platform audio/video engine for Vybe apps - inspired by Spotube",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    },
+    "./player": {
+      "import": "./dist/src/player/index.js",
+      "types": "./dist/src/player/index.d.ts"
+    },
+    "./sources": {
+      "import": "./dist/src/sources/index.js",
+      "types": "./dist/src/sources/index.d.ts"
+    },
+    "./plugins": {
+      "import": "./dist/src/plugins/index.js",
+      "types": "./dist/src/plugins/index.d.ts"
+    },
+    "./lyrics": {
+      "import": "./dist/src/lyrics/index.js",
+      "types": "./dist/src/lyrics/index.d.ts"
+    },
+    "./components": {
+      "import": "./dist/src/components/index.js",
+      "types": "./dist/src/components/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "howler": "^2.2.4",
+    "hls.js": "^1.5.17",
+    "zustand": "^5.0.9",
+    "eventemitter3": "^5.0.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.462.0"
+  },
+  "devDependencies": {
+    "@types/howler": "^2.2.12",
+    "@types/react": "^19.0.0",
+    "@vitest/coverage-v8": "^2.1.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "audio",
+    "video",
+    "player",
+    "streaming",
+    "music",
+    "media"
+  ],
+  "license": "MIT"
+}
