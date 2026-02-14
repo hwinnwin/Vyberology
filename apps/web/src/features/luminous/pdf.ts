@@ -1,5 +1,5 @@
 import { orders, storyBlocks } from "./data";
-import { LuminousUserInfo, QuizResult } from "./types";
+import { LuminousUserInfo, QuizResult, ResolvedBook } from "./types";
 
 const escapePdfText = (value: string) =>
   value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
@@ -57,6 +57,29 @@ const buildSections = (
       ? { heading: "Dedication", body: user.dedication }
       : { heading: "Email", body: user.email },
   ];
+};
+
+const buildResolvedSections = (
+  book: ResolvedBook,
+  user: LuminousUserInfo,
+  result: QuizResult,
+  edition = "Book of Light"
+): PdfSection[] => {
+  const primaryOrder = orders[result.finalOrder];
+  const sections: PdfSection[] = [
+    { heading: book.title, body: `${user.name}'s personalised legend (${edition})` },
+    { heading: "Order of Light", body: `${primaryOrder.name} — ${primaryOrder.tagline}` },
+  ];
+
+  book.sections.forEach((section) => {
+    section.blocks.forEach((block, index) => {
+      const heading = index === 0 ? section.title : `${section.title} (${block.id})`;
+      const body = block.type === "list" ? block.value.split("\n") : block.value;
+      sections.push({ heading, body });
+    });
+  });
+
+  return sections;
 };
 
 const assemblePdf = (sections: PdfSection[]) => {
@@ -124,5 +147,15 @@ export const generateLegendBook = (
   edition?: string
 ) => {
   const sections = buildSections(user, result, edition);
+  return assemblePdf(sections);
+};
+
+export const generateResolvedLegendBook = (
+  user: LuminousUserInfo,
+  result: QuizResult,
+  book: ResolvedBook,
+  edition?: string
+) => {
+  const sections = buildResolvedSections(book, user, result, edition);
   return assemblePdf(sections);
 };

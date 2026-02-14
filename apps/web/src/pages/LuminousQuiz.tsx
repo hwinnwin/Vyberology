@@ -36,9 +36,9 @@ const LuminousQuiz = () => {
     setResult(scored);
   };
 
-  const goToCheckout = () => {
+  const goToBuilder = () => {
     if (!result) return;
-    navigate("/luminous/checkout", { state: { quizResult: result, dob } });
+    navigate("/luminous/book", { state: { quizResult: result, dob } });
   };
 
   return (
@@ -143,7 +143,7 @@ const LuminousQuiz = () => {
                 </div>
               </div>
               <div className="pt-2">
-                <Button size="lg" onClick={goToCheckout}>Generate my Legend Book</Button>
+                <Button size="lg" onClick={goToBuilder}>Build my Legend Book</Button>
               </div>
             </CardContent>
           </Card>

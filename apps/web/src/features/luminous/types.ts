@@ -40,3 +40,46 @@ export interface LuminousUserInfo {
   dob: string;
   dedication?: string;
 }
+
+export type BlockType = "text" | "list" | "quote";
+
+export interface BookBlock {
+  id: string;
+  type: BlockType;
+  editable: boolean;
+  template: string;
+}
+
+export interface BookSection {
+  id: string;
+  title: string;
+  description?: string;
+  blocks: BookBlock[];
+}
+
+export interface LuminousBookTemplate {
+  id: string;
+  titleTemplate: string;
+  sections: BookSection[];
+}
+
+export interface ResolvedBlock {
+  id: string;
+  type: BlockType;
+  editable: boolean;
+  value: string;
+  defaultValue: string;
+  edited: boolean;
+}
+
+export interface ResolvedSection {
+  id: string;
+  title: string;
+  description?: string;
+  blocks: ResolvedBlock[];
+}
+
+export interface ResolvedBook {
+  title: string;
+  sections: ResolvedSection[];
+}
