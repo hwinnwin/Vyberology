@@ -81,13 +81,18 @@ export class TestHelpers {
   }
 
   /**
-   * Clear localStorage
+   * Clear localStorage — must be called AFTER page.goto()
+   * In CI, calling before navigation fails because there's no browsing context.
    */
   async clearStorage() {
-    await this.page.evaluate(() => {
-      localStorage.clear();
-      sessionStorage.clear();
-    });
+    try {
+      await this.page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+    } catch {
+      // No browsing context yet — safe to ignore, storage is already empty
+    }
   }
 
   /**
