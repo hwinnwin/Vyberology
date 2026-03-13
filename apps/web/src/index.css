@@ -1,0 +1,242 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ══════════════════════════════════════════
+       VYBEROLOGY — Sacred Geometry x Editorial
+       ══════════════════════════════════════════ */
+
+    /* Brand Palette */
+    --vy-charcoal: 20 8% 8%;
+    --vy-parchment: 38 33% 94%;
+    --vy-cream: 38 25% 91%;
+    --vy-gold: 38 41% 58%;
+    --vy-gold-muted: 38 25% 72%;
+    --vy-sage: 100 13% 49%;
+    --vy-rose: 350 22% 62%;
+    --vy-slate-blue: 207 26% 48%;
+    --vy-warm-gray: 30 8% 52%;
+
+    /* Chakra Accents */
+    --vy-root: 0 45% 45%;
+    --vy-sacral: 25 60% 55%;
+    --vy-solar: 42 70% 55%;
+    --vy-heart: 140 25% 50%;
+    --vy-throat: 195 45% 55%;
+    --vy-indigo: 255 42% 38%;
+    --vy-third-eye: 255 35% 55%;
+    --vy-crown: 280 30% 65%;
+
+    /* Legacy LF tokens (backward compat for existing components) */
+    --lf-ink: 20 8% 8%;
+    --lf-midnight: 20 8% 8%;
+    --lf-indigo: 38 41% 58%;
+    --lf-violet: 38 41% 58%;
+    --lf-aurora: 38 25% 72%;
+    --lf-gold: 38 41% 58%;
+    --lf-slate: 30 8% 52%;
+    --lf-shell: 38 33% 94%;
+    --lf-white: 38 33% 94%;
+
+    /* shadcn/ui core tokens */
+    --background: 38 33% 94%;
+    --foreground: 20 8% 8%;
+
+    --card: 38 25% 96%;
+    --card-foreground: 20 8% 8%;
+
+    --popover: 38 25% 96%;
+    --popover-foreground: 20 8% 8%;
+
+    --primary: 20 8% 8%;
+    --primary-foreground: 38 33% 94%;
+
+    --secondary: 38 25% 91%;
+    --secondary-foreground: 20 8% 8%;
+
+    --muted: 38 15% 88%;
+    --muted-foreground: 30 8% 42%;
+
+    --accent: 38 41% 58%;
+    --accent-foreground: 20 8% 8%;
+
+    --destructive: 0 60% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 12% 85%;
+    --input: 30 12% 85%;
+    --ring: 38 41% 58%;
+
+    --radius: 1rem;
+
+    --sidebar-background: 38 25% 96%;
+    --sidebar-foreground: 20 8% 8%;
+    --sidebar-primary: 38 41% 58%;
+    --sidebar-primary-foreground: 20 8% 8%;
+    --sidebar-accent: 38 15% 88%;
+    --sidebar-accent-foreground: 20 8% 8%;
+    --sidebar-border: 30 12% 85%;
+    --sidebar-ring: 38 41% 58%;
+  }
+
+  .dark {
+    --background: 20 8% 8%;
+    --foreground: 38 33% 94%;
+
+    --card: 20 8% 12%;
+    --card-foreground: 38 33% 94%;
+
+    --popover: 20 8% 10%;
+    --popover-foreground: 38 33% 94%;
+
+    --primary: 38 41% 58%;
+    --primary-foreground: 20 8% 8%;
+
+    --secondary: 20 8% 16%;
+    --secondary-foreground: 38 33% 94%;
+
+    --muted: 20 6% 18%;
+    --muted-foreground: 30 8% 52%;
+
+    --accent: 38 41% 58%;
+    --accent-foreground: 38 33% 94%;
+
+    --destructive: 0 60% 40%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 20 6% 18%;
+    --input: 20 6% 18%;
+    --ring: 38 41% 58%;
+
+    --sidebar-background: 20 8% 10%;
+    --sidebar-foreground: 38 33% 94%;
+    --sidebar-primary: 38 41% 58%;
+    --sidebar-primary-foreground: 20 8% 8%;
+    --sidebar-accent: 20 6% 18%;
+    --sidebar-accent-foreground: 38 33% 94%;
+    --sidebar-border: 20 6% 18%;
+    --sidebar-ring: 38 41% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Playfair Display", ui-serif, Georgia, serif;
+  }
+}
+
+/* ══════════════════════════════════════════
+   Grain texture overlay
+   ══════════════════════════════════════════ */
+@layer utilities {
+  .grain::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ══════════════════════════════════════════
+   Staggered reveal animation
+   ══════════════════════════════════════════ */
+@keyframes vy-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vy-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vy-glyph-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.vy-reveal {
+  animation: vy-reveal 0.5s ease-out both;
+}
+
+.vy-reveal-1 { animation-delay: 0ms; }
+.vy-reveal-2 { animation-delay: 80ms; }
+.vy-reveal-3 { animation-delay: 160ms; }
+.vy-reveal-4 { animation-delay: 240ms; }
+.vy-reveal-5 { animation-delay: 320ms; }
+.vy-reveal-6 { animation-delay: 400ms; }
+
+/* ══════════════════════════════════════════
+   Sacred geometry decorative line
+   ══════════════════════════════════════════ */
+.vy-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--vy-gold) / 0.3) 20%,
+    hsl(var(--vy-gold) / 0.6) 50%,
+    hsl(var(--vy-gold) / 0.3) 80%,
+    transparent 100%
+  );
+}
+
+/* ══════════════════════════════════════════
+   Typography utilities
+   ══════════════════════════════════════════ */
+.vy-display {
+  font-family: "Playfair Display", ui-serif, Georgia, serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.vy-hero-heading {
+  -webkit-text-stroke: 1px hsl(38 41% 58% / 0.35);
+  paint-order: stroke fill;
+  text-shadow:
+    0 0 20px hsl(38 41% 58% / 0.15),
+    0 0 40px hsl(255 42% 38% / 0.08);
+}
+
+.vy-display-italic {
+  font-family: "Playfair Display", ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.vy-label {
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1;
+}
+
+.vy-body {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 400;
+  line-height: 1.7;
+}

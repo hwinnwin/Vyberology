@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@vybe/reading-core-private": ["../reading-core-private/src/index.ts"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    "v4/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "coverage"
+  ]
+}

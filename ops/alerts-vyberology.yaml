@@ -1,0 +1,25 @@
+groups:
+  - name: vybe.service.slo
+    rules:
+      - alert: VybeHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{job="vybe",status=~"5.."}[5m]))
+            / sum(rate(http_requests_total{job="vybe"}[5m])) > 0.01
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "Vyberology error rate high (>1%)"
+          runbook: "docs/runbooks/incident-http5xx.md"
+
+      - alert: VybeHighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(http_server_requests_seconds_bucket{job="vybe"}[5m])) by (le)
+          ) > 0.25
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: "Vyberology p95 latency > 250ms"
+          runbook: "docs/runbooks/perf-latency.md"

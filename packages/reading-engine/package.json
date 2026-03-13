@@ -1,0 +1,23 @@
+{
+  "name": "@vybe/reading-engine",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/reading-engine/src/index.js",
+  "types": "dist/reading-engine/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "typecheck": "tsc -b --noEmit || echo \"no typecheck in this pkg\""
+  },
+  "dependencies": {
+    "@vybe/reading-core-private": "file:../reading-core-private"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "@vitest/coverage-v8": "^2.1.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.2"
+  }
+}

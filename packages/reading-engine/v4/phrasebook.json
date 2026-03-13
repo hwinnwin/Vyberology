@@ -1,0 +1,542 @@
+{
+  "titles": {
+    "mirror_time": {
+      "3": "Seal (Mirror of Renewal)",
+      "4": "Seal (Mirror Foundation)",
+      "5": "Seal (The Mirror of Renewal)",
+      "6": "Seal (Heart Sync Activation)"
+    },
+    "gateway_11": {
+      "3": "Seal (Activation in Motion)",
+      "4": "Seal (Alignment Gateway)"
+    },
+    "shift_555": {
+      "6": "Seal (Soft Recalibration)",
+      "8": "Seal (Shift Point)"
+    },
+    "arrival": {
+      "4": "Seal (Foundation in Motion)",
+      "8": "Seal (Home Frequency)"
+    },
+    "abundance_signature": {
+      "2": "Seal (Abundance Echo Sequence)",
+      "8": "Seal (Power & Flow)"
+    },
+    "builder_44_1144": {
+      "1": "Seal (Builder's Activation)",
+      "4": "Seal (The Mirror of Foundation)"
+    },
+    "heart_6_stack": {
+      "4": "Seal (Grounded Heart Frequency)",
+      "6": "Seal (The Heart Reset)"
+    },
+    "default": {
+      "1": "Seal (Renewal Spark)",
+      "2": "Seal (Balance in Motion)",
+      "3": "Seal (Expression Flow)",
+      "4": "Seal (The Grounded Mirror)",
+      "5": "Seal (Transformation Window)",
+      "6": "Seal (Harmony Return)",
+      "7": "Seal (Insight & Trust)",
+      "8": "Seal (Power Alignment)",
+      "9": "Seal (Completion & Clarity)"
+    }
+  },
+  "themes": {
+    "mirror_time": {
+      "3": [
+        "Transition",
+        "Balance",
+        "Return to Self"
+      ],
+      "5": [
+        "Transition",
+        "Balance",
+        "Return to Self"
+      ],
+      "6": [
+        "Dual Energy",
+        "Harmony in Motion",
+        "Courage to Express"
+      ]
+    },
+    "gateway_11": {
+      "4": [
+        "Awakening",
+        "Confirmation",
+        "Manifestation in Motion"
+      ]
+    },
+    "shift_555": {
+      "8": [
+        "Expansion",
+        "Flow",
+        "Divine Recalibration"
+      ]
+    },
+    "arrival": {
+      "8": [
+        "Arrival",
+        "Alignment",
+        "Spiritual Grounding"
+      ]
+    },
+    "default": {
+      "1": [
+        "Fresh Start",
+        "Integration",
+        "Purpose Awakening"
+      ],
+      "2": [
+        "Harmony",
+        "Partnership",
+        "Faith in Timing"
+      ],
+      "3": [
+        "Expression",
+        "Joy",
+        "Creative Renewal"
+      ],
+      "4": [
+        "Emotional Stability",
+        "Reflection",
+        "Calm Confidence"
+      ],
+      "5": [
+        "Change",
+        "Movement",
+        "Freedom"
+      ],
+      "6": [
+        "Harmony",
+        "Connection",
+        "Heart-Centred Balance"
+      ],
+      "7": [
+        "Insight",
+        "Reflection",
+        "Spiritual Trust"
+      ],
+      "8": [
+        "Flow",
+        "Readiness",
+        "Trust in Timing"
+      ],
+      "9": [
+        "Completion",
+        "Wisdom",
+        "Release"
+      ]
+    }
+  },
+  "layered": {
+    "time": {
+      "3": {
+        "essence": "Conversation energy — words as bridges.",
+        "message": "Mirrored initiation — what you put out returns."
+      },
+      "4": {
+        "essence": "Foundation window — stabilize before expanding.",
+        "message": "Follow-through moment: anchor what you set in motion."
+      },
+      "5": {
+        "essence": "Transition code — move lightly; flexibility is strength.",
+        "message": "Adaptation keeps the channel fresh."
+      },
+      "6": {
+        "essence": "Heart resonance — relationships syncing through sincerity.",
+        "message": "Re-align devotion with steady presence."
+      },
+      "7": {
+        "essence": "Spiritual reflection — insight maturing into trust.",
+        "message": "Listen for subtle cues."
+      },
+      "8": {
+        "essence": "Power ignition — abundance aligning with purpose.",
+        "message": "Move with calm confidence."
+      }
+    },
+    "percent": {
+      "near_full": {
+        "essence": "Near completion — refine, don't rush.",
+        "message": "Final 5% is precision, not pressure."
+      },
+      "seventies": {
+        "essence": "Balanced charge — ideal for flexible action.",
+        "message": "Calm momentum; adapt without forcing."
+      },
+      "88": {
+        "essence": "Double eight — sustained prosperity flow.",
+        "message": "Abundance loop active; receive with steadiness."
+      }
+    },
+    "distance": {
+      "5": {
+        "essence": "Journey learning — wisdom through movement.",
+        "message": "Wisdom is integrated through lived experience."
+      }
+    },
+    "consumption": {
+      "3": {
+        "essence": "Divine precision — intention fuels clean progress.",
+        "message": "You’re tuned to efficient, aware movement."
+      }
+    },
+    "fuel": {
+      "3": {
+        "essence": "Gateway number — divine message of alignment and intuitive flow.",
+        "message": "It’s the “you’re in sync” confirmation."
+      }
+    },
+    "code": {
+      "3": {
+        "essence": "Conversation energy — words as bridges.",
+        "message": "Mirrored initiation — what you put out returns."
+      },
+      "5": {
+        "essence": "Shifts underway — progression in motion.",
+        "message": "Change stabilises when purpose stays clear."
+      },
+      "6": {
+        "essence": "Healing through communication and love.",
+        "message": "Heart-centered action restores balance."
+      },
+      "7": {
+        "essence": "Insight becomes direction — trust inner timing.",
+        "message": "Listen for subtle cues."
+      },
+      "8": {
+        "essence": "Power with balance — manifest from calm confidence.",
+        "message": "Steady momentum builds naturally."
+      },
+      "11": {
+        "essence": "Gateway of awareness — alignment confirmed.",
+        "message": "Trust the nudge; align your step."
+      },
+      "22": {
+        "essence": "Master builder — structure serves vision.",
+        "message": "Let consistency become strength."
+      },
+      "33": {
+        "essence": "Compassionate expression — teach through example.",
+        "message": "Your presence guides others."
+      },
+      "44": {
+        "essence": "Foundation mastery — consistency becomes strength.",
+        "message": "Ground the vision with patient action."
+      }
+    },
+    "tagged-code": {},
+    "count": {},
+    "temp": {
+      "9": {
+        "essence": "Temperature cue — environment aligning with change.",
+        "message": "Stay present; atmosphere mirrors your shift."
+      }
+    }
+  },
+  "energyMessage": {
+    "mirror_time": {
+      "3": "As you move, life mirrors you. Keep it simple and true.",
+      "4": "Slow the tempo — your truth gets clearer as your system settles.",
+      "5": "As you arrive home, so does your energy. The mirror closes — what you set in motion now grounds into your world."
+    },
+    "gateway_11": {
+      "4": "The door is open — act with calm certainty."
+    },
+    "shift_555": {
+      "8": "Change is unfolding perfectly; flow, don't force."
+    },
+    "arrival": {
+      "8": "You've arrived within yourself; wisdom is grounded now."
+    },
+    "default": {
+      "1": "It's a fresh page — write from experience, not pressure.",
+      "2": "Hold balance; partnership unfolds in trust.",
+      "3": "Let joyful expression guide the next step.",
+      "4": "Build the container; structure welcomes the vision.",
+      "5": "Change is friendly — move with confidence.",
+      "6": "Choose kindness and balance; peace does the heavy lifting.",
+      "7": "Trust the quiet — it's where truth speaks loudest.",
+      "8": "Prosperity follows alignment; your steadiness is the magnet.",
+      "9": "Closure opens new space."
+    }
+  },
+  "alignmentRows": {
+    "focusMap": {
+      "1": {
+        "focus": "Initiative",
+        "tone": "Beginning",
+        "guidance": "Take one clear step."
+      },
+      "2": {
+        "focus": "Balance",
+        "tone": "Harmony",
+        "guidance": "Let timing unfold."
+      },
+      "3": {
+        "focus": "Expression",
+        "tone": "Communication",
+        "guidance": "Say it simply and true."
+      },
+      "4": {
+        "focus": "Foundation",
+        "tone": "Grounding",
+        "guidance": "Consistency over intensity."
+      },
+      "5": {
+        "focus": "Change",
+        "tone": "Freedom",
+        "guidance": "Adapt; don't cling."
+      },
+      "6": {
+        "focus": "Harmony",
+        "tone": "Heart",
+        "guidance": "Lead with kindness."
+      },
+      "7": {
+        "focus": "Insight",
+        "tone": "Reflection",
+        "guidance": "Listen for subtle cues."
+      },
+      "8": {
+        "focus": "Power",
+        "tone": "Flow",
+        "guidance": "Move with calm confidence."
+      },
+      "9": {
+        "focus": "Completion",
+        "tone": "Wisdom",
+        "guidance": "Close gently, with gratitude."
+      },
+      "11": {
+        "focus": "Awareness",
+        "tone": "Gateway",
+        "guidance": "Trust the nudge; align your step."
+      },
+      "22": {
+        "focus": "Mastery",
+        "tone": "Builder",
+        "guidance": "Let structure serve vision."
+      },
+      "11.1": {
+        "focus": "Intuition",
+        "tone": "Alignment",
+        "guidance": "Trust intuitive nudges; they're confirmation, not coincidence."
+      },
+      "77": {
+        "focus": "Reflection",
+        "tone": "Spiritual Mastery",
+        "guidance": "Pause, breathe — honor the wisdom gained."
+      }
+    }
+  },
+  "resonance": {
+    "byCore": {
+      "1": {
+        "elements": [
+          "🜂",
+          "🜁"
+        ],
+        "chakras": [
+          "Solar Plexus 💛"
+        ],
+        "blurb": "Guided action — inspiration into motion."
+      },
+      "3": {
+        "elements": [
+          "🜁"
+        ],
+        "chakras": [
+          "Throat 💙",
+          "Sacral 🧡"
+        ],
+        "blurb": "Clear expression amplifies flow."
+      },
+      "4": {
+        "elements": [
+          "🜃"
+        ],
+        "chakras": [
+          "Root ❤️"
+        ],
+        "blurb": "Ground it; let patience compound."
+      },
+      "5": {
+        "elements": [
+          "Air 🜁 (movement)",
+          "Earth 🜃 (stability)"
+        ],
+        "chakras": [
+          "Root ❤️",
+          "Solar Plexus 💛",
+          "Throat 💙"
+        ],
+        "blurb": "Security, confidence, and expression moving in alignment."
+      },
+      "6": {
+        "elements": [
+          "🜄",
+          "🜃"
+        ],
+        "chakras": [
+          "Heart 💚"
+        ],
+        "blurb": "Soft balance restores clarity."
+      },
+      "7": {
+        "elements": [
+          "🜁",
+          "🜀"
+        ],
+        "chakras": [
+          "Third Eye 💜",
+          "Crown 🤍"
+        ],
+        "blurb": "Insight matures into trust."
+      },
+      "8": {
+        "elements": [
+          "🜂",
+          "🜃"
+        ],
+        "chakras": [
+          "Solar Plexus 💛",
+          "Root ❤️"
+        ],
+        "blurb": "Calm authority turns purpose into form."
+      }
+    },
+    "byMotif": {
+      "mirror_time": {
+        "elements": [
+          "Air 🜁 (movement)",
+          "Earth 🜃 (stability)"
+        ],
+        "chakras": [
+          "Root ❤️",
+          "Solar Plexus 💛",
+          "Throat 💙"
+        ],
+        "blurb": "Security, confidence, and expression moving in alignment."
+      },
+      "arrival": {
+        "elements": [
+          "Air 🜁 (clarity)",
+          "Earth 🜃 (grounding)"
+        ],
+        "chakras": [
+          "Crown 🤍",
+          "Root ❤️"
+        ],
+        "blurb": "Divine awareness anchored into stability."
+      }
+    }
+  },
+  "guidanceAspect": {
+    "mirror_time": {
+      "3": {
+        "area": "Grounding & Renewal",
+        "blurb": "Movement finds its rhythm; keep it simple."
+      },
+      "5": {
+        "area": "Grounding & Renewal",
+        "blurb": "This mirror number signals your personal and physical environment syncing again — what you build now sets the tone for your next wave of creative expansion."
+      }
+    },
+    "gateway_11": {
+      "4": {
+        "area": "Alignment & Manifestation",
+        "blurb": "Anchor insight with one clean action."
+      }
+    },
+    "shift_555": {
+      "8": {
+        "area": "Transition & Manifestation",
+        "blurb": "Let change carry you into the next step."
+      }
+    },
+    "arrival": {
+      "8": {
+        "area": "Completion & Integration",
+        "blurb": "You've come full circle; rest in clarity."
+      }
+    },
+    "default": {
+      "1": {
+        "area": "Fresh Direction",
+        "blurb": "Decide gently; the path is open."
+      },
+      "3": {
+        "area": "Creative Alignment",
+        "blurb": "Let joyful expression and honest communication lead the day."
+      },
+      "4": {
+        "area": "Structure & Follow-Through",
+        "blurb": "Design the container — consistency anchors the vision."
+      },
+      "6": {
+        "area": "Connection",
+        "blurb": "Lead with care; harmony grows in calm."
+      },
+      "7": {
+        "area": "Spiritual Integration",
+        "blurb": "Trust timing; wisdom is landing."
+      },
+      "8": {
+        "area": "Abundance & Flow",
+        "blurb": "Receive steadily; keep channels open."
+      }
+    }
+  },
+  "essenceSentence": {
+    "mirror_time": "{token} — balance returns as movement finds its calm.",
+    "gateway_11": "{token} — alignment confirmed; act with calm certainty.",
+    "shift_555": "{token} — change unfolding perfectly; your energy is ready.",
+    "arrival": "{token} — wisdom grounded; you've arrived where peace meets purpose.",
+    "default": "{token} — keep it simple; your next step is already clear."
+  },
+  "anchorLabels": {
+    "time": "time",
+    "percent": "percent",
+    "temp": "temperature",
+    "distance": "distance",
+    "consumption": "consumption",
+    "fuel": "fuel",
+    "count": "count",
+    "code": "code",
+    "tagged-code": "code"
+  },
+  "anchorTemplates": {
+    "byType": {
+      "time": {
+        "mirror_time": "{token} — a mirrored time sequence — appears during moments of completion and grounding.",
+        "gateway_11": "{token} — the universal wake-up code — confirms alignment between intention and experience.",
+        "default": "{token} marks the active time signature."
+      },
+      "percent": {
+        "default": "{token} — charge indicator within the snapshot."
+      },
+      "distance": {
+        "arrival": "{token} — reflection of the journey coming full circle.",
+        "default": "{token} — distance marker in focus."
+      },
+      "fuel": {
+        "arrival": "{token} — energetic fuel confirmation; the system is calibrated.",
+        "default": "{token} — fuel reading noted."
+      },
+      "consumption": {
+        "default": "{token} — efficiency insight recorded."
+      },
+      "temp": {
+        "default": "{token} — temperature cue anchoring the moment."
+      },
+      "code": {
+        "default": "{token} — numeric code captured."
+      },
+      "count": {
+        "default": "{token} — count marker acknowledged."
+      }
+    }
+  }
+}

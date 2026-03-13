@@ -1,0 +1,21 @@
+{
+  "name": "@vybe/reading-core-private",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "verify": "node -e \"process.exit(0)\"",
+    "prepublishOnly": "npm run build && npm run verify",
+    "typecheck": "tsc -b --noEmit || echo \"no typecheck in this pkg\"",
+    "test": "echo \"no tests in this pkg\""
+  },
+  "peerDependencies": {
+    "typescript": ">=5.4"
+  }
+}

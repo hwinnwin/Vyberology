@@ -1,0 +1,49 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderVolumeIV > matches snapshot for calm tone delivery 1`] = `
+{
+  "chakra": "Chakra • Solar Plexus — focus on structure + mastery. Mantra: I direct power with discernment and accountability.",
+  "elemental": "Element • Earth 🜃 — mastery · calibration. Audit the structure, then tighten with precision.",
+  "essence": "Essence: Steady guidance for core 8 honors mastery · calibration.",
+  "header": "Marker · Core 8 · Tone: Authority Forge",
+  "intention": "Intention: Move gently with apply strategic pressure where excellence is required.",
+  "reflection": "Reflection: Notice how pair command with mentorship to avoid rigidity.",
+  "resonance": "Resonance: Solar Plexus expression settles through earth form. Anchors 7, 45, 63, 42, 18 · Time markers 07:45 · Percent cues 63% · Count markers 42 · Temperature cue 18°C.",
+}
+`;
+
+exports[`renderVolumeIV > matches snapshot for master 11 without auxiliary tokens 1`] = `
+{
+  "chakra": "Chakra • Third Eye — focus on intuitive leadership. Mantra: I bridge higher signal with grounded action.",
+  "elemental": "Element • Air 🜁 — insight · transmission. Translate the download into human language.",
+  "essence": "Essence: Celebrate how core 11 uplifts through insight · transmission.",
+  "header": "Beacon · Core 11 · Tone: Harmonic Bridge",
+  "intention": "Intention: Lean forward with align visionary ideas with an embodied next step.",
+  "reflection": "Reflection: Wonder where share the mission so leadership stays collaborative.",
+  "resonance": "Resonance: Third Eye radiance plays with air momentum.",
+}
+`;
+
+exports[`renderVolumeIV matches snapshot for calm tone delivery 1`] = `
+Object {
+  "chakra": "Chakra • Solar Plexus — focus on structure + mastery. Mantra: I direct power with discernment and accountability.",
+  "elemental": "Element • Earth 🜃 — mastery · calibration. Audit the structure, then tighten with precision.",
+  "essence": "Essence: Steady guidance for core 8 honors mastery · calibration.",
+  "header": "Marker · Core 8 · Tone: Authority Forge",
+  "intention": "Intention: Move gently with apply strategic pressure where excellence is required.",
+  "reflection": "Reflection: Notice how balance instinct with a breath before acting.",
+  "resonance": "Resonance: Solar Plexus expression settles through earth form. Anchors 7, 45, 63, 42, 18 · Time markers 07:45 · Percent cues 63% · Count markers 42 · Temperature cue 18°C.",
+}
+`;
+
+exports[`renderVolumeIV matches snapshot for master 11 without auxiliary tokens 1`] = `
+Object {
+  "chakra": "Chakra • Third Eye — focus on intuitive leadership. Mantra: I bridge higher signal with grounded action.",
+  "elemental": "Element • Air 🜁 — insight · transmission. Translate the download into human language.",
+  "essence": "Essence: Celebrate how core 11 uplifts through insight · transmission.",
+  "header": "Beacon · Core 11 · Tone: Harmonic Bridge",
+  "intention": "Intention: Lean forward with align visionary ideas with an embodied next step.",
+  "reflection": "Reflection: Wonder where share the mission so leadership stays collaborative.",
+  "resonance": "Resonance: Third Eye radiance plays with air momentum.",
+}
+`;

@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "types": ["vite/client", "vitest/globals", "node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["dist", "coverage"]
+}

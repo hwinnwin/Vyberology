@@ -1,0 +1,2 @@
+== Runtimes ==
+iOS 26.0 (26.0.1 - 23A8464) - com.apple.CoreSimulator.SimRuntime.iOS-26-0

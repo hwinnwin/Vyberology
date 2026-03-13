@@ -1,0 +1,33 @@
+name: Release (Tag + Notes)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version label (e.g., v1.0.0-beta.1)'
+        required: true
+      notes:
+        description: 'Release notes summary'
+        required: false
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Git identity
+        run: |
+          git config user.name "guardian-aegis-bot"
+          git config user.email "aegis-bot@users.noreply.github.com"
+      - name: Create tag
+        run: |
+          git tag -a "${{ github.event.inputs.version }}" -m "${{ github.event.inputs.notes }}"
+          git push origin "${{ github.event.inputs.version }}"
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ github.event.inputs.version }}
+          body: ${{ github.event.inputs.notes }}

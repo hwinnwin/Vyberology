@@ -1,0 +1,916 @@
+/* ═══════════════════════════════════════════════════════
+   THE FERGIE — Audi RS3 Promo Page
+   Aesthetic: Dark Motorsport Editorial / Carbon Brutalism
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+/* ─── Tokens ─── */
+.fergie-page {
+  --f-black: #080808;
+  --f-carbon: #0e0e0e;
+  --f-graphite: #161616;
+  --f-steel: #1e1e1e;
+  --f-ash: #2a2a2a;
+  --f-silver: #8a8a8a;
+  --f-chrome: #c0c0c0;
+  --f-white: #f0f0f0;
+  --f-red: #cc0033;
+  --f-red-bright: #ff1a4b;
+  --f-red-glow: rgba(204, 0, 51, 0.4);
+  --f-font-display: 'Bebas Neue', sans-serif;
+  --f-font-body: 'DM Sans', sans-serif;
+
+  font-family: var(--f-font-body);
+  background: var(--f-black);
+  color: var(--f-white);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Preloader ─── */
+.fergie-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--f-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.8s;
+}
+
+.fergie-preloader--done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.fergie-preloader__ring {
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--f-ash);
+  border-top-color: var(--f-red);
+  border-radius: 50%;
+  animation: fergie-spin 0.8s linear infinite;
+}
+
+.fergie-preloader__text {
+  font-family: var(--f-font-display);
+  font-size: 28px;
+  letter-spacing: 12px;
+  color: var(--f-chrome);
+}
+
+@keyframes fergie-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Navigation ─── */
+.fergie-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: linear-gradient(to bottom, rgba(8,8,8,0.9), transparent);
+  backdrop-filter: blur(8px);
+}
+
+.fergie-nav__audi-rings {
+  width: 100px;
+  height: 40px;
+  color: var(--f-chrome);
+}
+
+.fergie-nav__links {
+  display: flex;
+  gap: 32px;
+}
+
+.fergie-nav__links a {
+  font-family: var(--f-font-body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--f-silver);
+  text-decoration: none;
+  transition: color 0.3s;
+  position: relative;
+}
+
+.fergie-nav__links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--f-red);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-nav__links a:hover {
+  color: var(--f-white);
+}
+
+.fergie-nav__links a:hover::after {
+  width: 100%;
+}
+
+/* ─── Hero ─── */
+.fergie-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 50%, rgba(204,0,51,0.06), transparent),
+    linear-gradient(180deg, var(--f-black) 0%, var(--f-carbon) 100%);
+}
+
+.fergie-hero__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+  pointer-events: none;
+}
+
+.fergie-hero__gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, var(--f-black), transparent);
+  pointer-events: none;
+}
+
+.fergie-hero__lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fergie-hero__line {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, rgba(204,0,51,0.08), transparent);
+  animation: fergie-line-drift 8s ease-in-out infinite;
+}
+
+.fergie-hero__line:nth-child(1) { left: 20%; }
+.fergie-hero__line:nth-child(2) { left: 40%; }
+.fergie-hero__line:nth-child(3) { left: 50%; }
+.fergie-hero__line:nth-child(4) { left: 60%; }
+.fergie-hero__line:nth-child(5) { left: 80%; }
+
+@keyframes fergie-line-drift {
+  0%, 100% { opacity: 0; transform: scaleY(0); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+.fergie-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 0 24px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-hero__content.fergie--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fergie-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border: 1px solid var(--f-ash);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--f-silver);
+  margin-bottom: 32px;
+}
+
+.fergie-hero__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--f-red);
+  box-shadow: 0 0 12px var(--f-red-glow);
+  animation: fergie-pulse 2s ease-in-out infinite;
+}
+
+@keyframes fergie-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.fergie-hero__title {
+  font-family: var(--f-font-display);
+  line-height: 0.85;
+  margin: 0 0 24px;
+}
+
+.fergie-hero__title-the {
+  display: block;
+  font-size: clamp(24px, 4vw, 48px);
+  letter-spacing: 20px;
+  color: var(--f-silver);
+  text-transform: uppercase;
+}
+
+.fergie-hero__title-name {
+  display: block;
+  font-size: clamp(80px, 15vw, 200px);
+  letter-spacing: -2px;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--f-white) 0%, var(--f-silver) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 60px rgba(204,0,51,0.15));
+}
+
+.fergie-hero__subtitle {
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: var(--f-silver);
+  letter-spacing: 1px;
+  margin-bottom: 48px;
+  font-weight: 300;
+}
+
+.fergie-hero__stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 56px;
+  flex-wrap: wrap;
+}
+
+.fergie-hero__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fergie-hero__stat-value {
+  font-family: var(--f-font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  letter-spacing: 2px;
+  color: var(--f-white);
+}
+
+.fergie-hero__stat-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--f-silver);
+  font-weight: 500;
+}
+
+.fergie-hero__stat-divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, var(--f-ash), transparent);
+}
+
+.fergie-hero__ctas {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.fergie-hero__scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--f-silver);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.fergie-hero__scroll-line {
+  width: 1px;
+  height: 48px;
+  background: var(--f-ash);
+  position: relative;
+  overflow: hidden;
+}
+
+.fergie-hero__scroll-line::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  width: 100%;
+  height: 50%;
+  background: var(--f-red);
+  animation: fergie-scroll-line 2s ease-in-out infinite;
+}
+
+@keyframes fergie-scroll-line {
+  0% { top: -50%; }
+  100% { top: 150%; }
+}
+
+/* ─── Buttons ─── */
+.fergie-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  font-family: var(--f-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.fergie-btn--primary {
+  background: var(--f-red);
+  color: var(--f-white);
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.fergie-btn--primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.fergie-btn--primary:hover {
+  background: var(--f-red-bright);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--f-red-glow);
+}
+
+.fergie-btn--primary:hover::before {
+  opacity: 1;
+}
+
+.fergie-btn--ghost {
+  background: transparent;
+  color: var(--f-silver);
+  border: 1px solid var(--f-ash);
+}
+
+.fergie-btn--ghost:hover {
+  color: var(--f-white);
+  border-color: var(--f-silver);
+}
+
+.fergie-btn--outline {
+  background: transparent;
+  color: var(--f-white);
+  border: 1px solid var(--f-chrome);
+}
+
+.fergie-btn--outline:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--f-white);
+}
+
+.fergie-btn--lg {
+  padding: 18px 44px;
+  font-size: 13px;
+}
+
+.fergie-btn__arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s;
+}
+
+.fergie-btn:hover .fergie-btn__arrow {
+  transform: translateX(4px);
+}
+
+/* ─── Section Tags & Titles ─── */
+.fergie-section-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--f-red);
+  margin-bottom: 20px;
+}
+
+.fergie-section-tag--light {
+  color: rgba(255,255,255,0.5);
+}
+
+.fergie-section-title {
+  font-family: var(--f-font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  line-height: 0.95;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  margin: 0 0 60px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-section-title.fergie--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Specs ─── */
+.fergie-specs {
+  position: relative;
+  padding: 120px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fergie-specs__header {
+  margin-bottom: 60px;
+}
+
+.fergie-specs__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+.fergie-spec-card {
+  position: relative;
+  background: var(--f-carbon);
+  padding: 40px 32px;
+  border: 1px solid var(--f-steel);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s,
+              border-color 0.3s;
+}
+
+.fergie-spec-card.fergie--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fergie-spec-card:hover {
+  background: var(--f-graphite);
+  border-color: var(--f-ash);
+}
+
+.fergie-spec-card__accent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 0;
+  background: var(--f-red);
+  transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-spec-card:hover .fergie-spec-card__accent {
+  height: 100%;
+}
+
+.fergie-spec-card__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--f-silver);
+  margin-bottom: 12px;
+}
+
+.fergie-spec-card__value {
+  display: block;
+  font-family: var(--f-font-display);
+  font-size: clamp(24px, 3vw, 36px);
+  letter-spacing: 1px;
+  color: var(--f-white);
+}
+
+/* ─── Performance ─── */
+.fergie-perf {
+  position: relative;
+  padding: 120px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.fergie-perf__bg-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--f-font-display);
+  font-size: clamp(200px, 30vw, 500px);
+  color: rgba(255,255,255,0.015);
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: 20px;
+}
+
+.fergie-perf__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.fergie-perf__item {
+  display: flex;
+  gap: 40px;
+  padding: 48px 0;
+  border-top: 1px solid var(--f-steel);
+  align-items: flex-start;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-perf__item.fergie--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fergie-perf__item:last-child {
+  border-bottom: 1px solid var(--f-steel);
+}
+
+.fergie-perf__number {
+  font-family: var(--f-font-display);
+  font-size: 64px;
+  color: var(--f-red);
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.fergie-perf__body {
+  flex: 1;
+}
+
+.fergie-perf__title {
+  font-family: var(--f-font-display);
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 16px;
+  color: var(--f-white);
+}
+
+.fergie-perf__desc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--f-silver);
+  max-width: 560px;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* ─── Gallery ─── */
+.fergie-gallery {
+  padding: 120px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fergie-gallery__viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.fergie-gallery__main {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  background: var(--f-carbon);
+  border: 1px solid var(--f-steel);
+}
+
+.fergie-gallery__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(1.05);
+}
+
+.fergie-gallery__slide--active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.fergie-gallery__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fergie-gallery__caption {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--f-white);
+  background: rgba(8,8,8,0.7);
+  backdrop-filter: blur(8px);
+  padding: 10px 20px;
+  border-left: 2px solid var(--f-red);
+}
+
+.fergie-gallery__thumbs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.fergie-gallery__thumb {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+  border: 1px solid var(--f-steel);
+  cursor: pointer;
+  background: none;
+  padding: 0;
+  transition: border-color 0.3s;
+}
+
+.fergie-gallery__thumb:hover {
+  border-color: var(--f-silver);
+}
+
+.fergie-gallery__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+.fergie-gallery__thumb--active img {
+  opacity: 1;
+}
+
+.fergie-gallery__thumb-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--f-red);
+  transition: width 0.3s;
+}
+
+.fergie-gallery__thumb--active .fergie-gallery__thumb-bar {
+  width: 100%;
+  animation: fergie-thumb-fill 4s linear;
+}
+
+@keyframes fergie-thumb-fill {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ─── CTA ─── */
+.fergie-cta {
+  position: relative;
+  padding: 160px 40px;
+  text-align: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 60%, rgba(204,0,51,0.1), transparent),
+    linear-gradient(180deg, var(--f-black), var(--f-carbon));
+}
+
+.fergie-cta__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px;
+  pointer-events: none;
+}
+
+.fergie-cta__content {
+  position: relative;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fergie-cta__content.fergie--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fergie-cta__title {
+  font-family: var(--f-font-display);
+  font-size: clamp(56px, 10vw, 120px);
+  line-height: 0.95;
+  text-transform: uppercase;
+  margin: 0 0 24px;
+  color: var(--f-white);
+}
+
+.fergie-cta__title-accent {
+  background: linear-gradient(135deg, var(--f-red), var(--f-red-bright));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.fergie-cta__subtitle {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--f-silver);
+  margin: 0 0 48px;
+  font-weight: 300;
+}
+
+.fergie-cta__actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+
+.fergie-cta__trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--f-silver);
+  letter-spacing: 1px;
+  flex-wrap: wrap;
+}
+
+.fergie-cta__trust-sep {
+  color: var(--f-ash);
+}
+
+/* ─── Footer ─── */
+.fergie-footer {
+  padding: 60px 40px;
+  border-top: 1px solid var(--f-steel);
+  background: var(--f-black);
+}
+
+.fergie-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.fergie-footer__rings {
+  width: 80px;
+  height: 32px;
+  color: var(--f-ash);
+}
+
+.fergie-footer__legal {
+  font-size: 11px;
+  color: var(--f-silver);
+  text-align: center;
+  line-height: 1.6;
+  opacity: 0.5;
+  max-width: 500px;
+  margin: 0;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 768px) {
+  .fergie-nav {
+    padding: 16px 20px;
+  }
+
+  .fergie-nav__links {
+    display: none;
+  }
+
+  .fergie-hero__stats {
+    gap: 20px;
+  }
+
+  .fergie-hero__stat-divider {
+    display: none;
+  }
+
+  .fergie-specs {
+    padding: 80px 20px;
+  }
+
+  .fergie-specs__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fergie-perf {
+    padding: 80px 20px;
+  }
+
+  .fergie-perf__item {
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px 0;
+  }
+
+  .fergie-perf__number {
+    font-size: 40px;
+  }
+
+  .fergie-gallery {
+    padding: 80px 20px;
+  }
+
+  .fergie-gallery__thumbs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fergie-cta {
+    padding: 100px 20px;
+  }
+
+  .fergie-cta__trust {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fergie-cta__trust-sep {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .fergie-specs__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fergie-spec-card {
+    padding: 28px 24px;
+  }
+
+  .fergie-btn--lg {
+    padding: 16px 28px;
+    font-size: 12px;
+  }
+}

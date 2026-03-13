@@ -1,0 +1,10 @@
+Starting project at /Users/mrtungsten/Downloads/Vyberology-main-4/apps/mobile
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+› Opening exp://192.168.0.3:8081 on Vybe iPhone (dev)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+iOS node_modules/.pnpm/expo-router@6.0.13_ja5iwyccgvlngi7wvp67jhn3ny/node_modules/expo-router/entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+iOS node_modules/.pnpm/expo-router@6.0.13_ja5iwyccgvlngi7wvp67jhn3ny/node_modules/expo-router/entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 69.6% (800/961)
+iOS Bundled 5895ms node_modules/.pnpm/expo-router@6.0.13_ja5iwyccgvlngi7wvp67jhn3ny/node_modules/expo-router/entry.js (1475 modules)

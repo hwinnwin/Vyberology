@@ -1,0 +1,55 @@
+name: Nightly Regen (Self-Heal)
+
+on:
+  schedule:
+    - cron: '30 18 * * *'
+  workflow_dispatch:
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - name: npm install
+        run: npm ci
+
+      - name: Run coverage (non-fatal) and collect telemetry
+        run: |
+          npm run test:coverage --workspace apps/web || true
+          node scripts/ci/evaluate-telemetry.js || true
+
+      - name: Decide regeneration
+        id: decide
+        run: |
+          node -e "
+          const fs=require('fs'),p='./tmp/aegis-report.json';
+          const r=fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):{};
+          const needs=((r.coveragePct||0)<60)||((r.errorRatePct||0)>1);
+          console.log('needs_regen=',needs);
+          fs.mkdirSync('./tmp',{recursive:true});
+          fs.writeFileSync('./tmp/needs-regen.txt', needs?'yes':'no');
+          "
+      - name: Generate regen patch
+        if: ${{ hashFiles('tmp/needs-regen.txt') != '' }}
+        run: |
+          if [ "$(cat tmp/needs-regen.txt)" = "yes" ]; then
+            node scripts/regen/scaffold.js
+          fi
+
+      - name: Create PR
+        if: ${{ hashFiles('tmp/needs-regen.txt') != '' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: regen/${{ github.run_number }}
+          title: "Aegis: nightly regeneration ${{ github.run_number }}"
+          commit-message: "chore(aegis): nightly regeneration"
+          body: |
+            Auto-generated regeneration from Guardian Aegis (coverage/telemetry thresholds).
+            Report: tmp/aegis-report.json
+          labels: [aegis, regen, automated]

@@ -1,0 +1,67 @@
+# Netlify Configuration for Vyberology
+# This file should be at the root of the monorepo for proper deployment
+
+[build]
+  # Base directory relative to repo root
+  base = "apps/web"
+  # Build command for monorepo
+  command = "cd ../.. && npm run build --workspace apps/web"
+  # Publish directory relative to base
+  publish = "dist"
+
+[build.environment]
+  # Production environment variables
+  VITE_APP_ENV = "production"
+  VITE_FEATURE_OCR = "on"
+  VITE_FEATURE_PM_SENTRY = "on"
+  # Supabase credentials - these should be set in Netlify UI as well
+  VITE_SUPABASE_URL = "https://agzvrpvuhoruiiugfkzc.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFnenZycHZ1aG9ydWlpdWdma3pjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxMDg1MzksImV4cCI6MjA3NDY4NDUzOX0.QA7RJvgzc7jwwVKoFVfT8uePtdAlV6R5aVUXwVnRhNE"
+  VITE_V4_ENABLED = "false"
+
+# Redirect old domain to new primary domain
+[[redirects]]
+  from = "https://thevybe.global/*"
+  to = "https://vyberology.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://www.thevybe.global/*"
+  to = "https://vyberology.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://vyberology.thevybe.global/*"
+  to = "https://vyberology.com/:splat"
+  status = 301
+  force = true
+
+# Redirect store and online domains to main domain
+[[redirects]]
+  from = "https://vyberology.store/*"
+  to = "https://vyberology.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "https://vyberology.online/*"
+  to = "https://vyberology.com/:splat"
+  status = 301
+  force = true
+
+# SPA fallback - all routes should serve index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"

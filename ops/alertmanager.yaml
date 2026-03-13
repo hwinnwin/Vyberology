@@ -1,0 +1,8 @@
+route:
+  receiver: oncall
+  group_by: [alertname, job]
+
+receivers:
+  - name: oncall
+    webhook_configs:
+      - url: "https://hooks.example.com/vybe-oncall"

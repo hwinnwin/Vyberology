@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build --workspace apps/web"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--include-workspace-root --workspaces"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

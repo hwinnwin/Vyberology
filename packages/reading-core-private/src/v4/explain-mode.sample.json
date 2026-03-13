@@ -1,0 +1,49 @@
+{
+  "_description": "Sample explain payload structure for debugging and OCR panel integration. This demonstrates the internal reasoning process of the V4 deterministic reading engine.",
+  "input": {
+    "raw": "15:51 74%",
+    "context": "arriving home with new chair",
+    "entryNo": 60
+  },
+  "tokens": [
+    {
+      "raw": "15:51",
+      "type": "time",
+      "flags": ["mirror_time"],
+      "reduction": {
+        "digits": [1, 5, 5, 1],
+        "sum": 12,
+        "reduceTo": 3,
+        "steps": [12, 3]
+      },
+      "bucket": null
+    },
+    {
+      "raw": "74%",
+      "type": "percent",
+      "flags": [],
+      "reduction": {
+        "digits": [7, 4],
+        "sum": 11,
+        "reduceTo": 2,
+        "steps": [11, 2]
+      },
+      "bucket": "seventies"
+    }
+  ],
+  "motifs": ["mirror_time"],
+  "coreFrequency": 5,
+  "templateKeys": {
+    "title": "mirror_time:5",
+    "energy": "mirror_time:5",
+    "essence": "mirror_time",
+    "resonance": "5",
+    "guidance": "mirror_time:5"
+  },
+  "_notes": [
+    "Tokens are ordered by salience (motif strength + type priority + position)",
+    "Core frequency: sum of reduced token values → reduced to single digit (3 + 2 = 5)",
+    "Dominant motif: mirror_time (15:51 is a mirrored time pattern)",
+    "Template keys show which phrasebook entries were selected for this reading"
+  ]
+}

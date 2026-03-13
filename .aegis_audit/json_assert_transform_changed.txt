@@ -1,0 +1,3 @@
+packages/reading-core-private/dist/src/v4/__tests__/helpers.spec.js
+packages/reading-core-private/dist/src/v4/assemble.js
+packages/reading-core-private/dist/v4/assemble.js
