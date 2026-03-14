@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import NativeTabBar from "@/components/NativeTabBar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
@@ -99,6 +100,7 @@ const AppRouter = () => {
           </Routes>
         </Suspense>
       </ErrorBoundary>
+      <NativeTabBar />
     </>
   );
 };
