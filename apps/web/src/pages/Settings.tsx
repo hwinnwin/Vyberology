@@ -2,14 +2,55 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Home, Shield, Cloud, HardDrive, Download, Trash2, Info, Database, Globe } from "lucide-react";
+import { ArrowLeft, Home, Shield, Cloud, HardDrive, Download, Trash2, Info, Database, Globe, Coins, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { getReadingHistory, clearHistory } from "@/lib/readingHistory";
+import { isNative } from "@/lib/platform";
+import { getUserCredits } from "@/services/stripe";
 
 const Settings = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Credits
+  const [credits, setCredits] = useState<number | null>(null);
+  const [syncing, setSyncing] = useState(false);
+
+  const syncBalance = async () => {
+    setSyncing(true);
+    try {
+      const balance = await getUserCredits();
+      setCredits(balance);
+    } catch {
+      toast({
+        title: "Sync failed",
+        description: "Could not retrieve your account balance. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const restorePurchases = async () => {
+    if (!isNative()) return;
+    try {
+      const { Purchases } = await import('@revenuecat/purchases-capacitor');
+      await Purchases.restorePurchases();
+      await syncBalance();
+      toast({
+        title: "Purchases restored",
+        description: "Your purchases have been restored successfully.",
+      });
+    } catch {
+      toast({
+        title: "Restore failed",
+        description: "Could not restore purchases. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Data storage preferences
   const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
@@ -154,6 +195,57 @@ const Settings = () => {
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* Credits Section */}
+          <Card className="border-lf-aurora/30 bg-lf-gradient/50 p-6 backdrop-blur shadow-glow">
+            <div className="flex items-center gap-3 mb-6">
+              <Coins className="h-6 w-6 text-lf-aurora" />
+              <h2 className="font-display text-2xl font-bold text-white">Credits</h2>
+            </div>
+
+            <div className="space-y-4">
+              {/* Balance Display */}
+              <div className="p-4 rounded-lg bg-lf-midnight/50 border border-lf-violet/20">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-white mb-1">Account Balance</h3>
+                    <p className="text-3xl font-bold text-lf-aurora">
+                      {credits === null ? "—" : credits}
+                      {credits !== null && (
+                        <span className="text-sm font-normal text-lf-slate ml-2">credits</span>
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={syncBalance}
+                    variant="outline"
+                    className="border-lf-aurora text-lf-aurora hover:bg-lf-aurora/10 gap-2"
+                    disabled={syncing}
+                  >
+                    <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+                    {syncing ? "Syncing…" : "Sync Account Balance"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Restore Purchases (native only) */}
+              {isNative() && (
+                <div className="flex items-center justify-between p-4 rounded-lg bg-lf-midnight/50 border border-lf-violet/20">
+                  <div>
+                    <h3 className="font-semibold text-white">Restore Purchases</h3>
+                    <p className="text-sm text-lf-slate">Recover previously purchased credits or subscriptions</p>
+                  </div>
+                  <Button
+                    onClick={restorePurchases}
+                    variant="outline"
+                    className="border-lf-violet text-lf-violet hover:bg-lf-violet/10"
+                  >
+                    Restore
+                  </Button>
+                </div>
+              )}
+            </div>
+          </Card>
+
           {/* Data Sovereignty Section */}
           <Card className="border-lf-aurora/30 bg-lf-gradient/50 p-6 backdrop-blur shadow-glow">
             <div className="flex items-center gap-3 mb-6">
