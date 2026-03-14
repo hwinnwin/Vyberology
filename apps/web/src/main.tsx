@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { registerSW } from "virtual:pwa-register";
 import App from "./App.tsx";
 import "./index.css";
+import './styles/mobile-native.css';
 import { initSentry } from "./lib/sentry";
 import { FEAT_PM_SENTRY } from "./lib/flags";
 import { reportError } from "./lib/errorReporter";
