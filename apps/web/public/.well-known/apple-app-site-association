@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "TEAM_ID.com.vyberology.app",
+        "paths": ["/r/*", "/reading/*"]
+      }
+    ]
+  }
+}
