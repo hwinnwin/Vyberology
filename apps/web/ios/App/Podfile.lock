@@ -1,24 +1,42 @@
 PODS:
-  - Capacitor (7.4.3):
+  - Capacitor (7.4.5):
     - CapacitorCordova
-  - CapacitorApp (7.1.0):
+  - CapacitorApp (7.1.1):
     - Capacitor
-  - CapacitorCamera (7.0.2):
+  - CapacitorBrowser (7.0.4):
     - Capacitor
-  - CapacitorCordova (7.4.3)
-  - CapacitorScreenReader (7.0.2):
+  - CapacitorCamera (7.0.3):
+    - Capacitor
+  - CapacitorCordova (7.4.5)
+  - CapacitorHaptics (7.0.4):
+    - Capacitor
+  - CapacitorKeyboard (7.0.5):
+    - Capacitor
+  - CapacitorScreenReader (7.0.3):
+    - Capacitor
+  - CapacitorShare (7.0.4):
+    - Capacitor
+  - CapacitorSplashScreen (7.0.5):
+    - Capacitor
+  - CapacitorStatusBar (7.0.5):
     - Capacitor
   - Sentry/HybridSDK (8.56.2)
-  - SentryCapacitor (2.4.0):
+  - SentryCapacitor (2.4.1):
     - Capacitor
     - Sentry/HybridSDK (= 8.56.2)
 
 DEPENDENCIES:
   - "Capacitor (from `../../../../node_modules/@capacitor/ios`)"
   - "CapacitorApp (from `../../../../node_modules/@capacitor/app`)"
+  - "CapacitorBrowser (from `../../../../node_modules/@capacitor/browser`)"
   - "CapacitorCamera (from `../../../../node_modules/@capacitor/camera`)"
   - "CapacitorCordova (from `../../../../node_modules/@capacitor/ios`)"
+  - "CapacitorHaptics (from `../../../../node_modules/@capacitor/haptics`)"
+  - "CapacitorKeyboard (from `../../../../node_modules/@capacitor/keyboard`)"
   - "CapacitorScreenReader (from `../../../../node_modules/@capacitor/screen-reader`)"
+  - "CapacitorShare (from `../../../../node_modules/@capacitor/share`)"
+  - "CapacitorSplashScreen (from `../../../../node_modules/@capacitor/splash-screen`)"
+  - "CapacitorStatusBar (from `../../../../node_modules/@capacitor/status-bar`)"
   - "SentryCapacitor (from `../../../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
@@ -30,24 +48,42 @@ EXTERNAL SOURCES:
     :path: "../../../../node_modules/@capacitor/ios"
   CapacitorApp:
     :path: "../../../../node_modules/@capacitor/app"
+  CapacitorBrowser:
+    :path: "../../../../node_modules/@capacitor/browser"
   CapacitorCamera:
     :path: "../../../../node_modules/@capacitor/camera"
   CapacitorCordova:
     :path: "../../../../node_modules/@capacitor/ios"
+  CapacitorHaptics:
+    :path: "../../../../node_modules/@capacitor/haptics"
+  CapacitorKeyboard:
+    :path: "../../../../node_modules/@capacitor/keyboard"
   CapacitorScreenReader:
     :path: "../../../../node_modules/@capacitor/screen-reader"
+  CapacitorShare:
+    :path: "../../../../node_modules/@capacitor/share"
+  CapacitorSplashScreen:
+    :path: "../../../../node_modules/@capacitor/splash-screen"
+  CapacitorStatusBar:
+    :path: "../../../../node_modules/@capacitor/status-bar"
   SentryCapacitor:
     :path: "../../../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
-  Capacitor: 28d6c01026a9a3f7156529498ec1f389a2a28dbc
-  CapacitorApp: 26587c2ce485d88ddb39adb21cac64f8e481afe3
-  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
-  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
-  CapacitorScreenReader: 218f3bd7ed11e6bf24ec15f5636acb404d5c840d
+  Capacitor: 12914e6f1b7835e161a74ebd19cb361efa37a7dd
+  CapacitorApp: 63b237168fc869e758481dba283315a85743ee78
+  CapacitorBrowser: affdd32ab6a1822942eb55095b3c5ecf3f656a9d
+  CapacitorCamera: 6746827d82376f31cea9224945c0458c9fd0b0b2
+  CapacitorCordova: 31bbe4466000c6b86d9b7f1181ee286cff0205aa
+  CapacitorHaptics: bf3f58fc5dc7975a7ad5b7c725e5bb5bd435ae81
+  CapacitorKeyboard: 2fa1e17aec16aef8b01adbc20e8fc295db46104d
+  CapacitorScreenReader: bc27ae1049d8e194afa8c2d751f87a1a41762f31
+  CapacitorShare: 25f7fc5dd0e4edbde5d6801c6de5d14a8b450a41
+  CapacitorSplashScreen: 409eeaaeac603d264f209c0fcb718aa22fe1f7bb
+  CapacitorStatusBar: 6de542f202c0dd3f9d0a73b240d4c9d3dddc49b4
   Sentry: b53951377b78e21a734f5dc8318e333dbfc682d7
-  SentryCapacitor: 2d8a3a6ed63df2b7aceabad353b0d8556ed24035
+  SentryCapacitor: 84549a1440a7f58a336ed3175db0f067d571cd5b
 
-PODFILE CHECKSUM: ed669f3ff7850ce55a356f4dd74923ec03184ac3
+PODFILE CHECKSUM: 222207e33dc0c88ebe56c759cd957309e1e10380
 
 COCOAPODS: 1.16.2
