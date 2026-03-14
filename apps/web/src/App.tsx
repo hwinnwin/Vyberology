@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { AppHeader } from "@/components/AppHeader";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -15,6 +15,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { isFeatureEnabled } from "@/lib/featureFlags";
 import { useDeepLinks } from "@/hooks/useDeepLinks";
 import { trackAnalyticsEvent } from "@/lib/analytics";
+import { registerBackButton } from "@/lib/native";
 
 // Lazy load pages for better code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -56,9 +57,15 @@ const queryClient = new QueryClient({
 // Router component with deep link support
 const AppRouter = () => {
   const showHeader = isFeatureEnabled("nav.header.v1");
+  const navigate = useNavigate();
 
   // Initialize deep link handler
   useDeepLinks();
+
+  // Register Android hardware back button
+  useEffect(() => {
+    void registerBackButton(() => navigate(-1));
+  }, [navigate]);
 
   return (
     <>
