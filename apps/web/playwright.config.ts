@@ -1,4 +1,4 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 4173);
 const HOST = process.env.PLAYWRIGHT_HOST ?? '127.0.0.1';
@@ -8,6 +8,7 @@ const isCI = !!process.env.CI;
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  forbidOnly: isCI,
   retries: isCI ? 1 : 0,
   timeout: 30_000,
   use: {
@@ -16,6 +17,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
   },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
   webServer: {
     command: isCI
       ? `npm run preview -- --host ${HOST} --port ${PORT}`

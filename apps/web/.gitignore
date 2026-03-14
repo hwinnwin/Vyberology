@@ -38,4 +38,4 @@ supabase/.temp/
 
 # Capacitor / mobile build caches (optional)
 android/app/build/
-ios/Pods/
+ios/Pods/tests/e2e/fixtures/.auth-state.json
