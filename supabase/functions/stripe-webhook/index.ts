@@ -47,6 +47,29 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check if event already processed
+    const { data: existingEvent } = await supabase
+      .from('stripe_webhook_events')
+      .select('event_id')
+      .eq('event_id', event.id)
+      .single();
+
+    if (existingEvent) {
+      return new Response(JSON.stringify({ received: true, duplicate: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Record event as processing
+    await supabase
+      .from('stripe_webhook_events')
+      .insert({
+        event_id: event.id,
+        event_type: event.type,
+        user_id: null,
+      });
+
     // Handle different event types
     switch (event.type) {
       case 'checkout.session.completed': {
