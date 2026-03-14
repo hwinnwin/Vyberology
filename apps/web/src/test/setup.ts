@@ -111,6 +111,16 @@ vi.mock('@capacitor/camera', () => ({
   },
 }));
 
+// Mock RevenueCat
+vi.mock('@revenuecat/purchases-capacitor', () => ({
+  Purchases: {
+    configure: vi.fn(),
+    logIn: vi.fn(),
+    getProducts: vi.fn(() => Promise.resolve({ products: [] })),
+    purchaseStoreProduct: vi.fn(),
+  },
+}));
+
 // Mock Web Speech API
 const mockSpeechRecognition = {
   continuous: false,
