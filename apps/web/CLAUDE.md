@@ -45,6 +45,13 @@ npx cap add android      # Add Android platform
 npm run build && npx cap sync  # Build and sync to native projects
 npx cap run ios         # Run on iOS simulator/device
 npx cap run android     # Run on Android emulator/device
+
+# Capacitor build scripts
+npm run cap:sync           # Build web + sync to native projects
+npm run cap:ios            # Run on iOS
+npm run cap:android        # Run on Android
+npm run cap:open:ios       # Open in Xcode
+npm run cap:open:android   # Open in Android Studio
 ```
 
 ## Architecture
@@ -102,6 +109,7 @@ Edge functions written in Deno for serverless operations:
 - **`read/`**: Alternative reading endpoint
 - **`readings/`**: Batch or historical readings
 - **`seed-archetypes/`**: Seeds archetype data into Supabase
+- **`validate-iap-receipt/`**: RevenueCat IAP webhook handler for mobile purchases
 
 All functions use CORS headers to allow cross-origin requests from the frontend.
 
@@ -174,7 +182,7 @@ These files are used by both the client-side reading composer and Supabase seed 
 
 Configuration in `capacitor.config.ts`:
 
-- App ID: `app.lovable.eebd950946e542d89b5f15154caa7b65`
+- App ID: `com.vyberology.app`
 - Web directory: `dist` (Vite output)
 - Server URL: Points to Lovable-hosted preview during development
 
@@ -234,6 +242,15 @@ Reusable component for permission requests and denials:
 - Contextual actions ("Grant Permission", "Open Settings")
 - Dismissable prompts
 - Branded styling consistent with Vyberology design
+
+## IAP / Payments
+
+Vyberology uses a dual payment architecture depending on the platform:
+
+- **Web**: Stripe checkout via the `create-checkout-session` edge function
+- **Mobile**: RevenueCat IAP via the `validate-iap-receipt` webhook edge function
+- **Unified entry point**: `purchaseTier()` in `src/services/purchase.ts` detects the platform and routes to the correct payment flow automatically
+- **Credits**: Stored in the Supabase `reading_credits` table; all credit additions and deductions are recorded in the `credit_transactions` ledger table
 
 ## Error Tracking with Sentry (`src/lib/sentry.ts`)
 
@@ -408,6 +425,6 @@ For Android (android/app/src/main/AndroidManifest.xml):
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
 ```
