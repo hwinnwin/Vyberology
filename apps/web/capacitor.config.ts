@@ -1,20 +1,25 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.eebd950946e542d89b5f15154caa7b65',
-  appName: 'vyberology',
+  appId: 'com.vyberology.app',
+  appName: 'Vyberology',
   webDir: 'dist',
-  // Comment out server config to use local built files
-  // Uncomment below to use local dev server with hot reload:
-  // server: {
-  //   url: 'http://192.168.0.24:8080',
-  //   cleartext: true
-  // },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0
-    }
-  }
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: '#1a1a2e',
+      showSpinner: false,
+    },
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#1a1a2e',
+    },
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true,
+    },
+  },
 };
 
 export default config;
