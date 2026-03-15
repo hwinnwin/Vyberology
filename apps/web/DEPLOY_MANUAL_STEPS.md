@@ -33,10 +33,10 @@ Add these environment variables for Edge Functions:
 
 ```
 STRIPE_SECRET_KEY
-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
+<your-stripe-secret-key-from-bitwarden>
 
 STRIPE_WEBHOOK_SECRET
-whsec_YKGMLEMG1bqRzLyJ0H0IZueTypdT8nP
+<your-stripe-webhook-secret-from-bitwarden>
 ```
 
 ### Optional (if you have it)
@@ -101,7 +101,7 @@ Create `.env.local` in the web app directory:
 cat > .env.local <<'EOF'
 VITE_SUPABASE_URL=https://qptrlxzyindcohsubidl.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key_from_dashboard
-VITE_STRIPE_PUBLISHABLE_KEY=pk_live_51SGaypKQHOT2DNgNdJJ0nZNP2zL7iK3Gb4D3ai4L6poMV6CD0mRSvNIfDpdbA3nXhgP0avW4jPlOsUXZKkuBy50s00unH0hCzd
+VITE_STRIPE_PUBLISHABLE_KEY=<your-stripe-publishable-key>
 EOF
 ```
 
@@ -157,7 +157,7 @@ Then update database with price IDs (see Option A).
 
 According to Bitwarden, webhook is already configured at:
 - **URL**: `https://vyberology.com/api/webhooks/stripe`
-- **Secret**: `whsec_YKGMLEMG1bqRzLyJ0H0IZueTypdT8nP`
+- **Secret**: `<your-stripe-webhook-secret>`
 
 **But** our Supabase edge function is at:
 - `https://qptrlxzyindcohsubidl.supabase.co/functions/v1/stripe-webhook`
