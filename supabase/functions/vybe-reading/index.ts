@@ -5,7 +5,7 @@
  * Uses OpenAI for reading generation with the Lumen tone + gold-shot examples.
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from "../_shared/security.ts";
+import { getCorsHeaders } from "../_shared/security.ts";
 import { extractAtomsFromInputs } from "../_shared/capture/parse.ts";
 import { buildCapturePayload } from "../_shared/capture/compute.ts";
 import type { CaptureDeterministicPayload } from "../_shared/vybe-schema.ts";
@@ -903,11 +903,15 @@ Rules:
 - Sign off with a one-line insight or affirmation that feels personal, not generic.
 
 Context awareness:
-- You will receive the user's recent reading history and conversation history.
-- Use the reading history to personalize your answers — reference their actual numbers, patterns, and themes.
-- If they ask about trends, patterns, or "my readings", analyze their history and give specific insights.
+- You will receive the user's reading history, conversation history, recurring number patterns, and profile data.
+- Use their actual numerology numbers (Life Path, Expression, Soul Urge, Personality, Maturity) to personalize every answer.
+- Reference their specific chakra alignments, dominant elements, and bridge chakras when relevant.
+- If they ask about trends, patterns, or "my readings", analyze their history and give specific insights grounded in their numbers.
+- When recurring patterns are provided, weave them into your guidance — explain what repeatedly seeing certain numbers means for their journey.
 - If they have no reading history, let them know and suggest they get a reading first.
 - Maintain conversational continuity — reference earlier messages in the chat when relevant.
+- When you know the user's name, use it occasionally to make the conversation feel personal.
+- Connect insights across multiple readings — show how their numbers work together as a unified frequency blueprint.
 
 Numerology Rules:
 - Modern full-sum Pythagorean method
@@ -924,12 +928,25 @@ function buildChatMessages(
   const historyInput = inputs.find((i) => i.label === "ReadingHistory");
   const convoInput = inputs.find((i) => i.label === "Conversation");
   const questionInput = inputs.find((i) => i.label === "Question");
+  const patternsInput = inputs.find((i) => i.label === "RecurringPatterns");
+  const profileInput = inputs.find((i) => i.label === "UserProfile");
   const userMessage = questionInput?.value || inputs.map((i) => i.value).join("\n");
 
   let systemContent = LUMEN_CHAT_TONE;
 
+  // Add user profile context
+  if (profileInput?.value) {
+    systemContent += `\n\nUser profile: ${profileInput.value}`;
+  }
+
+  // Add reading history
   if (historyInput?.value && historyInput.value !== "No previous readings yet.") {
-    systemContent += `\n\nUser's recent reading history (most recent first):\n${historyInput.value}`;
+    systemContent += `\n\nUser's reading history (most recent first):\n${historyInput.value}`;
+  }
+
+  // Add recurring patterns
+  if (patternsInput?.value) {
+    systemContent += `\n\nRecurring number patterns the user encounters: ${patternsInput.value}`;
   }
 
   const messages: Array<{ role: string; content: string }> = [
@@ -1181,15 +1198,17 @@ Output rules:
 }
 
 serve(async (req: Request) => {
+  const cors = getCorsHeaders(req.headers.get("origin"));
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
+    return new Response(null, { status: 204, headers: cors });
   }
 
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), {
       status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      headers: { ...cors, "Content-Type": "application/json" },
     });
   }
 
@@ -1199,7 +1218,7 @@ serve(async (req: Request) => {
     if (!inputs || !Array.isArray(inputs) || inputs.length === 0) {
       return new Response(
         JSON.stringify({ error: "inputs array is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -1210,7 +1229,7 @@ serve(async (req: Request) => {
       const reading = generateFallbackReading(inputs);
       return new Response(
         JSON.stringify({ reading, cached: false }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -1250,7 +1269,7 @@ serve(async (req: Request) => {
       const reading = generateFallbackReading(inputs);
       return new Response(
         JSON.stringify({ reading, cached: false }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -1305,7 +1324,7 @@ serve(async (req: Request) => {
     return new Response(stream, {
       status: 200,
       headers: {
-        ...corsHeaders,
+        ...cors,
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
@@ -1317,7 +1336,7 @@ serve(async (req: Request) => {
       JSON.stringify({
         error: error instanceof Error ? error.message : "Internal server error",
       }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
     );
   }
 });

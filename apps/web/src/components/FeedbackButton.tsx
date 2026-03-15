@@ -8,14 +8,15 @@ import { MessageSquare } from "lucide-react";
  */
 export function FeedbackButton() {
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-6 left-6 z-50">
       <FeedbackDialog
         trigger={
           <Button
-            size="lg"
-            className="rounded-full shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            size="sm"
+            variant="outline"
+            className="rounded-full shadow-md hover:shadow-lg transition-all border-vy-charcoal/20 bg-white/80 backdrop-blur-sm text-vy-charcoal/60 hover:text-vy-charcoal hover:bg-white"
           >
-            <MessageSquare className="w-5 h-5 mr-2" />
+            <MessageSquare className="w-4 h-4 mr-1.5" />
             Feedback
           </Button>
         }

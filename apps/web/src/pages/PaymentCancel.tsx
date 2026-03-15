@@ -46,7 +46,7 @@ export default function PaymentCancel() {
               What happened?
             </h3>
             <p className="font-sans text-sm text-vy-charcoal/50 mb-4 leading-relaxed">
-              The checkout was cancelled before any payment was processed. This is completely normal — you can return to the pricing page anytime to try again.
+              The checkout was cancelled before any payment was processed. This is completely normal — you can return to the premium page anytime to try again.
             </p>
             <p className="font-sans text-sm text-vy-charcoal/50 leading-relaxed">
               If you experienced any issues during checkout, please don't hesitate to reach out.
@@ -94,7 +94,7 @@ export default function PaymentCancel() {
               onClick={() => navigate("/pricing")}
               className="flex-1 py-3 rounded-xl font-sans text-sm font-medium bg-vy-charcoal text-vy-parchment hover:bg-vy-charcoal/90 transition-all duration-200 cursor-pointer border-none"
             >
-              Back to Pricing
+              Back to Premium
             </button>
             <button
               onClick={() => navigate("/")}

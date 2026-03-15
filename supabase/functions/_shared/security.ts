@@ -2,7 +2,8 @@
 const ALLOWED_ORIGINS = [
   'https://vyberology.com',
   'https://www.vyberology.com',
-  ...(Deno.env.get('ENVIRONMENT') === 'development' ? ['http://localhost:8080', 'http://localhost:5173'] : []),
+  'http://localhost:8080',
+  'http://localhost:5173',
 ];
 
 // Build CORS headers with origin checking
@@ -35,19 +36,22 @@ type Handler = (req: Request) => Promise<Response> | Response;
 // Middleware to add CORS headers to responses
 export function withCors(handler: Handler): Handler {
   return async (req: Request) => {
+    const origin = req.headers.get('origin');
+    const dynamicCors = getCorsHeaders(origin);
+
     // Handle OPTIONS request for CORS preflight
     if (req.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
-        headers: { ...corsHeaders, ...securityHeaders },
+        headers: { ...dynamicCors, ...securityHeaders },
       });
     }
 
     const response = await handler(req);
     const headers = new Headers(response.headers);
-    
+
     // Add CORS and security headers
-    Object.entries({ ...corsHeaders, ...securityHeaders }).forEach(([key, value]) => {
+    Object.entries({ ...dynamicCors, ...securityHeaders }).forEach(([key, value]) => {
       headers.set(key, value);
     });
 

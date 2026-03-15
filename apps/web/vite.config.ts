@@ -94,6 +94,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@vybe/analytics-adapter": path.resolve(__dirname, "../../packages/analytics-adapter/dist/index.js"),
+      "@revenuecat/purchases-capacitor": path.resolve(__dirname, "./src/stubs/purchases-capacitor.ts"),
     },
   },
   build: {

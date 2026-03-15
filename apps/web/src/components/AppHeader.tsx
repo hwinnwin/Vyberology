@@ -24,8 +24,7 @@ const routeNames: Record<string, string> = {
   "/": "Home",
   "/numerology": "Numerology",
   "/compatibility": "Compatibility",
-  "/get-vybe": "Get Vybe",
-  "/pricing": "Pricing",
+  "/pricing": "Premium",
 };
 
 export const AppHeader = ({ className }: AppHeaderProps) => {

@@ -32,14 +32,9 @@ export const useDeepLinks = () => {
       const path = url.pathname; // e.g., "/capture" or "/pattern/11:11"
 
       // Route based on deep link path
-      if (path.startsWith('/capture')) {
-        // Open Get Vybe page for vybe capture
-        navigate('/get-vybe');
-      } else if (path.startsWith('/pattern/')) {
-        // Extract pattern from path
-        const pattern = path.replace('/pattern/', '');
-        // Navigate to Get Vybe with pattern in state
-        navigate('/get-vybe', { state: { pattern } });
+      if (path.startsWith('/capture') || path.startsWith('/pattern/')) {
+        // Redirect to home (Get Vybe page removed)
+        navigate('/');
       } else if (path.startsWith('/history')) {
         // Open reading history
         navigate('/history');

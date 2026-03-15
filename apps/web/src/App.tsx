@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { LumynChatFab } from "@/components/LumynChatFab";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import NativeTabBar from "@/components/NativeTabBar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -21,7 +22,6 @@ import { registerBackButton } from "@/lib/native";
 const Index = lazy(() => import("./pages/Index"));
 const Landing = lazy(() => import("./pages/Landing"));
 const Compatibility = lazy(() => import("./pages/Compatibility"));
-const GetVybe = lazy(() => import("./pages/GetVybe"));
 const History = lazy(() => import("./pages/History"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -83,7 +83,6 @@ const AppRouter = () => {
             <Route path="/" element={<Index />} />
             <Route path="/landing" element={<Landing />} />
             <Route path="/compatibility" element={<Compatibility />} />
-            <Route path="/get-vybe" element={<GetVybe />} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="/privacy" element={<Privacy />} />
@@ -130,6 +129,7 @@ const App = () => {
             <BrowserRouter>
               <AppRouter />
               <FeedbackButton />
+              <LumynChatFab />
               <InstallPrompt />
             </BrowserRouter>
           </AuthProvider>

@@ -30,15 +30,28 @@ const comparisonFeatures: { label: string; free: boolean | string; lyf: boolean 
   { label: "Past life echoes", free: false, lyf: false, vybe: false, deep: true },
 ];
 
+// Maps tier IDs to the reading page that uses credits
+const TIER_READING_PAGE: Record<Exclude<ReadingTier, "free">, string> = {
+  "lyf-path": "/lyf-path",
+  "full-vybe": "/lyf-path",
+  deep: "/lyf-path",
+};
+
 export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, credits } = useAuth();
 
-  const handlePurchase = async (tierId: Exclude<ReadingTier, "free">) => {
+  const handleAction = async (tierId: Exclude<ReadingTier, "free">) => {
     if (!user) {
       navigate("/auth");
+      return;
+    }
+
+    // If user has credits, navigate to the reading page instead of checkout
+    if (credits > 0) {
+      navigate(TIER_READING_PAGE[tierId]);
       return;
     }
 
@@ -106,11 +119,15 @@ export default function Pricing() {
         <p className="font-sans text-base font-light text-vy-charcoal/50 max-w-[440px] mx-auto">
           One-time purchase. No subscription. Pick the depth that calls to you.
         </p>
-        {!user && (
+        {!user ? (
           <p className="font-sans text-sm text-vy-charcoal/40 mt-4">
             <Link to="/auth" className="underline text-vy-gold hover:text-vy-gold/80">Sign in</Link> to purchase
           </p>
-        )}
+        ) : credits > 0 ? (
+          <p className="font-sans text-sm text-vy-gold mt-4 font-medium">
+            You have {credits} credit{credits !== 1 ? "s" : ""} available
+          </p>
+        ) : null}
       </header>
 
       {/* Tier Cards */}
@@ -155,15 +172,21 @@ export default function Pricing() {
                 </ul>
 
                 <button
-                  onClick={() => handlePurchase(id)}
+                  onClick={() => handleAction(id)}
                   disabled={loading !== null}
                   className={`w-full py-3 rounded-xl font-sans text-sm font-medium transition-all duration-200 cursor-pointer border-none ${
-                    popular
-                      ? "bg-vy-charcoal text-vy-parchment hover:bg-vy-charcoal/90"
-                      : "bg-vy-charcoal/[0.06] text-vy-charcoal hover:bg-vy-charcoal/[0.12]"
+                    user && credits > 0
+                      ? "bg-vy-gold text-white hover:bg-vy-gold/90"
+                      : popular
+                        ? "bg-vy-charcoal text-vy-parchment hover:bg-vy-charcoal/90"
+                        : "bg-vy-charcoal/[0.06] text-vy-charcoal hover:bg-vy-charcoal/[0.12]"
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
-                  {loading === id ? "Processing..." : `Get ${tier.label}`}
+                  {loading === id
+                    ? "Processing..."
+                    : user && credits > 0
+                      ? `Use Credit for ${tier.label}`
+                      : `Get ${tier.label}`}
                 </button>
               </div>
             );

@@ -60,9 +60,6 @@ export function Footer() {
           <Link to="/lyf-path" className="hover:text-vy-gold transition-colors duration-200">
             Lyf Path
           </Link>
-          <Link to="/get-vybe" className="hover:text-vy-gold transition-colors duration-200">
-            Get Vybe
-          </Link>
           <Link to="/history" className="hover:text-vy-gold transition-colors duration-200">
             History
           </Link>

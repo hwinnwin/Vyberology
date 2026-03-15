@@ -3,13 +3,9 @@ import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { useTimeCapture } from "@/features/capture/hooks/useTimeCapture";
-import { useTextInput } from "@/features/capture/hooks/useTextInput";
 import { CaptureTabs } from "@/features/capture/components/CaptureTabs";
 import { Footer } from "@/components/Footer";
 import { ReadingRenderer } from "@/components/ReadingRenderer";
-import { ChatMessage } from "@/features/capture/components/LumenChat";
-import { callVybeReading } from "@/lib/vybeApi";
-import { getReadingHistory } from "@/lib/readingHistory";
 
 interface Reading {
   input_text: string;
@@ -59,71 +55,7 @@ const Index = () => {
     }
   );
 
-  const textInput = useTextInput(
-    (reading) => {
-      setCombinedReading(reading);
-      setCombinedCapturedAt(textInput.capturedAt);
-      scrollToReading();
-    },
-    (error) => {
-      toast({ title: "Processing failed", description: error.message || "Please try again", variant: "destructive" });
-    },
-    () => {
-      toast({ title: "No input", description: "Please enter numbers or text", variant: "destructive" });
-    }
-  );
-
-  // Lumen chat state
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState("");
-  const [isChatProcessing, setIsChatProcessing] = useState(false);
-
-  const handleChatSend = async () => {
-    if (!chatInput.trim()) return;
-
-    const userMessage = chatInput.trim();
-    setChatInput("");
-    const updatedMessages: ChatMessage[] = [...chatMessages, { role: "user", content: userMessage }];
-    setChatMessages(updatedMessages);
-    setIsChatProcessing(true);
-
-    try {
-      // Build context: recent reading history summaries
-      const history = getReadingHistory().slice(0, 10);
-      const historyContext = history.length > 0
-        ? history.map((r) => {
-            const date = new Date(r.timestamp).toLocaleDateString();
-            // Include a truncated excerpt of the reading for context
-            const excerpt = r.reading.slice(0, 300).replace(/\n+/g, " ");
-            return `[${date}] ${r.inputType}: "${r.inputValue}" — ${excerpt}`;
-          }).join("\n")
-        : "No previous readings yet.";
-
-      // Build conversation history for multi-turn context
-      const convoContext = updatedMessages.slice(-8).map(
-        (m) => `${m.role === "user" ? "User" : "Lumyn"}: ${m.content.slice(0, 400)}`
-      ).join("\n");
-
-      const inputs = [
-        { label: "ReadingHistory", value: historyContext },
-        { label: "Conversation", value: convoContext },
-        { label: "Question", value: userMessage },
-      ];
-
-      const reading = await callVybeReading(inputs, "standard", "chat");
-      setChatMessages((prev) => [...prev, { role: "assistant", content: reading }]);
-    } catch (error) {
-      toast({
-        title: "Chat failed",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsChatProcessing(false);
-    }
-  };
-
-  const isProcessing = timeCapture.isProcessing || textInput.isProcessing || isChatProcessing;
+  const isProcessing = timeCapture.isProcessing;
 
   return (
     <div className="min-h-screen flex flex-col bg-vy-parchment grain">
@@ -156,13 +88,6 @@ const Index = () => {
         <div className="max-w-[640px] mx-auto vy-reveal vy-reveal-5">
           <CaptureTabs
             onTimeCapture={timeCapture.captureTime}
-            textValue={textInput.textInput}
-            onTextChange={textInput.setTextInput}
-            onTextSubmit={textInput.submitText}
-            chatMessages={chatMessages}
-            chatInput={chatInput}
-            onChatInputChange={setChatInput}
-            onChatSend={handleChatSend}
             isProcessing={isProcessing}
           />
         </div>
@@ -308,20 +233,6 @@ const Index = () => {
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
                   Compare two profiles. Discover how your energies interact, where you align, and where tension lives.
-                </p>
-              </div>
-            </Link>
-
-            <Link to="/get-vybe" className="group no-underline">
-              <div className="rounded-2xl border border-vy-parchment/[0.08] bg-vy-parchment/[0.04] p-7 transition-all duration-300 group-hover:border-vy-gold/30 group-hover:bg-vy-parchment/[0.07] group-hover:shadow-vy-glow h-full">
-                <div className="w-12 h-12 rounded-xl bg-vy-parchment/[0.08] flex items-center justify-center mb-5 text-vy-parchment text-xl">
-                  &#x2605;
-                </div>
-                <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Get Vybe
-                </h3>
-                <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  Capture repeating numbers from the moment — time or manual input. Decoded in real-time.
                 </p>
               </div>
             </Link>
