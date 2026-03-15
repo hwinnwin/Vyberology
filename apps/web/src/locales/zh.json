@@ -1,0 +1,111 @@
+{
+  "brand": "Vyberology",
+  "tagline": "解码你的生命频率",
+
+  "nav": {
+    "home": "首页",
+    "compatibility": "相合度",
+    "lyfPath": "生命之路",
+    "history": "历史",
+    "premium": "高级版",
+    "career": "事业展望",
+    "romance": "爱情展望",
+    "settings": "设置",
+    "privacy": "隐私",
+    "terms": "条款"
+  },
+
+  "hero": {
+    "label": "神圣数字学",
+    "subtitle": "将姓名、生日和重复出现的数字转化为个性化的数字命理指引。"
+  },
+
+  "capture": {
+    "subtitle": "捕捉当下时刻的频率",
+    "whatsThe": "探索",
+    "capturing": "捕捉中..."
+  },
+
+  "reading": {
+    "capturedAt": "捕捉于 {{time}}",
+    "viewHistory": "查看解读历史"
+  },
+
+  "features": {
+    "explore": "探索",
+    "toolkit": "你的数字命理工具箱",
+    "lyfPath": {
+      "title": "生命之路",
+      "desc": "你的出生日期解码为基础频率、北交点方向和灵魂层面的调谐。"
+    },
+    "career": {
+      "title": "事业展望",
+      "desc": "你的数字命理解码为职业优势、专业频率和使命驱动的指引。"
+    },
+    "romance": {
+      "title": "爱情展望",
+      "desc": "揭示你灵魂的浪漫频率——爱的语言、依恋风格和以心为中心的指引。"
+    },
+    "compatibility": {
+      "title": "相合度",
+      "desc": "比较两个档案。发现你们的能量如何互动，哪里协调，哪里存在张力。"
+    },
+    "premiumReadings": {
+      "title": "高级解读",
+      "desc": "AI驱动的深度解读与个性化指引。购买点数包享受无限访问。"
+    }
+  },
+
+  "auth": {
+    "signIn": "登录",
+    "signUp": "注册",
+    "signOut": "退出",
+    "signedIn": "已登录",
+    "createAccount": "创建账户",
+    "continueWithGoogle": "使用Google继续",
+    "or": "或",
+    "email": "电子邮箱",
+    "password": "密码",
+    "sendMagicLink": "发送登录链接",
+    "usePassword": "改用密码登录",
+    "magicLinkInstead": "改用链接登录",
+    "noAccount": "还没有账户？",
+    "hasAccount": "已有账户？",
+    "signinSubtitle": "登录以解锁高级解读并追踪你的旅程",
+    "signupSubtitle": "创建账户以开始",
+    "magicLinkSubtitle": "输入你的邮箱，我们将发送登录链接",
+    "termsNotice": "登录即表示你同意我们的",
+    "and": "和",
+    "checkEmail": "检查你的邮箱",
+    "magicLinkSent": "我们已发送登录链接到你的邮箱。",
+    "confirmationSent": "我们已发送确认链接以验证你的账户。",
+    "signInFailed": "登录失败",
+    "signUpFailed": "注册失败",
+    "magicLinkFailed": "发送链接失败",
+    "somethingWrong": "出了点问题，请重试。",
+    "sending": "发送中...",
+    "processing": "处理中..."
+  },
+
+  "footer": {
+    "copyright": "© {{year}} Vyberology. 保留所有权利。",
+    "disclaimer": "仅供娱乐和教育用途。",
+    "credits_one": "{{count}} 点数",
+    "credits_other": "{{count}} 点数",
+    "language": "语言"
+  },
+
+  "onboarding": {
+    "welcome": "欢迎来到 Vyberology",
+    "step1Title": "捕捉此刻",
+    "step1Desc": "点击时钟读取当前时间的能量。每个时刻都有自己的频率。",
+    "step2Title": "随时扫描数字",
+    "step2Desc": "在收据上看到11:11？车牌上的444？拍照并解码频率信号。",
+    "step3Title": "获取个人指引",
+    "step3Desc": "接收与你生命频率一致的共鸣解读。追踪你历史中的模式。",
+    "back": "返回",
+    "next": "下一步",
+    "getStarted": "开始",
+    "skipIntro": "跳过"
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "react-i18next";
 import { OnboardingModal } from "@/components/OnboardingModal";
 import { useTimeCapture } from "@/features/capture/hooks/useTimeCapture";
 import { CaptureTabs } from "@/features/capture/components/CaptureTabs";
@@ -34,6 +35,7 @@ const ELEMENT_GLYPHS: Record<string, string> = {
 
 const Index = () => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [combinedReading, setCombinedReading] = useState<Reading | null>(null);
   const [combinedCapturedAt, setCombinedCapturedAt] = useState<string>("");
   const readingRef = useRef<HTMLDivElement>(null);
@@ -70,15 +72,14 @@ const Index = () => {
 
         <div className="relative z-10 max-w-[720px] mx-auto">
           <p className="vy-label text-vy-gold mb-6 vy-reveal vy-reveal-1">
-            Sacred Numerology
+            {t("hero.label")}
           </p>
           <h1 className="vy-display text-[clamp(48px,10vw,72px)] text-vy-indigo mb-5 vy-reveal vy-reveal-2 vy-hero-heading">
-            Vyberology
+            {t("brand")}
           </h1>
           <div className="vy-divider max-w-[120px] mx-auto mb-6 vy-reveal vy-reveal-3" />
           <p className="font-sans text-lg font-light text-vy-charcoal/75 max-w-[480px] mx-auto leading-relaxed vy-reveal vy-reveal-4">
-            Transform names, birthdates, and repeating numbers into
-            personalized numerological guidance.
+            {t("hero.subtitle")}
           </p>
         </div>
       </section>
@@ -101,7 +102,7 @@ const Index = () => {
 
             {/* Timestamp */}
             <p className="vy-label text-vy-warm-gray mb-8">
-              Captured at {combinedCapturedAt}
+              {t("reading.capturedAt", { time: combinedCapturedAt })}
             </p>
 
             {/* Element + Chakra — only show if data exists */}
@@ -166,7 +167,7 @@ const Index = () => {
               to="/history"
               className="vy-label text-vy-charcoal/60 hover:text-vy-gold transition-colors duration-200"
             >
-              View Reading History
+              {t("reading.viewHistory")}
             </Link>
           </div>
         </section>
@@ -175,9 +176,9 @@ const Index = () => {
       {/* ═══ Features ═══ */}
       <section className="bg-vy-charcoal px-6 py-24">
         <div className="max-w-[960px] mx-auto">
-          <p className="vy-label text-vy-gold text-center mb-4">Explore</p>
+          <p className="vy-label text-vy-gold text-center mb-4">{t("features.explore")}</p>
           <h2 className="vy-display text-[36px] text-vy-parchment text-center mb-16">
-            Your Numerological Toolkit
+            {t("features.toolkit")}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -187,10 +188,10 @@ const Index = () => {
                   &#x2609;
                 </div>
                 <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Lyf Path
+                  {t("features.lyfPath.title")}
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  Your birth date decoded into your base frequency, North Node direction, and soul-level attunement.
+                  {t("features.lyfPath.desc")}
                 </p>
               </div>
             </Link>
@@ -201,10 +202,10 @@ const Index = () => {
                   &#x2692;
                 </div>
                 <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Career Outlook
+                  {t("features.career.title")}
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  Your numerology numbers decoded into career strengths, professional frequency, and purpose-driven guidance.
+                  {t("features.career.desc")}
                 </p>
               </div>
             </Link>
@@ -215,10 +216,10 @@ const Index = () => {
                   &#x2764;
                 </div>
                 <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Romance Outlook
+                  {t("features.romance.title")}
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  Your soul's romantic frequency revealed — love language, attachment style, and heart-centered guidance.
+                  {t("features.romance.desc")}
                 </p>
               </div>
             </Link>
@@ -229,10 +230,10 @@ const Index = () => {
                   &#x2661;
                 </div>
                 <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Compatibility
+                  {t("features.compatibility.title")}
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  Compare two profiles. Discover how your energies interact, where you align, and where tension lives.
+                  {t("features.compatibility.desc")}
                 </p>
               </div>
             </Link>
@@ -243,10 +244,10 @@ const Index = () => {
                   &#x2736;
                 </div>
                 <h3 className="font-sans text-lg font-semibold text-vy-parchment mb-2">
-                  Premium Readings
+                  {t("features.premiumReadings.title")}
                 </h3>
                 <p className="font-sans text-sm font-light leading-relaxed text-vy-parchment/75">
-                  AI-powered deep readings with personalized guidance. Credit packages for unlimited access.
+                  {t("features.premiumReadings.desc")}
                 </p>
               </div>
             </Link>

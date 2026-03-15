@@ -1,0 +1,111 @@
+{
+  "brand": "Vyberology",
+  "tagline": "Decode your life's frequency",
+
+  "nav": {
+    "home": "Home",
+    "compatibility": "Compatibility",
+    "lyfPath": "Lyf Path",
+    "history": "History",
+    "premium": "Premium",
+    "career": "Career Outlook",
+    "romance": "Romance Outlook",
+    "settings": "Settings",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+
+  "hero": {
+    "label": "Sacred Numerology",
+    "subtitle": "Transform names, birthdates, and repeating numbers into personalized numerological guidance."
+  },
+
+  "capture": {
+    "subtitle": "Capture the current moment's frequency",
+    "whatsThe": "What's the",
+    "capturing": "Capturing..."
+  },
+
+  "reading": {
+    "capturedAt": "Captured at {{time}}",
+    "viewHistory": "View Reading History"
+  },
+
+  "features": {
+    "explore": "Explore",
+    "toolkit": "Your Numerological Toolkit",
+    "lyfPath": {
+      "title": "Lyf Path",
+      "desc": "Your birth date decoded into your base frequency, North Node direction, and soul-level attunement."
+    },
+    "career": {
+      "title": "Career Outlook",
+      "desc": "Your numerology numbers decoded into career strengths, professional frequency, and purpose-driven guidance."
+    },
+    "romance": {
+      "title": "Romance Outlook",
+      "desc": "Your soul's romantic frequency revealed — love language, attachment style, and heart-centered guidance."
+    },
+    "compatibility": {
+      "title": "Compatibility",
+      "desc": "Compare two profiles. Discover how your energies interact, where you align, and where tension lives."
+    },
+    "premiumReadings": {
+      "title": "Premium Readings",
+      "desc": "AI-powered deep readings with personalized guidance. Credit packages for unlimited access."
+    }
+  },
+
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "signedIn": "Signed in",
+    "createAccount": "Create Account",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "email": "Email address",
+    "password": "Password",
+    "sendMagicLink": "Send Magic Link",
+    "usePassword": "Use password instead",
+    "magicLinkInstead": "Sign in with magic link instead",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signinSubtitle": "Sign in to unlock premium readings and track your journey",
+    "signupSubtitle": "Create an account to get started",
+    "magicLinkSubtitle": "Enter your email and we'll send you a sign-in link",
+    "termsNotice": "By signing in, you agree to our",
+    "and": "and",
+    "checkEmail": "Check your email",
+    "magicLinkSent": "We sent you a magic link to sign in instantly.",
+    "confirmationSent": "We sent you a confirmation link to verify your account.",
+    "signInFailed": "Sign In Failed",
+    "signUpFailed": "Sign Up Failed",
+    "magicLinkFailed": "Magic Link Failed",
+    "somethingWrong": "Something went wrong. Please try again.",
+    "sending": "Sending...",
+    "processing": "Processing..."
+  },
+
+  "footer": {
+    "copyright": "© {{year}} Vyberology. All rights reserved.",
+    "disclaimer": "For entertainment and educational purposes only.",
+    "credits_one": "{{count}} credit",
+    "credits_other": "{{count}} credits",
+    "language": "Language"
+  },
+
+  "onboarding": {
+    "welcome": "Welcome to Vyberology",
+    "step1Title": "Capture the Moment",
+    "step1Desc": "Tap the clock to read your current time's energy. Each moment carries its own frequency.",
+    "step2Title": "Scan Numbers Anywhere",
+    "step2Desc": "See 11:11 on a receipt? 444 on a license plate? Snap a photo and decode the frequency signal.",
+    "step3Title": "Get Personal Guidance",
+    "step3Desc": "Receive resonance readings that align with your life's frequency. Track patterns in your history.",
+    "back": "Back",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "skipIntro": "Skip intro"
+  }
+}

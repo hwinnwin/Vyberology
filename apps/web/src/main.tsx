@@ -8,6 +8,7 @@ import { FEAT_PM_SENTRY } from "./lib/flags";
 import { reportError } from "./lib/errorReporter";
 import { attachGlobalErrorHandlers } from "./lib/logger";
 import { initPlatform } from './lib/platform';
+import './lib/i18n';
 initPlatform();
 
 // Initialize Sentry before rendering app

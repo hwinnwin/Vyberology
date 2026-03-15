@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Home, Mail, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +13,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<AuthMode>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +37,7 @@ export default function Auth() {
 
     if (error) {
       toast({
-        title: "Sign In Failed",
+        title: t("auth.signInFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -56,13 +58,13 @@ export default function Auth() {
       });
       if (error) throw error;
       toast({
-        title: "Check your email",
-        description: "We sent you a magic link to sign in instantly.",
+        title: t("auth.checkEmail"),
+        description: t("auth.magicLinkSent"),
       });
     } catch (error) {
       toast({
-        title: "Magic Link Failed",
-        description: error instanceof Error ? error.message : "Something went wrong.",
+        title: t("auth.magicLinkFailed"),
+        description: error instanceof Error ? error.message : t("auth.somethingWrong"),
         variant: "destructive",
       });
     } finally {
@@ -86,8 +88,8 @@ export default function Auth() {
         });
         if (error) throw error;
         toast({
-          title: "Check your email",
-          description: "We sent you a confirmation link to verify your account.",
+          title: t("auth.checkEmail"),
+          description: t("auth.confirmationSent"),
         });
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -95,12 +97,11 @@ export default function Auth() {
           password,
         });
         if (error) throw error;
-        // Auth state change will redirect via the useEffect above
       }
     } catch (error) {
       toast({
-        title: mode === "signup" ? "Sign Up Failed" : "Sign In Failed",
-        description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+        title: mode === "signup" ? t("auth.signUpFailed") : t("auth.signInFailed"),
+        description: error instanceof Error ? error.message : t("auth.somethingWrong"),
         variant: "destructive",
       });
     } finally {
@@ -116,7 +117,7 @@ export default function Auth() {
           to="/"
           className="flex items-center gap-2 font-sans text-sm font-medium text-vy-charcoal/50 hover:text-vy-charcoal transition-colors duration-200 no-underline"
         >
-          <Home size={16} /> Home
+          <Home size={16} /> {t("nav.home")}
         </Link>
       </nav>
 
@@ -126,15 +127,15 @@ export default function Auth() {
           {/* Header */}
           <div className="text-center mb-10">
             <h1 className="font-display text-3xl font-semibold text-vy-charcoal tracking-[0.02em] mb-3">
-              Vyberology
+              {t("brand")}
             </h1>
             <div className="vy-divider max-w-[60px] mx-auto mb-4" />
             <p className="font-sans text-sm text-vy-charcoal/50">
               {mode === "magic-link"
-                ? "Enter your email and we'll send you a sign-in link"
+                ? t("auth.magicLinkSubtitle")
                 : mode === "signin"
-                  ? "Sign in to unlock premium readings and track your journey"
-                  : "Create an account to get started"}
+                  ? t("auth.signinSubtitle")
+                  : t("auth.signupSubtitle")}
             </p>
           </div>
 
@@ -162,7 +163,7 @@ export default function Auth() {
               />
             </svg>
             <span className="font-sans text-sm font-medium text-vy-charcoal">
-              Continue with Google
+              {t("auth.continueWithGoogle")}
             </span>
           </button>
 
@@ -170,7 +171,7 @@ export default function Auth() {
           <div className="flex items-center gap-4 my-8">
             <div className="flex-1 h-px bg-vy-charcoal/[0.08]" />
             <span className="font-sans text-xs text-vy-charcoal/30 uppercase tracking-[0.1em]">
-              or
+              {t("auth.or")}
             </span>
             <div className="flex-1 h-px bg-vy-charcoal/[0.08]" />
           </div>
@@ -182,7 +183,7 @@ export default function Auth() {
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-vy-charcoal/30" />
                 <input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t("auth.email")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -194,9 +195,9 @@ export default function Auth() {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-sans text-sm font-medium bg-vy-charcoal text-vy-parchment hover:bg-vy-charcoal/90 transition-all duration-200 cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Sending..." : (
+                {loading ? t("auth.sending") : (
                   <>
-                    Send Magic Link
+                    {t("auth.sendMagicLink")}
                     <Sparkles className="w-4 h-4" />
                   </>
                 )}
@@ -206,7 +207,7 @@ export default function Auth() {
                 onClick={() => setMode("signin")}
                 className="w-full font-sans text-xs text-vy-charcoal/40 hover:text-vy-charcoal/60 bg-transparent border-none cursor-pointer p-0 transition-colors"
               >
-                Use password instead
+                {t("auth.usePassword")}
               </button>
             </form>
           ) : (
@@ -217,7 +218,7 @@ export default function Auth() {
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-vy-charcoal/30" />
                   <input
                     type="email"
-                    placeholder="Email address"
+                    placeholder={t("auth.email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -234,7 +235,7 @@ export default function Auth() {
                   </button>
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder={t("auth.password")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -248,9 +249,9 @@ export default function Auth() {
                   disabled={loading}
                   className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-sans text-sm font-medium bg-vy-charcoal text-vy-parchment hover:bg-vy-charcoal/90 transition-all duration-200 cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? "Processing..." : (
+                  {loading ? t("auth.processing") : (
                     <>
-                      {mode === "signin" ? "Sign In" : "Create Account"}
+                      {mode === "signin" ? t("auth.signIn") : t("auth.createAccount")}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
@@ -263,7 +264,7 @@ export default function Auth() {
                 className="w-full flex items-center justify-center gap-2 mt-3 py-3 rounded-xl font-sans text-xs font-medium text-vy-charcoal/50 hover:text-vy-charcoal/70 bg-transparent border border-vy-charcoal/[0.06] hover:border-vy-charcoal/[0.12] cursor-pointer transition-all duration-200"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                Sign in with magic link instead
+                {t("auth.magicLinkInstead")}
               </button>
             </>
           )}
@@ -273,22 +274,22 @@ export default function Auth() {
             <p className="font-sans text-sm text-vy-charcoal/40 text-center mt-6">
               {mode === "signin" ? (
                 <>
-                  Don't have an account?{" "}
+                  {t("auth.noAccount")}{" "}
                   <button
                     onClick={() => setMode("signup")}
                     className="text-vy-gold hover:text-vy-gold/80 font-medium bg-transparent border-none cursor-pointer p-0 underline transition-colors"
                   >
-                    Sign up
+                    {t("auth.signUp")}
                   </button>
                 </>
               ) : (
                 <>
-                  Already have an account?{" "}
+                  {t("auth.hasAccount")}{" "}
                   <button
                     onClick={() => setMode("signin")}
                     className="text-vy-gold hover:text-vy-gold/80 font-medium bg-transparent border-none cursor-pointer p-0 underline transition-colors"
                   >
-                    Sign in
+                    {t("auth.signIn")}
                   </button>
                 </>
               )}
@@ -297,13 +298,13 @@ export default function Auth() {
 
           {/* Terms note */}
           <p className="font-sans text-[11px] text-vy-charcoal/30 text-center mt-6 leading-relaxed">
-            By signing in, you agree to our{" "}
+            {t("auth.termsNotice")}{" "}
             <Link to="/terms" className="underline hover:text-vy-charcoal/50">
-              Terms of Service
+              {t("nav.terms")}
             </Link>{" "}
-            and{" "}
+            {t("auth.and")}{" "}
             <Link to="/privacy" className="underline hover:text-vy-charcoal/50">
-              Privacy Policy
+              {t("nav.privacy")}
             </Link>
           </p>
         </div>

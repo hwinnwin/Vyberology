@@ -1,0 +1,111 @@
+{
+  "brand": "Vyberology",
+  "tagline": "Giải mã tần số cuộc sống của bạn",
+
+  "nav": {
+    "home": "Trang chủ",
+    "compatibility": "Tương hợp",
+    "lyfPath": "Đường đời",
+    "history": "Lịch sử",
+    "premium": "Cao cấp",
+    "career": "Sự nghiệp",
+    "romance": "Tình yêu",
+    "settings": "Cài đặt",
+    "privacy": "Quyền riêng tư",
+    "terms": "Điều khoản"
+  },
+
+  "hero": {
+    "label": "Thần số học thiêng liêng",
+    "subtitle": "Chuyển đổi tên, ngày sinh và các con số lặp lại thành hướng dẫn thần số học cá nhân."
+  },
+
+  "capture": {
+    "subtitle": "Nắm bắt tần số của khoảnh khắc hiện tại",
+    "whatsThe": "Khám phá",
+    "capturing": "Đang nắm bắt..."
+  },
+
+  "reading": {
+    "capturedAt": "Nắm bắt lúc {{time}}",
+    "viewHistory": "Xem lịch sử bài đọc"
+  },
+
+  "features": {
+    "explore": "Khám phá",
+    "toolkit": "Bộ công cụ thần số học của bạn",
+    "lyfPath": {
+      "title": "Đường đời",
+      "desc": "Ngày sinh của bạn được giải mã thành tần số cơ bản, hướng đi Bắc Đẩu, và sự hòa hợp ở tầng linh hồn."
+    },
+    "career": {
+      "title": "Triển vọng sự nghiệp",
+      "desc": "Các con số thần số học được giải mã thành thế mạnh nghề nghiệp, tần số chuyên môn, và hướng dẫn theo mục đích."
+    },
+    "romance": {
+      "title": "Triển vọng tình yêu",
+      "desc": "Tần số lãng mạn của linh hồn bạn được tiết lộ — ngôn ngữ tình yêu, phong cách gắn bó, và hướng dẫn từ trái tim."
+    },
+    "compatibility": {
+      "title": "Tương hợp",
+      "desc": "So sánh hai hồ sơ. Khám phá cách năng lượng tương tác, điểm hòa hợp, và nơi căng thẳng tồn tại."
+    },
+    "premiumReadings": {
+      "title": "Bài đọc cao cấp",
+      "desc": "Bài đọc chuyên sâu bằng AI với hướng dẫn cá nhân hóa. Gói tín dụng cho quyền truy cập không giới hạn."
+    }
+  },
+
+  "auth": {
+    "signIn": "Đăng nhập",
+    "signUp": "Đăng ký",
+    "signOut": "Đăng xuất",
+    "signedIn": "Đã đăng nhập",
+    "createAccount": "Tạo tài khoản",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "or": "hoặc",
+    "email": "Địa chỉ email",
+    "password": "Mật khẩu",
+    "sendMagicLink": "Gửi liên kết đăng nhập",
+    "usePassword": "Dùng mật khẩu thay thế",
+    "magicLinkInstead": "Đăng nhập bằng liên kết thay thế",
+    "noAccount": "Chưa có tài khoản?",
+    "hasAccount": "Đã có tài khoản?",
+    "signinSubtitle": "Đăng nhập để mở khóa bài đọc cao cấp và theo dõi hành trình của bạn",
+    "signupSubtitle": "Tạo tài khoản để bắt đầu",
+    "magicLinkSubtitle": "Nhập email và chúng tôi sẽ gửi cho bạn liên kết đăng nhập",
+    "termsNotice": "Bằng việc đăng nhập, bạn đồng ý với",
+    "and": "và",
+    "checkEmail": "Kiểm tra email của bạn",
+    "magicLinkSent": "Chúng tôi đã gửi cho bạn liên kết đăng nhập.",
+    "confirmationSent": "Chúng tôi đã gửi liên kết xác nhận để xác minh tài khoản của bạn.",
+    "signInFailed": "Đăng nhập thất bại",
+    "signUpFailed": "Đăng ký thất bại",
+    "magicLinkFailed": "Gửi liên kết thất bại",
+    "somethingWrong": "Đã có lỗi xảy ra. Vui lòng thử lại.",
+    "sending": "Đang gửi...",
+    "processing": "Đang xử lý..."
+  },
+
+  "footer": {
+    "copyright": "© {{year}} Vyberology. Bản quyền được bảo lưu.",
+    "disclaimer": "Chỉ dành cho mục đích giải trí và giáo dục.",
+    "credits_one": "{{count}} tín dụng",
+    "credits_other": "{{count}} tín dụng",
+    "language": "Ngôn ngữ"
+  },
+
+  "onboarding": {
+    "welcome": "Chào mừng đến với Vyberology",
+    "step1Title": "Nắm bắt khoảnh khắc",
+    "step1Desc": "Nhấn vào đồng hồ để đọc năng lượng thời gian hiện tại. Mỗi khoảnh khắc mang tần số riêng.",
+    "step2Title": "Quét số ở mọi nơi",
+    "step2Desc": "Thấy 11:11 trên hóa đơn? 444 trên biển số xe? Chụp ảnh và giải mã tín hiệu tần số.",
+    "step3Title": "Nhận hướng dẫn cá nhân",
+    "step3Desc": "Nhận bài đọc cộng hưởng phù hợp với tần số cuộc sống. Theo dõi các mẫu trong lịch sử của bạn.",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "getStarted": "Bắt đầu",
+    "skipIntro": "Bỏ qua"
+  }
+}

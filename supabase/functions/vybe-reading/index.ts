@@ -1213,7 +1213,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    const { inputs, depth = "standard", mode = "capture" } = await req.json();
+    const { inputs, depth = "standard", mode = "capture", lang = "en" } = await req.json();
 
     if (!inputs || !Array.isArray(inputs) || inputs.length === 0) {
       return new Response(
@@ -1245,6 +1245,16 @@ serve(async (req: Request) => {
             : mode === "romance"
               ? buildRomanceMessages(inputs, depth as DepthMode)
               : buildMessages(inputs, depth as DepthMode);
+
+    // Inject language instruction if not English
+    if (lang && lang !== "en") {
+      const langNames: Record<string, string> = { vi: "Vietnamese", zh: "Mandarin Chinese" };
+      const langName = langNames[lang] || lang;
+      messages.push({
+        role: "system" as const,
+        content: `IMPORTANT: You MUST write your entire response in ${langName}. All text, headings, table labels, guidance, and keywords must be in ${langName}. Keep brand names like "Vyberology" and emoji unchanged.`,
+      });
+    }
 
     // Call OpenAI with streaming
     const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
