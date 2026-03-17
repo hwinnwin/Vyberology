@@ -60,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 if (!sessionError && data.user) {
                   setUser(data.user);
                   await refreshCredits();
+                  window.location.replace("/vybe");
                   return;
                 }
               }
