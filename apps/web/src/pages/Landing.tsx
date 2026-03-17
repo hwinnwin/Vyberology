@@ -90,6 +90,14 @@ export default function Landing() {
           HERO — Full viewport, parchment
           ═══════════════════════════════════════ */}
       <section className="relative min-h-screen flex items-center justify-center bg-vy-parchment overflow-hidden">
+        {/* Sign in — top left */}
+        <button
+          onClick={() => navigate("/auth")}
+          className="absolute top-5 left-6 z-20 font-sans text-xs font-medium tracking-[0.06em] uppercase text-vy-charcoal/50 hover:text-vy-charcoal transition-colors duration-200 bg-transparent border-none cursor-pointer"
+        >
+          {t("auth.signIn")}
+        </button>
+
         {/* Language toggle — top right */}
         <div className="absolute top-5 right-6 z-20 flex items-center gap-1.5">
           <Globe className="w-3.5 h-3.5 text-vy-charcoal/30" />
