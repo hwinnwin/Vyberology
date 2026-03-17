@@ -16,7 +16,7 @@ export default function PaymentCancel() {
           <ArrowLeft size={16} /> Back
         </button>
         <Link
-          to="/"
+          to="/vybe"
           className="flex items-center gap-2 font-sans text-sm font-medium text-vy-charcoal/50 hover:text-vy-charcoal transition-colors duration-200 no-underline"
         >
           <Home size={16} /> Home
@@ -97,7 +97,7 @@ export default function PaymentCancel() {
               Back to Premium
             </button>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/vybe")}
               className="flex-1 py-3 rounded-xl font-sans text-sm font-medium bg-vy-charcoal/[0.06] text-vy-charcoal hover:bg-vy-charcoal/[0.12] transition-all duration-200 cursor-pointer border-none"
             >
               Return to Home

@@ -108,7 +108,7 @@ const History = () => {
           <ArrowLeft size={16} /> Back
         </button>
         <Link
-          to="/"
+          to="/vybe"
           className="flex items-center gap-2 font-sans text-sm font-medium text-vy-charcoal/50 hover:text-vy-charcoal transition-colors no-underline"
         >
           <Home size={16} /> Home

@@ -23,7 +23,7 @@ export default function Auth() {
   // If already signed in, redirect to home
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      navigate("/vybe", { replace: true });
     }
   }, [user, navigate]);
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Footer } from "@/components/Footer";
 
 /* ─────────────────────────────────────────────
@@ -79,6 +80,7 @@ function GoldMarker() {
 export default function Landing() {
   const navigate = useNavigate();
   const setRef = useScrollReveal();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen grain">
@@ -98,29 +100,27 @@ export default function Landing() {
 
         <div className="relative z-10 max-w-[740px] mx-auto px-6 text-center">
           <p className="vy-label text-vy-gold mb-8 vy-reveal vy-reveal-1">
-            Signal Mapping System
+            {t("landing.heroLabel")}
           </p>
 
           <h1 className="vy-display text-[clamp(32px,7vw,64px)] text-vy-indigo mb-8 vy-reveal vy-reveal-2 leading-[1.1] vy-hero-heading">
-            Your Life Is Already
+            {t("landing.heroHeading1")}
             <br />
-            Giving You Signals.
+            {t("landing.heroHeading2")}
           </h1>
 
           <div className="vy-divider max-w-[100px] mx-auto mb-8 vy-reveal vy-reveal-3" />
 
           <p className="font-sans text-[clamp(16px,2.2vw,19px)] font-light text-vy-charcoal/65 max-w-[540px] mx-auto leading-relaxed mb-12 vy-reveal vy-reveal-4">
-            Vyberology translates numerical patterns into structured
-            guidance&nbsp;&mdash; helping you move with clarity toward your
-            highest trajectory.
+            {t("landing.heroSubtitle")}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 vy-reveal vy-reveal-5">
             <button
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/vybe")}
               className="px-8 py-3.5 bg-vy-charcoal text-vy-parchment font-sans text-sm font-medium tracking-[0.04em] rounded-full transition-all duration-300 hover:shadow-vy-glow hover:bg-vy-charcoal/90 active:scale-[0.98]"
             >
-              Join Early Access
+              {t("landing.heroCtaPrimary")}
             </button>
             <button
               onClick={() => {
@@ -129,7 +129,7 @@ export default function Landing() {
               }}
               className="px-8 py-3.5 bg-transparent border border-vy-gold/40 text-vy-charcoal/70 font-sans text-sm font-medium tracking-[0.04em] rounded-full transition-all duration-300 hover:border-vy-gold hover:text-vy-charcoal active:scale-[0.98]"
             >
-              Watch the Origin Story
+              {t("landing.heroCtaSecondary")}
             </button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function Landing() {
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 vy-reveal vy-reveal-6">
           <div className="w-px h-10 bg-gradient-to-b from-vy-gold/40 to-transparent mx-auto mb-2" />
-          <p className="vy-label text-vy-warm-gray/50 text-[9px]">Scroll</p>
+          <p className="vy-label text-vy-warm-gray/50 text-[9px]">{t("landing.scroll")}</p>
         </div>
       </section>
 
@@ -149,31 +149,31 @@ export default function Landing() {
           ref={setRef(0)}
           className="landing-reveal max-w-[600px] mx-auto text-center"
         >
-          <p className="vy-label text-vy-gold/70 mb-10">The Problem</p>
+          <p className="vy-label text-vy-gold/70 mb-10">{t("landing.problemLabel")}</p>
 
           <h2 className="vy-display text-[clamp(36px,6vw,56px)] text-vy-parchment mb-16 leading-[1.1]">
-            Modern Life Is Loud.
+            {t("landing.problemHeading")}
           </h2>
 
           <div className="space-y-4 mb-16">
             <p className="font-sans text-lg sm:text-xl font-light text-vy-parchment/50">
-              Too much input.
+              {t("landing.problemLine1")}
             </p>
             <p className="font-sans text-lg sm:text-xl font-light text-vy-parchment/50">
-              Too many decisions.
+              {t("landing.problemLine2")}
             </p>
             <p className="font-sans text-lg sm:text-xl font-light text-vy-parchment/50">
-              Not enough signal clarity.
+              {t("landing.problemLine3")}
             </p>
           </div>
 
           <div className="vy-divider max-w-[80px] mx-auto mb-16" />
 
           <p className="font-sans text-base sm:text-lg text-vy-parchment/70 leading-relaxed max-w-[440px] mx-auto">
-            We don&rsquo;t lack information.
+            {t("landing.problemBody1")}
             <br />
             <span className="text-vy-parchment/90 font-normal">
-              We lack interpretation.
+              {t("landing.problemBody2")}
             </span>
           </p>
         </div>
@@ -188,39 +188,38 @@ export default function Landing() {
           className="landing-reveal max-w-[680px] mx-auto"
         >
           <p className="vy-label text-vy-gold/70 text-center mb-10">
-            The Evolution
+            {t("landing.evolutionLabel")}
           </p>
 
           <h2 className="vy-display text-[clamp(32px,5.5vw,48px)] text-vy-charcoal text-center mb-10 leading-[1.15]">
-            From Numerology
+            {t("landing.evolutionHeading1")}
             <br />
-            to Calibration.
+            {t("landing.evolutionHeading2")}
           </h2>
 
           <div className="vy-divider max-w-[80px] mx-auto mb-12" />
 
           <p className="font-sans text-base sm:text-lg font-light text-vy-charcoal/60 leading-relaxed text-center max-w-[520px] mx-auto mb-16">
-            Numerology mapped symbolic meaning to numbers.
-            Vyberology expands it into a contextual system.
+            {t("landing.evolutionBody")}
           </p>
 
           {/* Five pillars */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 max-w-[520px] mx-auto mb-16">
-            {[
-              ["Full-sum mapping", "Not reduction"],
-              ["Life Path architecture", "Your base frequency"],
-              ["Soul Urge drive", "Inner motivation"],
-              ["Expression projection", "How you show up"],
-              ["Maturity integration", "Cycles of growth"],
-            ].map(([title, sub], i) => (
+            {([
+              ["landing.pillar1Title", "landing.pillar1Sub"],
+              ["landing.pillar2Title", "landing.pillar2Sub"],
+              ["landing.pillar3Title", "landing.pillar3Sub"],
+              ["landing.pillar4Title", "landing.pillar4Sub"],
+              ["landing.pillar5Title", "landing.pillar5Sub"],
+            ] as const).map(([titleKey, subKey], i) => (
               <div key={i} className="flex items-start">
                 <GoldMarker />
                 <div>
                   <p className="font-sans text-sm font-medium text-vy-charcoal tracking-[0.01em]">
-                    {title}
+                    {t(titleKey)}
                   </p>
                   <p className="font-sans text-xs text-vy-warm-gray mt-0.5">
-                    {sub}
+                    {t(subKey)}
                   </p>
                 </div>
               </div>
@@ -228,10 +227,10 @@ export default function Landing() {
           </div>
 
           <p className="font-sans text-center text-sm sm:text-base text-vy-charcoal/50 italic max-w-[400px] mx-auto">
-            This isn&rsquo;t fortune telling.
+            {t("landing.evolutionClose1")}
             <br />
             <span className="not-italic font-medium text-vy-charcoal/80">
-              It&rsquo;s structured reflection.
+              {t("landing.evolutionClose2")}
             </span>
           </p>
         </div>
@@ -246,25 +245,25 @@ export default function Landing() {
           className="landing-reveal max-w-[640px] mx-auto"
         >
           <p className="vy-label text-vy-gold/70 text-center mb-10">
-            The System
+            {t("landing.systemLabel")}
           </p>
 
           <h2 className="vy-display text-[clamp(32px,5.5vw,48px)] text-vy-charcoal text-center mb-16 leading-[1.15]">
-            A Mirror, Not A Prophet.
+            {t("landing.systemHeading")}
           </h2>
 
           <div className="space-y-5 max-w-[480px] mx-auto mb-16">
-            {[
-              "Generates structured readings from your birth data",
-              "Maps personal cycles and recurring patterns",
-              "Interprets visible number patterns in real-time",
-              "Provides alignment prompts and guidance",
-              "Tracks long-term evolution across readings",
-            ].map((item, i) => (
+            {([
+              "landing.systemItem1",
+              "landing.systemItem2",
+              "landing.systemItem3",
+              "landing.systemItem4",
+              "landing.systemItem5",
+            ] as const).map((key, i) => (
               <div key={i} className="flex items-start group">
                 <span className="inline-block w-6 h-px bg-vy-gold/40 mt-[11px] mr-4 shrink-0 transition-all duration-300 group-hover:w-8 group-hover:bg-vy-gold/70" />
                 <p className="font-sans text-[15px] text-vy-charcoal/70 leading-relaxed">
-                  {item}
+                  {t(key)}
                 </p>
               </div>
             ))}
@@ -273,8 +272,7 @@ export default function Landing() {
           <div className="vy-divider max-w-[60px] mx-auto mb-10" />
 
           <p className="font-sans text-center text-sm sm:text-base text-vy-charcoal/55 max-w-[420px] mx-auto leading-relaxed">
-            The app standardises interpretation&nbsp;&mdash; reducing bias and
-            increasing clarity.
+            {t("landing.systemClose")}
           </p>
         </div>
       </section>
@@ -288,31 +286,28 @@ export default function Landing() {
           className="landing-reveal max-w-[720px] mx-auto"
         >
           <p className="vy-label text-vy-gold/70 text-center mb-10">
-            The Audience
+            {t("landing.audienceLabel")}
           </p>
 
           <h2 className="vy-display text-[clamp(28px,5vw,44px)] text-vy-parchment text-center mb-16 leading-[1.2]">
-            For People Who Care
+            {t("landing.audienceHeading1")}
             <br />
-            About Their Trajectory.
+            {t("landing.audienceHeading2")}
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-[560px] mx-auto mb-20">
-            {[
-              ["Founders", "Navigating major decisions with limited signal"],
-              ["Creators", "In transition between phases of expression"],
-              ["High-agency individuals", "Seeking calibration, not entertainment"],
-              ["Anyone pursuing their highest timeline", "Willing to look inward before moving forward"],
-            ].map(([title, desc], i) => (
-              <div
-                key={i}
-                className="border-l border-vy-gold/20 pl-5"
-              >
+            {([
+              ["landing.audience1Title", "landing.audience1Desc"],
+              ["landing.audience2Title", "landing.audience2Desc"],
+              ["landing.audience3Title", "landing.audience3Desc"],
+              ["landing.audience4Title", "landing.audience4Desc"],
+            ] as const).map(([titleKey, descKey], i) => (
+              <div key={i} className="border-l border-vy-gold/20 pl-5">
                 <p className="font-sans text-sm font-medium text-vy-parchment tracking-[0.02em] mb-1.5">
-                  {title}
+                  {t(titleKey)}
                 </p>
                 <p className="font-sans text-xs font-light text-vy-parchment/40 leading-relaxed">
-                  {desc}
+                  {t(descKey)}
                 </p>
               </div>
             ))}
@@ -320,10 +315,10 @@ export default function Landing() {
 
           <div className="text-center max-w-[460px] mx-auto">
             <p className="font-sans text-sm text-vy-parchment/35 leading-relaxed">
-              If you want passive entertainment, this isn&rsquo;t it.
+              {t("landing.audienceClose1")}
             </p>
             <p className="font-sans text-sm text-vy-parchment/70 mt-2 font-medium">
-              If you want structured reflection, it is.
+              {t("landing.audienceClose2")}
             </p>
           </div>
         </div>
@@ -338,20 +333,19 @@ export default function Landing() {
           className="landing-reveal max-w-[580px] mx-auto text-center"
         >
           <h2 className="vy-display text-[clamp(28px,5vw,44px)] text-vy-charcoal mb-10 leading-[1.2]">
-            Not Belief.
+            {t("landing.positioningHeading1")}
             <br />
-            Not Dogma. Not Fate.
+            {t("landing.positioningHeading2")}
           </h2>
 
           <div className="vy-divider max-w-[60px] mx-auto mb-10" />
 
           <p className="font-sans text-base sm:text-lg font-light text-vy-charcoal/55 leading-relaxed mb-10 max-w-[440px] mx-auto">
-            Vyberology does not predict the future. It helps you interpret your
-            present position relative to your potential direction.
+            {t("landing.positioningBody")}
           </p>
 
           <p className="vy-display-italic text-[clamp(24px,4vw,36px)] text-vy-gold/80">
-            It&rsquo;s feedback.
+            {t("landing.positioningClose")}
           </p>
         </div>
       </section>
@@ -368,21 +362,20 @@ export default function Landing() {
           className="landing-reveal relative z-10 max-w-[580px] mx-auto text-center"
         >
           <h2 className="vy-display text-[clamp(32px,6vw,52px)] text-vy-parchment mb-8 leading-[1.15]">
-            Start Reading
+            {t("landing.ctaHeading1")}
             <br />
-            The Signal.
+            {t("landing.ctaHeading2")}
           </h2>
 
           <p className="font-sans text-sm sm:text-base font-light text-vy-parchment/45 leading-relaxed mb-12 max-w-[400px] mx-auto">
-            Early access members receive lifetime founder pricing and priority
-            feature input.
+            {t("landing.ctaBody")}
           </p>
 
           <button
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/vybe")}
             className="px-10 py-4 bg-vy-gold/90 text-vy-charcoal font-sans text-sm font-semibold tracking-[0.06em] uppercase rounded-full transition-all duration-300 hover:bg-vy-gold hover:shadow-vy-glow active:scale-[0.98]"
           >
-            Join Early Access
+            {t("landing.ctaButton")}
           </button>
         </div>
       </section>

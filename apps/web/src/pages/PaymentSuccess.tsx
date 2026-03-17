@@ -36,7 +36,7 @@ export default function PaymentSuccess() {
           <ArrowLeft size={16} /> Back
         </button>
         <Link
-          to="/"
+          to="/vybe"
           className="flex items-center gap-2 font-sans text-sm font-medium text-vy-charcoal/50 hover:text-vy-charcoal transition-colors duration-200 no-underline"
         >
           <Home size={16} /> Home
@@ -141,7 +141,7 @@ export default function PaymentSuccess() {
           </div>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/vybe")}
             className="mt-4 font-sans text-sm text-vy-charcoal/40 hover:text-vy-charcoal/60 transition-colors duration-200 bg-transparent border-none cursor-pointer"
           >
             Return to Home
