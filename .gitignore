@@ -1,6 +1,9 @@
 node_modules/
 dist/
 build/
+# Allow pre-built package dist so Vercel/Netlify don't need to build packages
+!packages/analytics-adapter/dist/
+!packages/reading-engine/dist/
 .turbo/
 logs
 *.log
