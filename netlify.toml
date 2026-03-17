@@ -2,14 +2,12 @@
 # Root level configuration for monorepo deployment
 
 [build]
-  # Base directory - where the web app lives
-  base = "apps/web"
-  # Build command - run from base directory
+  # Run from repo root so turbo builds packages (analytics-adapter, reading-engine) before the app
   # Keys are set in Netlify UI → Site settings → Environment variables
   # Required: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_STRIPE_PUBLISHABLE_KEY
-  command = "npm run build"
-  # Publish directory relative to base
-  publish = "dist"
+  command = "npm install --legacy-peer-deps && npx turbo run build --filter=vite_react_shadcn_ts..."
+  # Publish directory relative to repo root
+  publish = "apps/web/dist"
   # Ignore builds if no changes in these paths
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF apps/web packages/"
 
