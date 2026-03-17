@@ -1,6 +1,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Globe } from "lucide-react";
+import { LANGUAGES } from "@/lib/i18n";
 import { Footer } from "@/components/Footer";
 
 /* ─────────────────────────────────────────────
@@ -80,7 +82,7 @@ function GoldMarker() {
 export default function Landing() {
   const navigate = useNavigate();
   const setRef = useScrollReveal();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="min-h-screen grain">
@@ -88,6 +90,26 @@ export default function Landing() {
           HERO — Full viewport, parchment
           ═══════════════════════════════════════ */}
       <section className="relative min-h-screen flex items-center justify-center bg-vy-parchment overflow-hidden">
+        {/* Language toggle — top right */}
+        <div className="absolute top-5 right-6 z-20 flex items-center gap-1.5">
+          <Globe className="w-3.5 h-3.5 text-vy-charcoal/30" />
+          {LANGUAGES.map((lang, idx) => (
+            <span key={lang.code} className="flex items-center gap-1.5">
+              {idx > 0 && <span className="text-vy-charcoal/20 text-xs">|</span>}
+              <button
+                onClick={() => i18n.changeLanguage(lang.code)}
+                className={`font-sans text-xs tracking-[0.04em] bg-transparent border-none cursor-pointer px-1 py-0.5 transition-colors duration-200 ${
+                  i18n.language === lang.code || i18n.language.startsWith(lang.code + "-")
+                    ? "text-vy-charcoal font-medium"
+                    : "text-vy-charcoal/35 hover:text-vy-charcoal/60"
+                }`}
+              >
+                {lang.label}
+              </button>
+            </span>
+          ))}
+        </div>
+
         {/* Sacred geometry background */}
         <SacredCircles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(90vw,800px)] h-[min(90vw,800px)] text-vy-gold pointer-events-none" />
 
