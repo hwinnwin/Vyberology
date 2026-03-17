@@ -286,7 +286,7 @@ importers:
         specifier: ^2.3.1
         version: 2.4.0(@capacitor/core@7.4.3)(@sentry/react@9.46.0(react@19.2.0))
       '@sentry/react':
-        specifier: ^9.46.0
+        specifier: 9.46.0
         version: 9.46.0(react@19.2.0)
       '@supabase/supabase-js':
         specifier: ^2.58.0
