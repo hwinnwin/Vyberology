@@ -154,7 +154,7 @@ export const AppHeader = ({ className }: AppHeaderProps) => {
           </Button>
         ) : (
           <Link
-            to="/"
+            to="/vybe"
             className="flex items-center transition-opacity hover:opacity-80"
             aria-label="Home"
           >

@@ -1,0 +1,173 @@
+{
+  "brand": "Vyberology",
+  "tagline": "Descifra la frecuencia de tu vida",
+
+  "nav": {
+    "home": "Inicio",
+    "compatibility": "Compatibilidad",
+    "lyfPath": "Camino de Vida",
+    "history": "Historial",
+    "premium": "Premium",
+    "career": "Perspectiva Profesional",
+    "romance": "Perspectiva Romántica",
+    "settings": "Ajustes",
+    "privacy": "Privacidad",
+    "terms": "Términos"
+  },
+
+  "hero": {
+    "label": "Numerología Sagrada",
+    "subtitle": "Transforma nombres, fechas de nacimiento y números repetitivos en orientación numerológica personalizada."
+  },
+
+  "capture": {
+    "subtitle": "Capta la frecuencia del momento presente",
+    "whatsThe": "¿Cuál es la",
+    "capturing": "Capturando..."
+  },
+
+  "reading": {
+    "capturedAt": "Capturado a las {{time}}",
+    "viewHistory": "Ver historial de lecturas"
+  },
+
+  "features": {
+    "explore": "Explorar",
+    "toolkit": "Tu Kit de Herramientas Numerológico",
+    "lyfPath": {
+      "title": "Camino de Vida",
+      "desc": "Tu fecha de nacimiento decodificada en tu frecuencia base, dirección del Nodo Norte y sintonía a nivel del alma."
+    },
+    "career": {
+      "title": "Perspectiva Profesional",
+      "desc": "Tus números numerológicos decodificados en fortalezas profesionales, frecuencia laboral y orientación orientada al propósito."
+    },
+    "romance": {
+      "title": "Perspectiva Romántica",
+      "desc": "La frecuencia romántica de tu alma revelada — lenguaje del amor, estilo de apego y orientación centrada en el corazón."
+    },
+    "compatibility": {
+      "title": "Compatibilidad",
+      "desc": "Compara dos perfiles. Descubre cómo interactúan tus energías, dónde te alineas y dónde vive la tensión."
+    },
+    "premiumReadings": {
+      "title": "Lecturas Premium",
+      "desc": "Lecturas profundas con IA con orientación personalizada. Paquetes de créditos para acceso ilimitado."
+    }
+  },
+
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar sesión",
+    "signedIn": "Sesión iniciada",
+    "createAccount": "Crear cuenta",
+    "continueWithGoogle": "Continuar con Google",
+    "or": "o",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "sendMagicLink": "Enviar enlace mágico",
+    "usePassword": "Usar contraseña",
+    "magicLinkInstead": "Iniciar sesión con enlace mágico",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "signinSubtitle": "Inicia sesión para desbloquear lecturas premium y rastrear tu viaje",
+    "signupSubtitle": "Crea una cuenta para comenzar",
+    "magicLinkSubtitle": "Ingresa tu correo y te enviaremos un enlace de inicio de sesión",
+    "termsNotice": "Al iniciar sesión, aceptas nuestros",
+    "and": "y",
+    "checkEmail": "Revisa tu correo",
+    "magicLinkSent": "Te enviamos un enlace mágico para iniciar sesión al instante.",
+    "confirmationSent": "Te enviamos un enlace de confirmación para verificar tu cuenta.",
+    "signInFailed": "Error al iniciar sesión",
+    "signUpFailed": "Error al registrarse",
+    "magicLinkFailed": "Error al enviar enlace mágico",
+    "somethingWrong": "Algo salió mal. Por favor intenta de nuevo.",
+    "sending": "Enviando...",
+    "processing": "Procesando..."
+  },
+
+  "footer": {
+    "copyright": "© {{year}} Vyberology. Todos los derechos reservados.",
+    "disclaimer": "Solo para fines de entretenimiento y educación.",
+    "credits_one": "{{count}} crédito",
+    "credits_other": "{{count}} créditos",
+    "language": "Idioma"
+  },
+
+  "landing": {
+    "heroLabel": "Sistema de Mapeo de Señales",
+    "heroHeading1": "Tu Vida Ya Te Está",
+    "heroHeading2": "Enviando Señales.",
+    "heroSubtitle": "Vyberology traduce patrones numéricos en orientación estructurada — ayudándote a avanzar con claridad hacia tu trayectoria más elevada.",
+    "heroCtaPrimary": "Obtener Vybe",
+    "heroCtaSecondary": "La Historia de Origen",
+    "scroll": "Desplazar",
+    "problemLabel": "El Problema",
+    "problemHeading": "La Vida Moderna Es Ruidosa.",
+    "problemLine1": "Demasiada información.",
+    "problemLine2": "Demasiadas decisiones.",
+    "problemLine3": "No hay suficiente claridad de señal.",
+    "problemBody1": "No nos falta información.",
+    "problemBody2": "Nos falta interpretación.",
+    "evolutionLabel": "La Evolución",
+    "evolutionHeading1": "De la Numerología",
+    "evolutionHeading2": "a la Calibración.",
+    "evolutionBody": "La numerología asignó significado simbólico a los números. Vyberology lo expande en un sistema contextual.",
+    "pillar1Title": "Mapeo de suma completa",
+    "pillar1Sub": "Sin reducción",
+    "pillar2Title": "Arquitectura del Camino de Vida",
+    "pillar2Sub": "Tu frecuencia base",
+    "pillar3Title": "Impulso del Deseo del Alma",
+    "pillar3Sub": "Motivación interior",
+    "pillar4Title": "Proyección de Expresión",
+    "pillar4Sub": "Cómo te presentas",
+    "pillar5Title": "Integración de Madurez",
+    "pillar5Sub": "Ciclos de crecimiento",
+    "evolutionClose1": "Esto no es adivinación.",
+    "evolutionClose2": "Es reflexión estructurada.",
+    "systemLabel": "El Sistema",
+    "systemHeading": "Un Espejo, No un Profeta.",
+    "systemItem1": "Genera lecturas estructuradas a partir de tus datos de nacimiento",
+    "systemItem2": "Mapea ciclos personales y patrones recurrentes",
+    "systemItem3": "Interpreta patrones numéricos visibles en tiempo real",
+    "systemItem4": "Proporciona indicaciones de alineación y orientación",
+    "systemItem5": "Rastrea la evolución a largo plazo a través de las lecturas",
+    "systemClose": "La app estandariza la interpretación — reduciendo sesgos y aumentando la claridad.",
+    "audienceLabel": "La Audiencia",
+    "audienceHeading1": "Para Personas Que Se Preocupan",
+    "audienceHeading2": "por Su Trayectoria.",
+    "audience1Title": "Fundadores",
+    "audience1Desc": "Navegando decisiones importantes con señal limitada",
+    "audience2Title": "Creadores",
+    "audience2Desc": "En transición entre fases de expresión",
+    "audience3Title": "Individuos de alta autonomía",
+    "audience3Desc": "Buscando calibración, no entretenimiento",
+    "audience4Title": "Cualquiera que persiga su línea de tiempo más alta",
+    "audience4Desc": "Dispuesto a mirar hacia adentro antes de avanzar",
+    "audienceClose1": "Si quieres entretenimiento pasivo, esto no es para ti.",
+    "audienceClose2": "Si quieres reflexión estructurada, sí lo es.",
+    "positioningHeading1": "No es una Creencia.",
+    "positioningHeading2": "No es Dogma. No es Destino.",
+    "positioningBody": "Vyberology no predice el futuro. Te ayuda a interpretar tu posición actual en relación con tu dirección potencial.",
+    "positioningClose": "Es retroalimentación.",
+    "ctaHeading1": "Empieza a Leer",
+    "ctaHeading2": "La Señal.",
+    "ctaBody": "Los miembros de acceso anticipado reciben precios de fundador de por vida y prioridad en sugerencias de funciones.",
+    "ctaButton": "Obtener Vybe"
+  },
+
+  "onboarding": {
+    "welcome": "Bienvenido a Vyberology",
+    "step1Title": "Capta el Momento",
+    "step1Desc": "Toca el reloj para leer la energía de tu tiempo actual. Cada momento lleva su propia frecuencia.",
+    "step2Title": "Escanea Números en Cualquier Lugar",
+    "step2Desc": "¿Ves 11:11 en un recibo? ¿444 en una placa? Toma una foto y decodifica la señal de frecuencia.",
+    "step3Title": "Obtén Orientación Personal",
+    "step3Desc": "Recibe lecturas de resonancia alineadas con la frecuencia de tu vida. Rastrea patrones en tu historial.",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "getStarted": "Comenzar",
+    "skipIntro": "Omitir intro"
+  }
+}

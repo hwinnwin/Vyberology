@@ -80,8 +80,8 @@ const AppRouter = () => {
         >
           <Routes>
             {/* Main Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/landing" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/vybe" element={<Index />} />
             <Route path="/compatibility" element={<Compatibility />} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Clock, Camera, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function OnboardingModal() {
   const [show, setShow] = useState(false);
   const [step, setStep] = useState(1);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem('vyberology_onboarding');
     if (!hasSeenOnboarding) {
-      // Small delay so it doesn't appear immediately
       setTimeout(() => setShow(true), 500);
     }
   }, []);
@@ -23,18 +24,18 @@ export function OnboardingModal() {
   const steps = [
     {
       icon: <Clock className="h-12 w-12 text-lf-aurora" />,
-      title: "Capture the Moment",
-      description: "Tap the clock to read your current time's energy. Each moment carries its own frequency.",
+      title: t("onboarding.step1Title"),
+      description: t("onboarding.step1Desc"),
     },
     {
       icon: <Camera className="h-12 w-12 text-lf-violet" />,
-      title: "Scan Numbers Anywhere",
-      description: "See 11:11 on a receipt? 444 on a license plate? Snap a photo and decode the frequency signal.",
+      title: t("onboarding.step2Title"),
+      description: t("onboarding.step2Desc"),
     },
     {
       icon: <Sparkles className="h-12 w-12 text-lf-aurora" />,
-      title: "Get Personal Guidance",
-      description: "Receive resonance readings that align with your life's frequency. Track patterns in your history.",
+      title: t("onboarding.step3Title"),
+      description: t("onboarding.step3Desc"),
     },
   ];
 
@@ -45,7 +46,7 @@ export function OnboardingModal() {
       <DialogContent className="sm:max-w-md bg-lf-ink border-lf-violet/30">
         <DialogHeader>
           <DialogTitle className="text-2xl font-display text-white text-center">
-            Welcome to Vyberology ✨
+            {t("onboarding.welcome")}
           </DialogTitle>
         </DialogHeader>
 
@@ -87,7 +88,7 @@ export function OnboardingModal() {
                 onClick={() => setStep(step - 1)}
                 className="flex-1 border-lf-violet/30 text-lf-violet hover:bg-lf-violet/10"
               >
-                Back
+                {t("onboarding.back")}
               </Button>
             )}
             <Button
@@ -100,7 +101,7 @@ export function OnboardingModal() {
               }}
               className="flex-1 bg-lf-gradient hover:shadow-glow"
             >
-              {step === 3 ? "Get Started" : "Next"}
+              {step === 3 ? t("onboarding.getStarted") : t("onboarding.next")}
             </Button>
           </div>
 
@@ -110,7 +111,7 @@ export function OnboardingModal() {
               onClick={handleComplete}
               className="w-full text-sm text-lf-slate hover:text-lf-aurora transition-colors"
             >
-              Skip intro
+              {t("onboarding.skipIntro")}
             </button>
           )}
         </div>

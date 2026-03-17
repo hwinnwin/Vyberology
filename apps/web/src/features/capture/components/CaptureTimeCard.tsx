@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import vybeLogo from "@/assets/vybe-logo.png";
 
 interface CaptureTimeCardProps {
@@ -10,6 +11,7 @@ interface CaptureTimeCardProps {
 
 export function CaptureTimeCard({ onCapture, isProcessing }: CaptureTimeCardProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -18,12 +20,14 @@ export function CaptureTimeCard({ onCapture, isProcessing }: CaptureTimeCardProp
     return () => clearInterval(timer);
   }, []);
 
+  const locale = i18n.language === "zh" ? "zh-CN" : i18n.language === "vi" ? "vi-VN" : "en-US";
+
   return (
     <div className="rounded-2xl border border-vy-charcoal/[0.08] bg-white/60 backdrop-blur-sm p-8 text-center shadow-vy-card">
       <div className="mb-4 flex items-center justify-center gap-3">
         <Clock className="h-7 w-7 text-vy-gold" />
         <span className="font-display text-5xl sm:text-6xl font-normal text-vy-charcoal tracking-wide">
-          {currentTime.toLocaleTimeString('en-US', {
+          {currentTime.toLocaleTimeString(locale, {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
@@ -31,7 +35,7 @@ export function CaptureTimeCard({ onCapture, isProcessing }: CaptureTimeCardProp
         </span>
       </div>
       <p className="mb-8 font-sans text-sm text-vy-charcoal/50">
-        {currentTime.toLocaleDateString('en-US', {
+        {currentTime.toLocaleDateString(locale, {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
@@ -44,10 +48,10 @@ export function CaptureTimeCard({ onCapture, isProcessing }: CaptureTimeCardProp
         className="relative inline-flex h-auto min-w-[220px] flex-col items-center gap-3 rounded-full bg-vy-charcoal px-8 py-5 font-sans font-semibold text-vy-parchment shadow-vy-card transition-all duration-300 hover:shadow-vy-glow hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-vy-gold/40 disabled:cursor-not-allowed disabled:opacity-50 w-full sm:w-auto"
       >
         {isProcessing ? (
-          <span className="text-base">Capturing...</span>
+          <span className="text-base">{t("capture.capturing")}</span>
         ) : (
           <>
-            <span className="text-base">What's the</span>
+            <span className="text-base">{t("capture.whatsThe")}</span>
             <span className="relative grid place-items-center rounded-full bg-vy-parchment p-3 shadow-vy-soft">
               <span className="absolute inset-0 rounded-full bg-vy-gold/25 animate-ping" style={{ animationDuration: '2.5s' }}></span>
               <img src={vybeLogo} alt="Vybe" className="h-10 w-10 relative z-10" />

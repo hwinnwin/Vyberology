@@ -41,7 +41,7 @@ export async function callVybeReading(
       Authorization: `Bearer ${supabaseKey}`,
       apikey: supabaseKey,
     },
-    body: JSON.stringify({ inputs, depth, mode }),
+    body: JSON.stringify({ inputs, depth, mode, lang: localStorage.getItem("vyberology_language") || "en" }),
   });
 
   if (!res.ok) {
