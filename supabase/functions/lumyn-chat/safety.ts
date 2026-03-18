@@ -14,6 +14,8 @@ const TIER_1_PHRASES = [
   'killing myself',
   'end my life',
   'ending my life',
+  'end it all',
+  'ending it all',
   'want to die',
   'wanting to die',
   "don't want to be here anymore",
@@ -27,6 +29,9 @@ const TIER_1_PHRASES = [
   'self harm',
   'cut myself',
   'cutting myself',
+  'take my own life',
+  'taking my own life',
+  'not want to live',
 ]
 
 const TIER_2_PHRASES = [
