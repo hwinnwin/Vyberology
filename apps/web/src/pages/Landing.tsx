@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
 import { LANGUAGES } from "@/lib/i18n";
 import { Footer } from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
 
 /* ─────────────────────────────────────────────
    Intersection Observer hook for scroll reveals
@@ -83,6 +84,13 @@ export default function Landing() {
   const navigate = useNavigate();
   const setRef = useScrollReveal();
   const { t, i18n } = useTranslation();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/vybe", { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen grain">
