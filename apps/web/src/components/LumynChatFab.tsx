@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Sparkles, X } from "lucide-react";
+import { Sparkles, X, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LumenChat, ChatMessage } from "@/features/capture/components/LumenChat";
-import { callVybeReading } from "@/lib/vybeApi";
+import { callLumynChat } from "@/services/lumynApi";
 import { buildLumynContext } from "@/lib/lumynContext";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -27,6 +27,8 @@ export function LumynChatFab() {
   });
   const [chatInput, setChatInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [showCrisisBanner, setShowCrisisBanner] = useState(false);
 
   // Persist chat messages
   useEffect(() => {
@@ -52,10 +54,16 @@ export function LumynChatFab() {
 
     try {
       const inputs = await buildLumynContext(updatedMessages, userMessage);
-      const reading = await callVybeReading(inputs, "standard", "chat");
+      const response = await callLumynChat({
+        message: userMessage,
+        conversationId,
+        vyberologyContext: inputs,
+      });
+      setConversationId(response.conversationId);
+      setShowCrisisBanner(response.client_directives.crisis_banner);
       setChatMessages((prev) => [
         ...prev,
-        { role: "assistant", content: reading },
+        { role: "assistant", content: response.message.content },
       ]);
     } catch (error) {
       toast({
@@ -71,6 +79,21 @@ export function LumynChatFab() {
 
   return (
     <>
+      {/* Crisis banner */}
+      {isOpen && showCrisisBanner && (
+        <div className="fixed bottom-[calc(100vh-12rem)] right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px]">
+          <div className="flex items-start gap-2 rounded-lg bg-red-950 border border-red-700 px-4 py-3 text-red-200 text-sm shadow-lg">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0 text-red-400" />
+            <span>
+              If you're in crisis, please reach out — <strong>Lifeline: 13 11 14</strong> (24/7) or <strong>Emergency: 000</strong>.
+            </span>
+            <button onClick={() => setShowCrisisBanner(false)} className="ml-auto shrink-0 text-red-400 hover:text-red-200">
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Chat panel overlay */}
       {isOpen && (
         <div className="fixed bottom-20 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px]">

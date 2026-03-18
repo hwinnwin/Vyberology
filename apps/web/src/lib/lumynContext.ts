@@ -7,11 +7,7 @@
 import { getReadingHistory, getRecurringPatterns } from "./readingHistory";
 import { supabase } from "@/integrations/supabase/client";
 import type { ChatMessage } from "@/features/capture/components/LumenChat";
-
-interface LumynInput {
-  label: string;
-  value: string;
-}
+import type { LumynInput } from "@/types/lumyn";
 
 /**
  * Build the full context array to send to the vybe-reading edge function in chat mode.
