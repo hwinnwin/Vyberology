@@ -1,4 +1,3 @@
-npm warn config ignoring workspace config at /Users/mrtungsten/Documents/Projects/archive/hwinnwin1199X/apps/vyberology/.npmrc
 Initialising login role...
 export type Json =
   | string
@@ -41,6 +40,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          source: string
+          source_transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          source?: string
+          source_transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          source?: string
+          source_transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           created_at: string | null
@@ -122,6 +148,30 @@ export type Database = {
         }
         Relationships: []
       }
+      iap_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          payload: Json | null
+          processed_at: string
+          user_id: string | null
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          payload?: Json | null
+          processed_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          payload?: Json | null
+          processed_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lesson_completions: {
         Row: {
           completed_at: string | null
@@ -143,6 +193,443 @@ export type Database = {
           lesson_id?: string
           user_id?: string
           volume?: number
+        }
+        Relationships: []
+      }
+      lumyn_claims: {
+        Row: {
+          confidence: number
+          created_at: string | null
+          data: Json
+          evidence_count: number
+          id: string
+          key: string
+          source_conversation_id: string | null
+          status: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence?: number
+          created_at?: string | null
+          data?: Json
+          evidence_count?: number
+          id?: string
+          key: string
+          source_conversation_id?: string | null
+          status?: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence?: number
+          created_at?: string | null
+          data?: Json
+          evidence_count?: number
+          id?: string
+          key?: string
+          source_conversation_id?: string | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_claims_source_conversation_id_fkey"
+            columns: ["source_conversation_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_conversations: {
+        Row: {
+          created_at: string | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          mode: string
+          session_summary: string | null
+          status: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          mode?: string
+          session_summary?: string | null
+          status?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          mode?: string
+          session_summary?: string | null
+          status?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lumyn_evidence: {
+        Row: {
+          claim_id: string
+          created_at: string | null
+          evidence_kind: string
+          id: string
+          source_msg_id: string | null
+          strength: number | null
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string | null
+          evidence_kind: string
+          id?: string
+          source_msg_id?: string | null
+          strength?: number | null
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string | null
+          evidence_kind?: string
+          id?: string
+          source_msg_id?: string | null
+          strength?: number | null
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_evidence_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_claims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lumyn_evidence_source_msg_id_fkey"
+            columns: ["source_msg_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_guiding_principles: {
+        Row: {
+          active: boolean
+          created_at: string | null
+          id: string
+          principle: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string | null
+          id?: string
+          principle: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string | null
+          id?: string
+          principle?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lumyn_memory_ops: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          id: string
+          message_id: string | null
+          op_type: string
+          reason: string | null
+          target_claim_id: string | null
+          target_desc: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          message_id?: string | null
+          op_type: string
+          reason?: string | null
+          target_claim_id?: string | null
+          target_desc?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          message_id?: string | null
+          op_type?: string
+          reason?: string | null
+          target_claim_id?: string | null
+          target_desc?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_memory_ops_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lumyn_memory_ops_target_claim_id_fkey"
+            columns: ["target_claim_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_claims"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_messages: {
+        Row: {
+          arousal: number | null
+          classification: Json | null
+          confidence: number | null
+          content: string
+          conversation_id: string
+          created_at: string | null
+          domain: string | null
+          emotion: string | null
+          id: string
+          intent: string | null
+          latency_ms: number | null
+          model_name: string | null
+          model_provider: string | null
+          moment_confidence: number | null
+          moment_type: string | null
+          prompt_version: string | null
+          risk_level: string | null
+          role: string
+          tokens_in: number | null
+          tokens_out: number | null
+          user_id: string
+        }
+        Insert: {
+          arousal?: number | null
+          classification?: Json | null
+          confidence?: number | null
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          domain?: string | null
+          emotion?: string | null
+          id?: string
+          intent?: string | null
+          latency_ms?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          moment_confidence?: number | null
+          moment_type?: string | null
+          prompt_version?: string | null
+          risk_level?: string | null
+          role: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id: string
+        }
+        Update: {
+          arousal?: number | null
+          classification?: Json | null
+          confidence?: number | null
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          domain?: string | null
+          emotion?: string | null
+          id?: string
+          intent?: string | null
+          latency_ms?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          moment_confidence?: number | null
+          moment_type?: string | null
+          prompt_version?: string | null
+          risk_level?: string | null
+          role?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_patterns: {
+        Row: {
+          action_taken: string | null
+          confidence: number | null
+          created_at: string | null
+          domain: string
+          emotional_sig: Json | null
+          id: string
+          outcome: string | null
+          source_msg_id: string | null
+          user_id: string
+          user_reflection: string | null
+        }
+        Insert: {
+          action_taken?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          domain: string
+          emotional_sig?: Json | null
+          id?: string
+          outcome?: string | null
+          source_msg_id?: string | null
+          user_id: string
+          user_reflection?: string | null
+        }
+        Update: {
+          action_taken?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          domain?: string
+          emotional_sig?: Json | null
+          id?: string
+          outcome?: string | null
+          source_msg_id?: string | null
+          user_id?: string
+          user_reflection?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_patterns_source_msg_id_fkey"
+            columns: ["source_msg_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_rate_limits: {
+        Row: {
+          count_day: number
+          count_hour: number
+          id: string
+          updated_at: string | null
+          user_id: string
+          window_day: string
+          window_hour: string
+        }
+        Insert: {
+          count_day?: number
+          count_hour?: number
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          window_day: string
+          window_hour: string
+        }
+        Update: {
+          count_day?: number
+          count_hour?: number
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          window_day?: string
+          window_hour?: string
+        }
+        Relationships: []
+      }
+      lumyn_safety_events: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          message_id: string | null
+          trigger_source: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          message_id?: string | null
+          trigger_source?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          message_id?: string | null
+          trigger_source?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lumyn_safety_events_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "lumyn_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lumyn_user_models: {
+        Row: {
+          adaptive_stage: number
+          comm_style: string | null
+          created_at: string | null
+          interaction_count: number
+          preferred_tone: string | null
+          snapshot: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          adaptive_stage?: number
+          comm_style?: string | null
+          created_at?: string | null
+          interaction_count?: number
+          preferred_tone?: string | null
+          snapshot?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          adaptive_stage?: number
+          comm_style?: string | null
+          created_at?: string | null
+          interaction_count?: number
+          preferred_tone?: string | null
+          snapshot?: Json | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -239,11 +726,13 @@ export type Database = {
           currency: string
           id: string
           metadata: Json | null
+          platform: string
+          platform_transaction_id: string | null
           price_id: string | null
           product_id: string | null
           status: string
           stripe_customer_id: string | null
-          stripe_payment_intent_id: string
+          stripe_payment_intent_id: string | null
           updated_at: string | null
           user_id: string | null
         }
@@ -253,11 +742,13 @@ export type Database = {
           currency?: string
           id?: string
           metadata?: Json | null
+          platform?: string
+          platform_transaction_id?: string | null
           price_id?: string | null
           product_id?: string | null
           status: string
           stripe_customer_id?: string | null
-          stripe_payment_intent_id: string
+          stripe_payment_intent_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -267,11 +758,13 @@ export type Database = {
           currency?: string
           id?: string
           metadata?: Json | null
+          platform?: string
+          platform_transaction_id?: string | null
           price_id?: string | null
           product_id?: string | null
           status?: string
           stripe_customer_id?: string | null
-          stripe_payment_intent_id?: string
+          stripe_payment_intent_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
@@ -356,15 +849,7 @@ export type Database = {
           reading_id?: string
           source?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "reading_numbers_reading_id_fkey"
-            columns: ["reading_id"]
-            isOneToOne: false
-            referencedRelation: "readings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       reading_outputs: {
         Row: {
@@ -400,69 +885,63 @@ export type Database = {
           reading_id?: string
           volume_iv_render?: Json
         }
-        Relationships: [
-          {
-            foreignKeyName: "reading_outputs_reading_id_fkey"
-            columns: ["reading_id"]
-            isOneToOne: true
-            referencedRelation: "readings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       readings: {
         Row: {
-          chakra_bridge: string | null
-          chakra_dominant: string | null
           created_at: string | null
-          detailed_summary: string | null
           dob: string
-          expression: number
           full_name: string
           id: string
-          life_path: number
-          maturity: number
-          personality: number
-          soul_urge: number
-          source_image_url: string | null
-          source_type: string | null
-          user_id: string | null
+          numerology_numbers: Json
+          purchase_id: string | null
+          reading_data: Json | null
+          reading_text: string | null
+          semantics: Json | null
+          share_slug: string | null
+          tier: string
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          chakra_bridge?: string | null
-          chakra_dominant?: string | null
           created_at?: string | null
-          detailed_summary?: string | null
           dob: string
-          expression: number
           full_name: string
           id?: string
-          life_path: number
-          maturity: number
-          personality: number
-          soul_urge: number
-          source_image_url?: string | null
-          source_type?: string | null
-          user_id?: string | null
+          numerology_numbers?: Json
+          purchase_id?: string | null
+          reading_data?: Json | null
+          reading_text?: string | null
+          semantics?: Json | null
+          share_slug?: string | null
+          tier: string
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          chakra_bridge?: string | null
-          chakra_dominant?: string | null
           created_at?: string | null
-          detailed_summary?: string | null
           dob?: string
-          expression?: number
           full_name?: string
           id?: string
-          life_path?: number
-          maturity?: number
-          personality?: number
-          soul_urge?: number
-          source_image_url?: string | null
-          source_type?: string | null
-          user_id?: string | null
+          numerology_numbers?: Json
+          purchase_id?: string | null
+          reading_data?: Json | null
+          reading_text?: string | null
+          semantics?: Json | null
+          share_slug?: string | null
+          tier?: string
+          updated_at?: string | null
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "readings_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "purchases"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       share_tokens: {
         Row: {
@@ -486,15 +965,28 @@ export type Database = {
           reading_id?: string
           token?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "share_tokens_reading_id_fkey"
-            columns: ["reading_id"]
-            isOneToOne: false
-            referencedRelation: "readings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      stripe_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          processed_at: string
+          user_id: string | null
+        }
+        Insert: {
+          event_id: string
+          event_type: string
+          processed_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          processed_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       subscriptions: {
         Row: {
@@ -786,6 +1278,30 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_reading_by_slug: {
+        Args: { p_slug: string }
+        Returns: {
+          created_at: string | null
+          dob: string
+          full_name: string
+          id: string
+          numerology_numbers: Json
+          purchase_id: string | null
+          reading_data: Json | null
+          reading_text: string | null
+          semantics: Json | null
+          share_slug: string | null
+          tier: string
+          updated_at: string | null
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "readings"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_user_credits: { Args: { p_user_id: string }; Returns: number }
       increment_lesson_count: {
         Args: { p_user_id: string; p_volume: number }
@@ -795,7 +1311,22 @@ export type Database = {
         Args: { p_user_id: string; p_volume: number }
         Returns: undefined
       }
+      refund_reading_credit: { Args: { p_user_id: string }; Returns: undefined }
       revoke_share_token: { Args: { p_token: string }; Returns: boolean }
+      save_reading: {
+        Args: {
+          p_dob?: string
+          p_full_name?: string
+          p_numerology_numbers?: Json
+          p_purchase_id?: string
+          p_reading_data?: Json
+          p_reading_text?: string
+          p_semantics?: Json
+          p_tier?: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       update_user_streak: { Args: { p_user_id: string }; Returns: undefined }
       use_reading_credit: { Args: { p_user_id: string }; Returns: boolean }
     }
@@ -934,7 +1465,6 @@ export type Database = {
           created_at: string | null
           id: string
           last_accessed_at: string | null
-          level: number | null
           metadata: Json | null
           name: string | null
           owner: string | null
@@ -949,7 +1479,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_accessed_at?: string | null
-          level?: number | null
           metadata?: Json | null
           name?: string | null
           owner?: string | null
@@ -964,7 +1493,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_accessed_at?: string | null
-          level?: number | null
           metadata?: Json | null
           name?: string | null
           owner?: string | null
@@ -977,38 +1505,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "objects_bucketId_fkey"
-            columns: ["bucket_id"]
-            isOneToOne: false
-            referencedRelation: "buckets"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      prefixes: {
-        Row: {
-          bucket_id: string
-          created_at: string | null
-          level: number
-          name: string
-          updated_at: string | null
-        }
-        Insert: {
-          bucket_id: string
-          created_at?: string | null
-          level?: number
-          name: string
-          updated_at?: string | null
-        }
-        Update: {
-          bucket_id?: string
-          created_at?: string | null
-          level?: number
-          name?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "prefixes_bucketId_fkey"
             columns: ["bucket_id"]
             isOneToOne: false
             referencedRelation: "buckets"
@@ -1163,10 +1659,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      add_prefixes: {
-        Args: { _bucket_id: string; _name: string }
-        Returns: undefined
-      }
       can_insert_object: {
         Args: { bucketid: string; metadata: Json; name: string; owner: string }
         Returns: undefined
@@ -1175,13 +1667,13 @@ export type Database = {
         Args: { bucket_ids: string[]; names: string[] }
         Returns: undefined
       }
-      delete_prefix: {
-        Args: { _bucket_id: string; _name: string }
-        Returns: boolean
-      }
       extension: { Args: { name: string }; Returns: string }
       filename: { Args: { name: string }; Returns: string }
       foldername: { Args: { name: string }; Returns: string[] }
+      get_common_prefix: {
+        Args: { p_delimiter: string; p_key: string; p_prefix: string }
+        Returns: string
+      }
       get_level: { Args: { name: string }; Returns: number }
       get_prefix: { Args: { name: string }; Returns: string }
       get_prefixes: { Args: { name: string }; Returns: string[] }
@@ -1209,23 +1701,22 @@ export type Database = {
       }
       list_objects_with_delimiter: {
         Args: {
-          bucket_id: string
+          _bucket_id: string
           delimiter_param: string
           max_keys?: number
           next_token?: string
           prefix_param: string
+          sort_order?: string
           start_after?: string
         }
         Returns: {
+          created_at: string
           id: string
+          last_accessed_at: string
           metadata: Json
           name: string
           updated_at: string
         }[]
-      }
-      lock_top_prefixes: {
-        Args: { bucket_ids: string[]; names: string[] }
-        Returns: undefined
       }
       operation: { Args: never; Returns: string }
       search: {
@@ -1248,27 +1739,28 @@ export type Database = {
           updated_at: string
         }[]
       }
-      search_legacy_v1: {
+      search_by_timestamp: {
         Args: {
-          bucketname: string
-          levels?: number
-          limits?: number
-          offsets?: number
-          prefix: string
-          search?: string
-          sortcolumn?: string
-          sortorder?: string
+          p_bucket_id: string
+          p_level: number
+          p_limit: number
+          p_prefix: string
+          p_sort_column: string
+          p_sort_column_after: string
+          p_sort_order: string
+          p_start_after: string
         }
         Returns: {
           created_at: string
           id: string
+          key: string
           last_accessed_at: string
           metadata: Json
           name: string
           updated_at: string
         }[]
       }
-      search_v1_optimised: {
+      search_legacy_v1: {
         Args: {
           bucketname: string
           levels?: number
@@ -1458,3 +1950,5 @@ export const Constants = {
     },
   },
 } as const
+A new version of Supabase CLI is available: v2.78.1 (currently installed v2.54.11)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
