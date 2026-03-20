@@ -124,11 +124,14 @@ export async function runOrchestrator(params: {
 
   if (!isPro) {
     // Atomic free-message increment — returns null if limit hit
-    const { data: newCount } = await supabase.rpc('lumyn_increment_free_messages', {
+    const { data: newCount, error: rpcError } = await supabase.rpc('lumyn_increment_free_messages', {
       p_user_id: userId,
     })
 
-    if (newCount === null) {
+    if (rpcError) {
+      // Fail open on transient DB error — don't block user with paywall
+      console.error('lumyn_increment_free_messages RPC error:', rpcError.message)
+    } else if (newCount === null) {
       // Paywall hit — log event and return paywall response
       await logSafetyEvent(supabase, {
         user_id: userId,
