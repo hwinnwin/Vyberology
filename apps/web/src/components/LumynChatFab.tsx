@@ -84,7 +84,11 @@ export function LumynChatFab() {
       return;
     }
     const result = await purchaseTier("lumyn-pro", { priceId, fullName: "", dob: "" });
-    if (result.redirectUrl) window.location.href = result.redirectUrl;
+    if (result.redirectUrl) {
+      window.location.href = result.redirectUrl;
+    } else {
+      await refetchEntitlement();
+    }
   };
 
   const handleSend = async () => {
