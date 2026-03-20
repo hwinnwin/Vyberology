@@ -1,6 +1,7 @@
 // apps/web/src/hooks/useLumynEntitlement.ts
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/integrations/supabase/client'
+import { resolveClientLumynEntitlement } from '@/lib/lumynEntitlement'
 
 export type LumynEntitlement = {
   isPro: boolean
@@ -36,9 +37,10 @@ export function useLumynEntitlement(): LumynEntitlement {
         return
       }
 
-      const resolvedPro =
-        data.lumyn_pro &&
-        (data.lumyn_pro_until === null || new Date(data.lumyn_pro_until) > new Date())
+      const resolvedPro = resolveClientLumynEntitlement({
+        lumyn_pro: data.lumyn_pro,
+        lumyn_pro_until: data.lumyn_pro_until,
+      })
 
       setIsPro(resolvedPro)
       setMessagesUsed(data.lumyn_messages_used ?? 0)

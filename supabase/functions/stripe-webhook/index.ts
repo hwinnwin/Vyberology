@@ -289,7 +289,7 @@ async function handleSubscriptionDeleted(
   const customer = await stripe.customers.retrieve(subscription.customer as string)
   const userId = (customer as Stripe.Customer).metadata?.supabase_user_id
   if (!userId) {
-    console.error('No supabase_user_id in customer metadata on deletion')
+    console.error('CRITICAL: No supabase_user_id in customer metadata on subscription deletion — Lumyn Pro revocation skipped. Subscription ID:', subscription.id, 'Customer ID:', subscription.customer)
     return
   }
 

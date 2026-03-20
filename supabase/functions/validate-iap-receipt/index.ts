@@ -121,8 +121,8 @@ serve(async (req) => {
       if (error) console.error('Failed to revoke Lumyn Pro (IAP):', error.message)
     }
 
-    // Handle refunds
-    if (eventType === 'CANCELLATION' && event.cancel_reason === 'CUSTOMER_SUPPORT') {
+    // Handle refunds (skip credit deduction for subscription products)
+    if (eventType === 'CANCELLATION' && event.cancel_reason === 'CUSTOMER_SUPPORT' && !SUBSCRIPTION_PRODUCTS.has(event.product_id)) {
       if (appUserId) {
         await supabase.from('credit_transactions').insert({
           user_id: appUserId,

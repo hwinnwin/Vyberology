@@ -64,6 +64,7 @@ export function LumynChatFab() {
         setChatMessages(messages as ChatMessage[]);
       }
       setConversationId(conversation.id);
+      setPaywallHit(false);
     } finally {
       setIsProcessing(false);
     }
@@ -74,6 +75,7 @@ export function LumynChatFab() {
     setChatMessages([]);
     setConversationId(undefined);
     setShowCrisisBanner(false);
+    setPaywallHit(false);
   };
 
   const handleUpgrade = async () => {
