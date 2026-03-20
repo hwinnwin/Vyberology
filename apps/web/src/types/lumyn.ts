@@ -19,6 +19,16 @@ export type LumynDomain =
   | 'existential'
   | 'general'
 
+export type LumynConversation = {
+  id: string
+  user_id: string
+  title?: string
+  mode: 'reflect' | 'illuminate' | 'anchor' | 'silent'
+  status: string
+  created_at: string
+  ended_at?: string
+}
+
 export type ChatResponse = {
   conversationId: string
   message: {
@@ -37,4 +47,5 @@ export type ChatResponse = {
     crisis_banner: boolean
     anchor_active: boolean
   }
+  paywall?: true
 }

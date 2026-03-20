@@ -57,7 +57,7 @@ export type LumynMemoryOp = 'create' | 'update' | 'deprecate' | 'ignore' | 'retr
 // Safety
 // ─────────────────────────────────────────────
 
-export type LumynSafetyEvent = 'crisis_detected' | 'overreach_blocked' | 'escalation'
+export type LumynSafetyEvent = 'crisis_detected' | 'overreach_blocked' | 'escalation' | 'paywall_hit'
 
 // ─────────────────────────────────────────────
 // Shared input type (matches client lumynContext.ts output)
@@ -263,6 +263,7 @@ export type ChatResponse = {
     crisis_banner: boolean
     anchor_active: boolean
   }
+  paywall?: true
 }
 
 // ─────────────────────────────────────────────
