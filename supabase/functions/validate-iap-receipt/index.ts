@@ -12,6 +12,9 @@ const PRODUCT_CREDITS: Record<string, number> = {
   'com.vyberology.deep_attunement': 1,
 };
 
+// Subscription product IDs that grant Lumyn Pro
+const SUBSCRIPTION_PRODUCTS = new Set(['com.vyberology.lumyn_pro'])
+
 serve(async (req) => {
   const authHeader = req.headers.get('Authorization');
   if (!WEBHOOK_SECRET || authHeader !== `Bearer ${WEBHOOK_SECRET}`) {
@@ -85,6 +88,37 @@ serve(async (req) => {
           tier: productId,
         });
       }
+    }
+
+    // Handle Lumyn Pro subscription grants
+    if (
+      (eventType === 'INITIAL_PURCHASE' || eventType === 'RENEWAL' || eventType === 'REACTIVATION') &&
+      SUBSCRIPTION_PRODUCTS.has(event.product_id) &&
+      appUserId
+    ) {
+      const { error } = await supabase.from('user_profiles').upsert({
+        user_id: appUserId,
+        lumyn_pro: true,
+        lumyn_pro_until: null,
+      }, { onConflict: 'user_id' })
+      if (error) console.error('Failed to grant Lumyn Pro (IAP):', error.message)
+      else console.log(`Granted Lumyn Pro to user ${appUserId} via ${eventType}`)
+    }
+
+    // Handle Lumyn Pro subscription cancellations
+    if (
+      eventType === 'EXPIRATION' &&
+      SUBSCRIPTION_PRODUCTS.has(event.product_id) &&
+      appUserId
+    ) {
+      const { error } = await supabase.from('user_profiles').upsert({
+        user_id: appUserId,
+        lumyn_pro: false,
+        lumyn_pro_until: event.expiration_at_ms
+          ? new Date(event.expiration_at_ms).toISOString()
+          : new Date().toISOString(),
+      }, { onConflict: 'user_id' })
+      if (error) console.error('Failed to revoke Lumyn Pro (IAP):', error.message)
     }
 
     // Handle refunds
