@@ -629,32 +629,16 @@ Insert this block before the rate limit check at line 121:
     }
   }
 
-  // ── Coerce mode for free users ─────────────────────────────
-  // IMPORTANT: The orchestrator already declares `let effectiveMode` at line 279
-  // for the crisis anchor override. We must also update the `mode` binding at line 118
-  // (see note below) rather than introducing a second variable.
+  // ── Coerce mode for free users (declared here, AFTER isPro is available) ──
+  const mode: LumynMode = !isPro ? 'reflect' : (params.mode ?? 'reflect')
 ```
 
-**Also edit line 118** — replace:
-```ts
-const mode: LumynMode = params.mode ?? 'reflect'
-```
-with:
-```ts
-// For free users, coerce to reflect mode regardless of what was requested
-const mode: LumynMode = !isPro ? 'reflect' : (params.mode ?? 'reflect')
-```
+**Also delete the original `mode` declaration at line 118** (which currently reads `const mode: LumynMode = params.mode ?? 'reflect'`). The new declaration above replaces it — placing `mode` after `isPro` is declared so the coercion compiles correctly.
 
 This ensures the coerced mode flows through all downstream uses of `mode` in the function:
 - `getOrCreateConversation(supabase, userId, params.conversationId, mode)` — conversation stored with correct mode
 - `buildFallbackResponse(RATE_LIMIT_MESSAGE, mode, conversationId)` — fallback uses correct mode
 - `let effectiveMode = mode` at line 279 — crisis anchor override starts from the coerced mode
-
-After making this edit, remove the `requestedMode` variable from Step 3 — the `mode` binding itself now carries the coercion:
-
-```ts
-  // (no separate requestedMode needed — mode is already coerced above)
-```
 
 - [ ] **Step 4: Strip context for free users**
 
