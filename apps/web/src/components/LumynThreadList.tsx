@@ -28,16 +28,16 @@ export function LumynThreadList({
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const query = supabase
+      let query = supabase
         .from('lumyn_conversations')
         .select('id, title, mode, status, created_at, ended_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
       if (!isPro) {
-        query.limit(1)
+        query = query.limit(1)
       } else {
-        query.limit(10)
+        query = query.limit(10)
       }
 
       const { data, error } = await query
