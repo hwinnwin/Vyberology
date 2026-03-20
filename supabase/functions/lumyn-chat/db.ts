@@ -28,6 +28,49 @@ export function createSupabaseClient(): SupabaseClient {
 }
 
 // ─────────────────────────────────────────────
+// Lumyn Pro entitlement
+// ─────────────────────────────────────────────
+
+export type LumynEntitlement = {
+  lumyn_pro: boolean
+  lumyn_pro_until: string | null
+  lumyn_messages_used: number
+}
+
+export async function getUserEntitlement(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<LumynEntitlement> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('lumyn_pro, lumyn_pro_until, lumyn_messages_used')
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (error || !data) {
+    // No profile row → treat as free tier, 0 messages used
+    return { lumyn_pro: false, lumyn_pro_until: null, lumyn_messages_used: 0 }
+  }
+
+  return {
+    lumyn_pro: data.lumyn_pro ?? false,
+    lumyn_pro_until: data.lumyn_pro_until ?? null,
+    lumyn_messages_used: data.lumyn_messages_used ?? 0,
+  }
+}
+
+/**
+ * Single entitlement resolver — use everywhere, never duplicate this logic.
+ */
+export function resolveLumynEntitlement(entitlement: LumynEntitlement): boolean {
+  return (
+    entitlement.lumyn_pro &&
+    (entitlement.lumyn_pro_until === null ||
+      new Date(entitlement.lumyn_pro_until) > new Date())
+  )
+}
+
+// ─────────────────────────────────────────────
 // Conversations
 // ─────────────────────────────────────────────
 
