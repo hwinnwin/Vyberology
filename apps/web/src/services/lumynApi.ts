@@ -45,6 +45,7 @@ export async function callLumynChat(params: {
   const reader = response.body.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
+  let receivedDone = false
 
   while (true) {
     const { done, value } = await reader.read()
@@ -61,13 +62,20 @@ export async function callLumynChat(params: {
         if (event.type === 'token') {
           params.onToken(event.content)
         } else if (event.type === 'done') {
+          receivedDone = true
           params.onDone(event)
         } else if (event.type === 'error') {
+          receivedDone = true
           params.onError(event.error)
         }
       } catch {
         // malformed event, skip
       }
     }
+  }
+
+  // If stream ended without a done/error event, surface the failure
+  if (!receivedDone) {
+    params.onError('Response stream ended unexpectedly')
   }
 }
