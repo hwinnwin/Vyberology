@@ -89,7 +89,7 @@ async function fetchSupabaseReadings(): Promise<string | null> {
     const { data, error } = await supabase
       .from("readings")
       .select(
-        "full_name, dob, life_path, expression, soul_urge, personality, maturity, chakra_dominant, chakra_bridge, detailed_summary, created_at"
+        "full_name, dob, life_path, expression, soul_urge, personality, maturity, created_at"
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -102,14 +102,9 @@ async function fetchSupabaseReadings(): Promise<string | null> {
         const date = r.created_at
           ? new Date(r.created_at).toLocaleDateString()
           : "unknown";
-        const summary = r.detailed_summary
-          ? r.detailed_summary.slice(0, 500)
-          : "no summary";
         return [
           `[${date}] ${r.full_name} (DOB: ${r.dob})`,
           `  Life Path: ${r.life_path}, Expression: ${r.expression}, Soul Urge: ${r.soul_urge}, Personality: ${r.personality}, Maturity: ${r.maturity}`,
-          `  Chakra: ${r.chakra_dominant || "unknown"}${r.chakra_bridge ? `, Bridge: ${r.chakra_bridge}` : ""}`,
-          `  Summary: ${summary}`,
         ].join("\n");
       })
       .join("\n\n");
