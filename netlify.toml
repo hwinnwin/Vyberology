@@ -15,11 +15,9 @@
   VITE_V4_ENABLED = "false"
   VITE_FEATURE_OCR = "on"
   VITE_FEATURE_PM_SENTRY = "on"
-  VITE_SUPABASE_URL = "https://rcrwkarmlckyapqhdmxn.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcndrYXJtbGNreWFwcWhkbXhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3MDc1NjQsImV4cCI6MjA3ODI4MzU2NH0.AgrXW5KFkvgujXVHme3zaXpABZyDnWyCTE0bbotXVvU"
-  VITE_SUPABASE_PROJECT_ID = "rcrwkarmlckyapqhdmxn"
-  VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51SGaypKQHOT2DNgNdJJ0nZNP2zL7iK3Gb4D3ai4L6poMV6CD0mRSvNIfDpdbA3nXhgP0avW4jPlOsUXZKkuBy50s00unH0hCzd"
-  VITE_LUMYN_PRO_PRICE_ID = "price_1TDCy4KQHOT2DNgNv5aINeKq"
+  # Remaining VITE_* vars set in Netlify UI → Site configuration → Environment variables:
+  # VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_SUPABASE_PROJECT_ID,
+  # VITE_STRIPE_PUBLISHABLE_KEY, VITE_LUMYN_PRO_PRICE_ID
 
 # Redirect subdomain to primary vyberology.com domain
 [[redirects]]
