@@ -13,6 +13,7 @@ import { isNative } from "@/lib/platform";
 import type { LumynConversation } from "@/types/lumyn";
 
 const CHAT_STORAGE_KEY = "vyberology_lumyn_chat";
+const CONVERSATION_ID_KEY = "vyberology_lumyn_conversation_id";
 
 /**
  * Floating Lumyn chatbot button (bottom-right).
@@ -33,7 +34,13 @@ export function LumynChatFab() {
   });
   const [chatInput, setChatInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [conversationId, setConversationId] = useState<string | undefined>(() => {
+    try {
+      return localStorage.getItem(CONVERSATION_ID_KEY) ?? undefined;
+    } catch {
+      return undefined;
+    }
+  });
   const [showCrisisBanner, setShowCrisisBanner] = useState(false);
 
   const { isPro, messagesUsed, refetch: refetchEntitlement } = useLumynEntitlement();
@@ -49,6 +56,19 @@ export function LumynChatFab() {
       /* ignore */
     }
   }, [chatMessages]);
+
+  // Persist conversationId
+  useEffect(() => {
+    try {
+      if (conversationId) {
+        localStorage.setItem(CONVERSATION_ID_KEY, conversationId);
+      } else {
+        localStorage.removeItem(CONVERSATION_ID_KEY);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [conversationId]);
 
   const handleSelectThread = async (conversation: LumynConversation) => {
     setShowThreadList(false);
