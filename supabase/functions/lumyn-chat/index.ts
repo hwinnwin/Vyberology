@@ -1,6 +1,6 @@
 // ============================================================
 // Lumyn Intelligence Layer — Edge Function Entry Point (§3.3)
-// Auth, request parsing, orchestrator dispatch, response
+// Auth, request parsing, orchestrator dispatch, SSE streaming
 // ============================================================
 
 import { createClient } from 'npm:@supabase/supabase-js'
@@ -15,6 +15,14 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// ─────────────────────────────────────────────
+// SSE helper
+// ─────────────────────────────────────────────
+
+function sseEvent(data: unknown): string {
+  return `data: ${JSON.stringify(data)}\n\n`
 }
 
 // ─────────────────────────────────────────────
@@ -77,25 +85,47 @@ Deno.serve(async (req: Request) => {
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   const supabase = createClient(supabaseUrl, serviceKey)
 
-  // ── Run orchestrator ───────────────────────────────────────
-  try {
-    const response = await runOrchestrator({
-      supabase,
-      userId: user.id,
-      message: message.trim(),
-      conversationId,
-      mode: isValidMode(mode) ? mode : 'reflect',
-      vyberologyContext: Array.isArray(vyberologyContext) ? vyberologyContext : [],
-    })
+  // ── Set up SSE stream ──────────────────────────────────────
+  const { readable, writable } = new TransformStream()
+  const writer = writable.getWriter()
+  const encoder = new TextEncoder()
 
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-    })
-  } catch (err) {
+  const sseResponse = new Response(readable, {
+    status: 200,
+    headers: {
+      ...CORS_HEADERS,
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  })
+
+  // Run orchestrator async, don't await before returning response
+  runOrchestrator({
+    supabase,
+    userId: user.id,
+    message: message.trim(),
+    conversationId,
+    mode: isValidMode(mode) ? mode : 'reflect',
+    vyberologyContext: Array.isArray(vyberologyContext) ? vyberologyContext : [],
+    onToken: (token) => {
+      writer.write(encoder.encode(sseEvent({ type: 'token', content: token })))
+    },
+    onDone: (result) => {
+      writer.write(encoder.encode(sseEvent({ type: 'done', ...result })))
+      writer.close()
+    },
+    onError: (error) => {
+      writer.write(encoder.encode(sseEvent({ type: 'error', error: error.message })))
+      writer.close()
+    },
+  }).catch((err) => {
     console.error('[lumyn-chat] Orchestrator error:', err)
-    return jsonError('Internal server error', 500)
-  }
+    writer.write(encoder.encode(sseEvent({ type: 'error', error: 'Internal error' })))
+    writer.close()
+  })
+
+  return sseResponse
 })
 
 // ─────────────────────────────────────────────

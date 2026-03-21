@@ -105,28 +105,70 @@ export function LumynChatFab() {
     setChatMessages(updatedMessages);
     setIsProcessing(true);
 
+    // Add empty assistant message that we'll stream into
+    const streamingId = crypto.randomUUID();
+    setChatMessages((prev) => [...prev, { role: "assistant", content: "", _streamingId: streamingId } as ChatMessage & { _streamingId: string }]);
+
     try {
       const inputs = await buildLumynContext(updatedMessages, userMessage);
-      const response = await callLumynChat({
+
+      await callLumynChat({
         message: userMessage,
         conversationId,
         vyberologyContext: inputs,
+        onToken: (token) => {
+          setChatMessages((prev) =>
+            prev.map((m) =>
+              (m as ChatMessage & { _streamingId?: string })._streamingId === streamingId
+                ? { ...m, content: m.content + token }
+                : m
+            )
+          );
+        },
+        onDone: (result) => {
+          setConversationId(result.conversationId);
+          // Remove _streamingId marker, finalize content
+          setChatMessages((prev) =>
+            prev.map((m) => {
+              if ((m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId) return m;
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              const { _streamingId: _sid, ...clean } = m as ChatMessage & { _streamingId: string };
+              return clean;
+            })
+          );
+          if (result.paywall) {
+            // Remove the streaming message and show paywall
+            setChatMessages((prev) =>
+              prev.filter(
+                (m) => (m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId
+              )
+            );
+            setPaywallHit(true);
+            return;
+          }
+          setPaywallHit(false);
+          setShowCrisisBanner(result.client_directives?.crisis_banner ?? false);
+        },
+        onError: (error) => {
+          // Remove empty streaming message
+          setChatMessages((prev) =>
+            prev.filter(
+              (m) => (m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId
+            )
+          );
+          toast({
+            title: "Chat failed",
+            description: error,
+            variant: "destructive",
+          });
+        },
       });
-      setConversationId(response.conversationId);
-
-      if (response.paywall) {
-        setPaywallHit(true);
-        return; // Do not append any message to chatMessages
-      }
-      // Clear paywall state if user is now Pro
-      setPaywallHit(false);
-
-      setShowCrisisBanner(response.client_directives.crisis_banner);
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: response.message.content },
-      ]);
     } catch (error) {
+      setChatMessages((prev) =>
+        prev.filter(
+          (m) => (m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId
+        )
+      );
       toast({
         title: "Chat failed",
         description:

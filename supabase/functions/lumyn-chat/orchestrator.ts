@@ -44,9 +44,56 @@ import type {
 } from './types.ts'
 
 // ─────────────────────────────────────────────
-// Zod schema for LLM JSON output (§4.1)
+// Zod schema for classification-only LLM output (Phase 2)
 // ─────────────────────────────────────────────
 
+const ClassificationSchema = z.object({
+  classification: z.object({
+    intent: z.enum(['vent', 'decide', 'plan', 'crisis', 'explore', 'curiosity']).catch('explore'),
+    emotion: z.string().catch('neutral'),
+    domain: z.enum([
+      'numerology',
+      'career',
+      'relationships',
+      'identity',
+      'health',
+      'money',
+      'existential',
+      'general',
+    ]).catch('general'),
+    risk_level: z.enum(['none', 'low', 'medium', 'high', 'crisis']).catch('none'),
+    confidence: z.number().min(0).max(1).catch(0.8),
+  }),
+  memory_suggestions: z
+    .array(
+      z.object({
+        op: z.enum(['create', 'update', 'deprecate']),
+        type: z.string(),
+        key: z.string(),
+        data: z.record(z.unknown()),
+        confidence: z.number(),
+        reason: z.string(),
+      })
+    )
+    .default([]),
+  memorable_moments: z
+    .array(
+      z.object({
+        quote: z.string(),
+        moment_type: z.enum([
+          'decision',
+          'revelation',
+          'emotion',
+          'commitment',
+          'boundary',
+        ]),
+        selection_confidence: z.number(),
+      })
+    )
+    .default([]),
+})
+
+// Keep the original full schema for reference
 const LLMResponseSchema = z.object({
   response: z.string().min(1),
   classification: z.object({
@@ -105,7 +152,7 @@ const RATE_LIMIT_MESSAGE =
   "I'm taking a moment to rest — come back in a little while."
 
 // ─────────────────────────────────────────────
-// Main orchestrator
+// Main orchestrator (streaming)
 // ─────────────────────────────────────────────
 
 export async function runOrchestrator(params: {
@@ -115,7 +162,10 @@ export async function runOrchestrator(params: {
   conversationId?: string
   mode?: LumynMode
   vyberologyContext: LumynInput[]
-}): Promise<ChatResponse> {
+  onToken: (token: string) => void
+  onDone: (result: ChatResponse & { title?: string }) => void
+  onError: (error: Error) => void
+}): Promise<void> {
   const { supabase, userId, message } = params
 
   // ── Entitlement check ─────────────────────────────────────
@@ -132,7 +182,7 @@ export async function runOrchestrator(params: {
       // Fail open on transient DB error — don't block user with paywall
       console.error('lumyn_increment_free_messages RPC error:', rpcError.message)
     } else if (newCount === null) {
-      // Paywall hit — log event and return paywall response
+      // Paywall hit — log event and call onDone with paywall response
       await logSafetyEvent(supabase, {
         user_id: userId,
         event_type: 'paywall_hit',
@@ -143,7 +193,7 @@ export async function runOrchestrator(params: {
         },
       })
 
-      return {
+      params.onDone({
         conversationId: params.conversationId ?? 'no-conversation',
         message: {
           id: crypto.randomUUID(),
@@ -155,7 +205,8 @@ export async function runOrchestrator(params: {
         classification: { intent: 'explore', emotion: 'neutral', domain: 'general' },
         client_directives: { crisis_banner: false, anchor_active: false },
         paywall: true,
-      }
+      })
+      return
     }
   }
 
@@ -174,7 +225,8 @@ export async function runOrchestrator(params: {
   // ── Step 1: Rate limit check ──────────────────────────────
   const rateLimits = await upsertRateLimit(supabase, userId)
   if (rateLimits.count_hour > 60 || rateLimits.count_day > 500) {
-    return buildFallbackResponse(RATE_LIMIT_MESSAGE, mode, 'no-conversation')
+    params.onError(new Error(RATE_LIMIT_MESSAGE))
+    return
   }
 
   // ── Step 2: Load context bundle ───────────────────────────
@@ -221,7 +273,7 @@ export async function runOrchestrator(params: {
 
   if (crisisResult.detected) {
     if (crisisResult.tier === 1) {
-      // Hard crisis: short-circuit, return anchor response immediately
+      // Hard crisis: short-circuit, call onDone with anchor response immediately
       await logSafetyEvent(supabase, {
         user_id: userId,
         event_type: 'crisis_detected',
@@ -242,7 +294,7 @@ export async function runOrchestrator(params: {
         model_name: 'safety-gate',
       })
 
-      return {
+      params.onDone({
         conversationId,
         message: {
           id: assistantMsg.id,
@@ -260,7 +312,8 @@ export async function runOrchestrator(params: {
           crisis_banner: true,
           anchor_active: true,
         },
-      }
+      })
+      return
     } else if (crisisResult.tier === 2) {
       // Soft crisis: log and continue, append resources at Step 8
       tier2Crisis = true
@@ -279,46 +332,44 @@ export async function runOrchestrator(params: {
   const promptMessages = assemblePrompt(bundle, vyberologyContext)
   promptMessages.push({ role: 'user', content: message })
 
-  // ── Step 6: LLM call ──────────────────────────────────────
+  // ── Step 6: LLM call (Phase 1 — streaming response text) ─
   const apiKey = Deno.env.get('OPENAI_API_KEY')
   if (!apiKey) {
-    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
+    params.onError(new Error(SAFE_FALLBACK))
+    return
   }
 
   const client = new OpenAI({ apiKey })
 
+  let responseText = ''
   const t0 = Date.now()
-  let rawCompletion: Awaited<ReturnType<typeof client.chat.completions.create>>
 
   try {
-    rawCompletion = await client.chat.completions.create({
+    const stream = await client.chat.completions.create({
       model: 'gpt-4o',
       messages: promptMessages,
-      response_format: { type: 'json_object' },
+      stream: true,
       temperature: 0.7,
-      max_tokens: 2048,
+      max_tokens: 1024,
     })
+
+    for await (const chunk of stream) {
+      const token = chunk.choices[0]?.delta?.content ?? ''
+      if (token) {
+        responseText += token
+        params.onToken(token)
+      }
+    }
   } catch (err) {
-    console.error('OpenAI error:', err)
-    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
+    console.error('OpenAI streaming error:', err)
+    params.onError(new Error(SAFE_FALLBACK))
+    return
   }
 
-  const latencyMs = Date.now() - t0
-  const tokensIn = rawCompletion.usage?.prompt_tokens ?? 0
-  const tokensOut = rawCompletion.usage?.completion_tokens ?? 0
-  const rawContent = rawCompletion.choices[0]?.message?.content ?? ''
+  const streamLatencyMs = Date.now() - t0
 
-  // ── Step 7: Post-LLM validation ───────────────────────────
-  let llmData: z.infer<typeof LLMResponseSchema>
-  try {
-    llmData = LLMResponseSchema.parse(JSON.parse(rawContent))
-  } catch (zodErr) {
-    console.error('Zod parse failure:', zodErr, 'raw:', rawContent.slice(0, 500))
-    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
-  }
-
-  // Overreach detection
-  const overreach = detectOverreach(llmData.response)
+  // Overreach detection on the streamed response
+  const overreach = detectOverreach(responseText)
   if (overreach.shouldDiscard) {
     await logSafetyEvent(supabase, {
       user_id: userId,
@@ -327,59 +378,128 @@ export async function runOrchestrator(params: {
       details: { flags: overreach.flags },
       message_id: userMsg.id,
     })
-    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
+    params.onError(new Error(SAFE_FALLBACK))
+    return
   }
+
+  // Append tier 2 crisis resources if applicable
+  if (tier2Crisis) {
+    const crisisAppend = CRISIS_RESOURCES
+    params.onToken(crisisAppend)
+    responseText += crisisAppend
+  }
+
+  // ── Phase 2: Classification call (non-streaming, after stream) ────
+  let classificationData: z.infer<typeof ClassificationSchema>
+  let tokensIn = 0
+  let tokensOut = 0
+
+  try {
+    const classificationCompletion = await client.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        ...promptMessages,
+        { role: 'assistant', content: responseText },
+        {
+          role: 'user',
+          content:
+            'Now output ONLY the JSON classification and memory for the above response, matching the schema exactly. No other text.',
+        },
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.3,
+      max_tokens: 1024,
+    })
+
+    tokensIn = classificationCompletion.usage?.prompt_tokens ?? 0
+    tokensOut = classificationCompletion.usage?.completion_tokens ?? 0
+    const rawClassification = classificationCompletion.choices[0]?.message?.content ?? ''
+
+    classificationData = ClassificationSchema.parse(JSON.parse(rawClassification))
+  } catch (err) {
+    console.error('Classification call error:', err)
+    // Fall back to safe defaults — don't fail the whole response
+    classificationData = ClassificationSchema.parse({
+      classification: {
+        intent: 'explore',
+        emotion: 'neutral',
+        domain: 'general',
+        risk_level: 'none',
+        confidence: 0.8,
+      },
+      memory_suggestions: [],
+      memorable_moments: [],
+    })
+  }
+
+  const classification = classificationData.classification
 
   // Mode compliance: crisis risk_level → force anchor
   let effectiveMode = mode
   let anchorActive = false
-  if (llmData.classification.risk_level === 'crisis' && mode !== 'anchor') {
+  if (classification.risk_level === 'crisis' && mode !== 'anchor') {
     effectiveMode = 'anchor'
     anchorActive = true
   }
 
-  // ── Step 8: Memory write + respond ────────────────────────
-  // Append tier 2 crisis resources if applicable
-  let responseContent = llmData.response
-  if (tier2Crisis) {
-    responseContent += CRISIS_RESOURCES
-  }
-
-  // Insert assistant message with all observability columns
-  const classification = llmData.classification
+  // ── Step 8: Insert assistant message ─────────────────────
   const assistantMsg = await insertMessage(supabase, {
     conversation_id: conversationId,
     user_id: userId,
     role: 'assistant',
-    content: responseContent,
+    content: responseText,
     intent: classification.intent,
     emotion: classification.emotion,
     domain: classification.domain,
     risk_level: classification.risk_level,
     confidence: classification.confidence,
-    classification: llmData,
+    classification: classificationData,
     prompt_version: '1.0',
     model_provider: 'openai',
     model_name: 'gpt-4o',
-    latency_ms: latencyMs,
+    latency_ms: streamLatencyMs,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
   })
 
-  // Memory writes — Pro only
+  // ── Title generation (first exchange only) ────────────────
+  let title: string | undefined
+  if (sessionHistory.length === 0) {
+    try {
+      const titleCompletion = await client.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: `Generate a short title (3-6 words, no quotes) for this conversation:\nUser: ${message.slice(0, 200)}\nLumyn: ${responseText.slice(0, 200)}`,
+          },
+        ],
+        max_tokens: 20,
+        temperature: 0.5,
+      })
+      title = titleCompletion.choices[0]?.message?.content?.trim().slice(0, 60)
+      if (title) {
+        await supabase.from('lumyn_conversations').update({ title }).eq('id', conversationId)
+      }
+    } catch {
+      // Non-critical — don't fail the response on title generation errors
+    }
+  }
+
+  // ── Memory writes — Pro only ──────────────────────────────
   if (isPro) {
     // Process memorable moments
     await processMemorableMoments(
       userId,
       conversationId,
-      llmData.memorable_moments,
+      classificationData.memorable_moments,
       [...sessionHistory, userMsg, assistantMsg],
       supabase
     )
 
     // Process memory suggestions → upsert/deprecate claims + log ops
     const memoryOps: InsertMemoryOpData[] = []
-    for (const suggestion of llmData.memory_suggestions) {
+    for (const suggestion of classificationData.memory_suggestions) {
       try {
         if (suggestion.op === 'create' || suggestion.op === 'update') {
           const claim = await upsertClaim(supabase, userId, {
@@ -430,12 +550,12 @@ export async function runOrchestrator(params: {
     generateConversationSummary(conversationId, supabase).catch(() => {})
   }
 
-  return {
+  params.onDone({
     conversationId,
     message: {
       id: assistantMsg.id,
       role: 'assistant',
-      content: responseContent,
+      content: responseText,
       created_at: assistantMsg.created_at,
     },
     mode: effectiveMode,
@@ -448,35 +568,6 @@ export async function runOrchestrator(params: {
       crisis_banner: tier2Crisis ? false : anchorActive,
       anchor_active: anchorActive,
     },
-  }
-}
-
-// ─────────────────────────────────────────────
-// Helper: build a safe fallback ChatResponse
-// ─────────────────────────────────────────────
-
-function buildFallbackResponse(
-  content: string,
-  mode: LumynMode,
-  conversationId: string
-): ChatResponse {
-  return {
-    conversationId,
-    message: {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      content,
-      created_at: new Date().toISOString(),
-    },
-    mode,
-    classification: {
-      intent: 'explore',
-      emotion: 'neutral',
-      domain: 'general',
-    },
-    client_directives: {
-      crisis_banner: false,
-      anchor_active: false,
-    },
-  }
+    title,
+  })
 }
