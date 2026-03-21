@@ -263,6 +263,11 @@ async function handleSubscriptionUpdate(
   });
 
   console.log(`Updated subscription ${subscription.id} for user ${userId}`);
+
+  // Grant/confirm Lumyn Pro if this is the Pro subscription
+  if (isLumynProPrice(subscription) && subscription.status === 'active') {
+    await setLumynPro(supabase, userId, true, null)
+  }
 }
 
 async function handleSubscriptionDeleted(
@@ -279,6 +284,21 @@ async function handleSubscriptionDeleted(
     .eq('stripe_subscription_id', subscription.id);
 
   console.log(`Deleted subscription ${subscription.id}`);
+
+  // Resolve userId via customer lookup (mirrors handleSubscriptionUpdate)
+  const customer = await stripe.customers.retrieve(subscription.customer as string)
+  const userId = (customer as Stripe.Customer).metadata?.supabase_user_id
+  if (!userId) {
+    console.error('CRITICAL: No supabase_user_id in customer metadata on subscription deletion — Lumyn Pro revocation skipped. Subscription ID:', subscription.id, 'Customer ID:', subscription.customer)
+    return
+  }
+
+  // Revoke Lumyn Pro if this is the Pro subscription
+  if (isLumynProPrice(subscription)) {
+    const proUntil = new Date(subscription.current_period_end * 1000).toISOString()
+    await setLumynPro(supabase, userId, false, proUntil)
+    console.log(`Revoked Lumyn Pro for user ${userId}, until ${proUntil}`)
+  }
 }
 
 /**
@@ -303,4 +323,33 @@ function calculateCreditsFromAmount(amountCents: number): number {
   };
 
   return amounts[amountCents] || 0;
+}
+
+/**
+ * Returns true if any subscription line item matches the Lumyn Pro price.
+ * Checks all items (not just [0]) for robustness.
+ */
+function isLumynProPrice(subscription: Stripe.Subscription): boolean {
+  const lumynProPriceId = Deno.env.get('LUMYN_PRO_STRIPE_PRICE_ID')
+  if (!lumynProPriceId) return false
+  return subscription.items.data.some(item => item.price.id === lumynProPriceId)
+}
+
+/**
+ * Set or clear Lumyn Pro entitlement on user_profiles.
+ * Uses upsert so it is safe if the profile row doesn't exist yet.
+ * Only touches lumyn_pro and lumyn_pro_until — other columns are unaffected.
+ */
+async function setLumynPro(
+  supabase: any,
+  userId: string,
+  isPro: boolean,
+  proUntil: string | null
+): Promise<void> {
+  const { error } = await supabase.from('user_profiles').upsert({
+    user_id: userId,
+    lumyn_pro: isPro,
+    lumyn_pro_until: proUntil,
+  }, { onConflict: 'user_id' })
+  if (error) console.error('setLumynPro failed:', error.message)
 }

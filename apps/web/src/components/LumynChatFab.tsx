@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import { Sparkles, X, AlertTriangle } from "lucide-react";
+import { Sparkles, X, AlertTriangle, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LumenChat, ChatMessage } from "@/features/capture/components/LumenChat";
 import { callLumynChat } from "@/services/lumynApi";
 import { buildLumynContext } from "@/lib/lumynContext";
 import { useToast } from "@/components/ui/use-toast";
+import { useLumynEntitlement } from "@/hooks/useLumynEntitlement";
+import { LumynThreadList } from "@/components/LumynThreadList";
+import { LumynPaywallCard } from "@/components/LumynPaywallCard";
+import { supabase } from "@/integrations/supabase/client";
+import { isNative } from "@/lib/platform";
+import type { LumynConversation } from "@/types/lumyn";
 
 const CHAT_STORAGE_KEY = "vyberology_lumyn_chat";
 
@@ -30,6 +36,10 @@ export function LumynChatFab() {
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [showCrisisBanner, setShowCrisisBanner] = useState(false);
 
+  const { isPro, messagesUsed, refetch: refetchEntitlement } = useLumynEntitlement();
+  const [showThreadList, setShowThreadList] = useState(false);
+  const [paywallHit, setPaywallHit] = useState(false);
+
   // Persist chat messages
   useEffect(() => {
     try {
@@ -39,6 +49,49 @@ export function LumynChatFab() {
       /* ignore */
     }
   }, [chatMessages]);
+
+  const handleSelectThread = async (conversation: LumynConversation) => {
+    setShowThreadList(false);
+    setIsProcessing(true);
+    try {
+      const { data: messages } = await supabase
+        .from("lumyn_messages")
+        .select("role, content")
+        .eq("conversation_id", conversation.id)
+        .order("created_at", { ascending: true });
+
+      if (messages) {
+        setChatMessages(messages as ChatMessage[]);
+      }
+      setConversationId(conversation.id);
+      setPaywallHit(false);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleNewThread = () => {
+    setShowThreadList(false);
+    setChatMessages([]);
+    setConversationId(undefined);
+    setShowCrisisBanner(false);
+    setPaywallHit(false);
+  };
+
+  const handleUpgrade = async () => {
+    const { purchaseTier } = await import("@/services/purchase");
+    const priceId = import.meta.env.VITE_LUMYN_PRO_PRICE_ID ?? "";
+    if (isNative()) {
+      alert("Please visit vyberology.com to upgrade to Lumyn Pro.");
+      return;
+    }
+    const result = await purchaseTier("lumyn-pro", { priceId, fullName: "", dob: "" });
+    if (result.redirectUrl) {
+      window.location.href = result.redirectUrl;
+    } else {
+      await refetchEntitlement();
+    }
+  };
 
   const handleSend = async () => {
     if (!chatInput.trim()) return;
@@ -60,6 +113,14 @@ export function LumynChatFab() {
         vyberologyContext: inputs,
       });
       setConversationId(response.conversationId);
+
+      if (response.paywall) {
+        setPaywallHit(true);
+        return; // Do not append any message to chatMessages
+      }
+      // Clear paywall state if user is now Pro
+      setPaywallHit(false);
+
       setShowCrisisBanner(response.client_directives.crisis_banner);
       setChatMessages((prev) => [
         ...prev,
@@ -98,13 +159,33 @@ export function LumynChatFab() {
       {isOpen && (
         <div className="fixed bottom-20 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px]">
           <div className="relative">
-            {/* Close button */}
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute -top-3 -right-3 z-10 w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {/* Panel header */}
+            <div className="absolute -top-3 right-0 left-0 flex justify-between items-center px-1 z-10">
+              {/* Thread list toggle */}
+              <button
+                onClick={() => setShowThreadList((prev) => !prev)}
+                className="w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
+                title="Conversations"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Free message counter */}
+              {!isPro && (
+                <span className="text-[10px] text-vy-charcoal/40 font-sans">
+                  {messagesUsed} / 10 free messages
+                </span>
+              )}
+
+              {/* Close button */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
             <LumenChat
               messages={chatMessages}
               inputValue={chatInput}
@@ -112,6 +193,33 @@ export function LumynChatFab() {
               onSend={handleSend}
               isProcessing={isProcessing}
             />
+
+            {/* Inline paywall card */}
+            {paywallHit && (
+              <LumynPaywallCard />
+            )}
+
+            {/* Thread list drawer */}
+            {showThreadList && (
+              <div className="absolute inset-0 z-10 bg-vy-parchment rounded-2xl overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-vy-charcoal/10">
+                  <span className="text-sm font-semibold text-vy-charcoal">Conversations</span>
+                  <button
+                    onClick={() => setShowThreadList(false)}
+                    className="text-vy-charcoal/40 hover:text-vy-charcoal"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <LumynThreadList
+                  currentConversationId={conversationId}
+                  isPro={isPro}
+                  onSelectThread={handleSelectThread}
+                  onNewThread={handleNewThread}
+                  onUpgrade={handleUpgrade}
+                />
+              </div>
+            )}
           </div>
         </div>
       )}

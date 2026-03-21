@@ -21,6 +21,8 @@ import {
   closeStaleConversations,
   upsertClaim,
   deprecateClaim,
+  getUserEntitlement,
+  resolveLumynEntitlement,
 } from './db.ts'
 
 import {
@@ -114,8 +116,60 @@ export async function runOrchestrator(params: {
   mode?: LumynMode
   vyberologyContext: LumynInput[]
 }): Promise<ChatResponse> {
-  const { supabase, userId, message, vyberologyContext } = params
-  const mode: LumynMode = params.mode ?? 'reflect'
+  const { supabase, userId, message } = params
+
+  // ── Entitlement check ─────────────────────────────────────
+  const entitlement = await getUserEntitlement(supabase, userId)
+  const isPro = resolveLumynEntitlement(entitlement)
+
+  if (!isPro) {
+    // Atomic free-message increment — returns null if limit hit
+    const { data: newCount, error: rpcError } = await supabase.rpc('lumyn_increment_free_messages', {
+      p_user_id: userId,
+    })
+
+    if (rpcError) {
+      // Fail open on transient DB error — don't block user with paywall
+      console.error('lumyn_increment_free_messages RPC error:', rpcError.message)
+    } else if (newCount === null) {
+      // Paywall hit — log event and return paywall response
+      await logSafetyEvent(supabase, {
+        user_id: userId,
+        event_type: 'paywall_hit',
+        trigger_source: 'policy',
+        details: {
+          messages_used: entitlement.lumyn_messages_used,
+          mode_requested: params.mode ?? 'reflect',
+        },
+      })
+
+      return {
+        conversationId: params.conversationId ?? 'no-conversation',
+        message: {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: '',
+          created_at: new Date().toISOString(),
+        },
+        mode: 'reflect',
+        classification: { intent: 'explore', emotion: 'neutral', domain: 'general' },
+        client_directives: { crisis_banner: false, anchor_active: false },
+        paywall: true,
+      }
+    }
+  }
+
+  // ── Mode coercion (declared AFTER isPro is available) ──────
+  const mode: LumynMode = !isPro ? 'reflect' : (params.mode ?? 'reflect')
+
+  // ── Strip context for free users ───────────────────────────
+  const vyberologyContext = isPro
+    ? params.vyberologyContext
+    : params.vyberologyContext
+        ? params.vyberologyContext.filter(
+            (i: { label: string }) => i.label !== 'ReadingHistory' && i.label !== 'UserProfile'
+          )
+        : []
 
   // ── Step 1: Rate limit check ──────────────────────────────
   const rateLimits = await upsertRateLimit(supabase, userId)
@@ -311,64 +365,67 @@ export async function runOrchestrator(params: {
     tokens_out: tokensOut,
   })
 
-  // Process memorable moments
-  await processMemorableMoments(
-    userId,
-    conversationId,
-    llmData.memorable_moments,
-    [...sessionHistory, userMsg, assistantMsg],
-    supabase
-  )
+  // Memory writes — Pro only
+  if (isPro) {
+    // Process memorable moments
+    await processMemorableMoments(
+      userId,
+      conversationId,
+      llmData.memorable_moments,
+      [...sessionHistory, userMsg, assistantMsg],
+      supabase
+    )
 
-  // Process memory suggestions → upsert/deprecate claims + log ops
-  const memoryOps: InsertMemoryOpData[] = []
-  for (const suggestion of llmData.memory_suggestions) {
-    try {
-      if (suggestion.op === 'create' || suggestion.op === 'update') {
-        const claim = await upsertClaim(supabase, userId, {
-          type: suggestion.type as never,
-          key: suggestion.key,
-          data: suggestion.data,
-          confidence: suggestion.confidence,
-          source_conversation_id: conversationId,
-        })
-        memoryOps.push({
-          user_id: userId,
-          message_id: assistantMsg.id,
-          op_type: suggestion.op,
-          target_claim_id: claim.id,
-          target_desc: suggestion.key,
-          reason: suggestion.reason,
-        })
-      } else if (suggestion.op === 'deprecate') {
-        // Find claim by key and deprecate
-        const existing = claims.find((c) => c.key === suggestion.key)
-        if (existing) {
-          await deprecateClaim(supabase, existing.id)
+    // Process memory suggestions → upsert/deprecate claims + log ops
+    const memoryOps: InsertMemoryOpData[] = []
+    for (const suggestion of llmData.memory_suggestions) {
+      try {
+        if (suggestion.op === 'create' || suggestion.op === 'update') {
+          const claim = await upsertClaim(supabase, userId, {
+            type: suggestion.type as never,
+            key: suggestion.key,
+            data: suggestion.data,
+            confidence: suggestion.confidence,
+            source_conversation_id: conversationId,
+          })
           memoryOps.push({
             user_id: userId,
             message_id: assistantMsg.id,
-            op_type: 'deprecate',
-            target_claim_id: existing.id,
+            op_type: suggestion.op,
+            target_claim_id: claim.id,
             target_desc: suggestion.key,
             reason: suggestion.reason,
           })
+        } else if (suggestion.op === 'deprecate') {
+          // Find claim by key and deprecate
+          const existing = claims.find((c) => c.key === suggestion.key)
+          if (existing) {
+            await deprecateClaim(supabase, existing.id)
+            memoryOps.push({
+              user_id: userId,
+              message_id: assistantMsg.id,
+              op_type: 'deprecate',
+              target_claim_id: existing.id,
+              target_desc: suggestion.key,
+              reason: suggestion.reason,
+            })
+          }
         }
+      } catch {
+        // Don't fail the response on memory write errors
       }
-    } catch {
-      // Don't fail the response on memory write errors
     }
-  }
 
-  if (memoryOps.length > 0) {
-    await logMemoryOps(supabase, memoryOps)
+    if (memoryOps.length > 0) {
+      await logMemoryOps(supabase, memoryOps)
+    }
   }
 
   // Close stale conversations async (non-blocking)
   closeStaleConversations(supabase, userId).catch(() => {})
 
   // Also trigger summary generation if conversation is being closed
-  if (conversation.status === 'closed') {
+  if (conversation.status === 'closed' && isPro) {
     generateConversationSummary(conversationId, supabase).catch(() => {})
   }
 

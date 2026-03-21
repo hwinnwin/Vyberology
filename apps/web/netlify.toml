@@ -21,6 +21,8 @@
   # Stripe Live Keys - ADDED 2025-11-11
   VITE_STRIPE_PUBLISHABLE_KEY = "pk_live_51SGaypKQHOT2DNgNdJJ0nZNP2zL7iK3Gb4D3ai4L6poMV6CD0mRSvNIfDpdbA3nXhgP0avW4jPlOsUXZKkuBy50s00unH0hCzd"
   VITE_V4_ENABLED = "false"
+  # Lumyn Pro subscription price ID - ADDED 2026-03-20
+  VITE_LUMYN_PRO_PRICE_ID = "price_1TDCy4KQHOT2DNgNv5aINeKq"
 
 # Redirect old domain to new primary domain
 [[redirects]]

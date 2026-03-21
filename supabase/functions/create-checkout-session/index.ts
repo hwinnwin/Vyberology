@@ -95,6 +95,8 @@ serve(async (req) => {
     }
 
     // Create the checkout session
+    const isSubscription = tier === 'lumyn-pro'
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
@@ -103,8 +105,8 @@ serve(async (req) => {
           quantity,
         },
       ],
-      mode: 'payment', // For one-time payments. Use 'subscription' for recurring
-      success_url: successUrl || `${req.headers.get('origin')}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      mode: isSubscription ? 'subscription' : 'payment',
+      success_url: successUrl || `${req.headers.get('origin')}/payment/success?session_id={CHECKOUT_SESSION_ID}${isSubscription ? '&upgraded=true&tier=lumyn-pro' : ''}`,
       cancel_url: cancelUrl || `${req.headers.get('origin')}/payment/cancel`,
       metadata: {
         user_id: user.id,
@@ -113,12 +115,16 @@ serve(async (req) => {
         ...(dob && { dob }),
       },
       billing_address_collection: 'auto',
-      payment_intent_data: {
-        metadata: {
-          user_id: user.id,
-          ...(tier && { tier }),
-        },
-      },
+      ...(isSubscription
+        ? { subscription_data: { metadata: { user_id: user.id, tier } } }
+        : {
+            payment_intent_data: {
+              metadata: {
+                user_id: user.id,
+                ...(tier && { tier }),
+              },
+            },
+          }),
     });
 
     return new Response(
