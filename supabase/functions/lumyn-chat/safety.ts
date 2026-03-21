@@ -61,12 +61,12 @@ const OVERREACH_FLAGS = [
   'you should see a therapist',
   'you need professional help',
   'i diagnose',
-  'you have a',
-  'disorder',
-  'condition',
-  'medically',
+  'you have a disorder',
+  'you have a condition',
+  'medically speaking',
   'you need therapy',
   'get professional help',
+  'clinical diagnosis',
 ]
 
 // ─────────────────────────────────────────────
