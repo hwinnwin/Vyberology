@@ -2,7 +2,7 @@
 // Lumyn Intelligence Layer — 8-Step Orchestrator (§4)
 // ============================================================
 
-import OpenAI from 'npm:openai'
+import Anthropic from 'npm:@anthropic-ai/sdk'
 import { z } from 'npm:zod'
 import { SupabaseClient } from 'npm:@supabase/supabase-js'
 
@@ -280,21 +280,28 @@ export async function runOrchestrator(params: {
   promptMessages.push({ role: 'user', content: message })
 
   // ── Step 6: LLM call ──────────────────────────────────────
-  const apiKey = Deno.env.get('OPENAI_API_KEY')
+  const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
   if (!apiKey) {
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
-  const client = new OpenAI({ apiKey })
+  const client = new Anthropic({ apiKey })
+
+  // Split system message from conversation turns (Anthropic API requires system separate)
+  const systemMessage = promptMessages.find((m) => m.role === 'system')?.content ?? ''
+  const conversationMessages = promptMessages.filter((m) => m.role !== 'system') as Array<{
+    role: 'user' | 'assistant'
+    content: string
+  }>
 
   const t0 = Date.now()
-  let rawCompletion: Awaited<ReturnType<typeof client.chat.completions.create>>
+  let rawCompletion: Awaited<ReturnType<typeof client.messages.create>>
 
   try {
-    rawCompletion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: promptMessages,
-      response_format: { type: 'json_object' },
+    rawCompletion = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      system: systemMessage,
+      messages: conversationMessages,
       temperature: 0.7,
       max_tokens: 2048,
     })
@@ -303,9 +310,10 @@ export async function runOrchestrator(params: {
   }
 
   const latencyMs = Date.now() - t0
-  const tokensIn = rawCompletion.usage?.prompt_tokens ?? 0
-  const tokensOut = rawCompletion.usage?.completion_tokens ?? 0
-  const rawContent = rawCompletion.choices[0]?.message?.content ?? ''
+  const tokensIn = rawCompletion.usage?.input_tokens ?? 0
+  const tokensOut = rawCompletion.usage?.output_tokens ?? 0
+  const rawContent =
+    rawCompletion.content[0]?.type === 'text' ? rawCompletion.content[0].text : ''
 
   // ── Step 7: Post-LLM validation ───────────────────────────
   let llmData: z.infer<typeof LLMResponseSchema>
@@ -358,8 +366,8 @@ export async function runOrchestrator(params: {
     confidence: classification.confidence,
     classification: llmData,
     prompt_version: '1.0',
-    model_provider: 'openai',
-    model_name: 'gpt-4o-mini',
+    model_provider: 'anthropic',
+    model_name: 'claude-sonnet-4-6',
     latency_ms: latencyMs,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
