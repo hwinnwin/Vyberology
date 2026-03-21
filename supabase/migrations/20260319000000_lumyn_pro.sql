@@ -26,15 +26,14 @@ $$;
 GRANT EXECUTE ON FUNCTION lumyn_increment_free_messages(UUID) TO authenticated;
 
 -- Seed Lumyn Pro product + price
--- Replace placeholder IDs with real Stripe IDs before deploy
 INSERT INTO products (stripe_product_id, name, description, active)
-VALUES ('prod_lumyn_pro', 'Lumyn Pro', 'Unlimited Lumyn conversations with full memory and all modes', true)
+VALUES ('prod_UBa8Sm2LE6AtYN', 'Lumyn Pro', 'Unlimited Lumyn conversations with full memory and all modes', true)
 ON CONFLICT (stripe_product_id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description;
 
 INSERT INTO prices (product_id, stripe_price_id, currency, unit_amount, interval, interval_count, active)
 VALUES (
-  (SELECT id FROM products WHERE stripe_product_id = 'prod_lumyn_pro'),
-  'price_lumyn_pro_monthly',
+  (SELECT id FROM products WHERE stripe_product_id = 'prod_UBa8Sm2LE6AtYN'),
+  'price_1TDCy4KQHOT2DNgNv5aINeKq',
   'usd',
   1497,
   'month',
