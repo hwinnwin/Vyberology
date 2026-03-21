@@ -68,7 +68,7 @@ function isMobile(): boolean {
 }
 
 export function useSpeechInput(onTranscript: (text: string) => void) {
-  const supported = !!getSpeechAPI()
+  const supported = !!getSpeechAPI() && !isMobile()
   const [state, setState] = useState<SpeechInputState>(supported ? 'idle' : 'unsupported')
 
   const recognitionRef = useRef<SpeechRecognition | null>(null)
