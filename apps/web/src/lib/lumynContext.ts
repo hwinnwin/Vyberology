@@ -88,9 +88,7 @@ async function fetchSupabaseReadings(): Promise<string | null> {
 
     const { data, error } = await supabase
       .from("readings")
-      .select(
-        "full_name, dob, life_path, expression, soul_urge, personality, maturity, created_at"
-      )
+      .select("full_name, dob, numerology_numbers, reading_text, created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(5);
@@ -102,10 +100,18 @@ async function fetchSupabaseReadings(): Promise<string | null> {
         const date = r.created_at
           ? new Date(r.created_at).toLocaleDateString()
           : "unknown";
-        return [
-          `[${date}] ${r.full_name} (DOB: ${r.dob})`,
-          `  Life Path: ${r.life_path}, Expression: ${r.expression}, Soul Urge: ${r.soul_urge}, Personality: ${r.personality}, Maturity: ${r.maturity}`,
-        ].join("\n");
+        const nums = (r.numerology_numbers as Record<string, unknown>) ?? {};
+        const numLine = [
+          nums.life_path && `Life Path: ${nums.life_path}`,
+          nums.expression && `Expression: ${nums.expression}`,
+          nums.soul_urge && `Soul Urge: ${nums.soul_urge}`,
+          nums.personality && `Personality: ${nums.personality}`,
+          nums.maturity && `Maturity: ${nums.maturity}`,
+        ].filter(Boolean).join(", ");
+        const lines = [`[${date}] ${r.full_name} (DOB: ${r.dob})`];
+        if (numLine) lines.push(`  ${numLine}`);
+        if (r.reading_text) lines.push(`  Reading: ${String(r.reading_text).slice(0, 400)}`);
+        return lines.join("\n");
       })
       .join("\n\n");
   } catch {
