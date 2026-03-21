@@ -10,6 +10,7 @@ export interface HistoricalReading {
   inputValue: string;
   reading: string;
   numbers?: string[]; // Extracted numbers from the reading
+  reflection?: string; // Short Lumyn-generated reflection
 }
 
 const STORAGE_KEY = 'vyberology_reading_history';
@@ -217,6 +218,21 @@ export const getReadingsByDateRange = (startDate: Date, endDate: Date): Historic
     const readingDate = new Date(reading.timestamp);
     return readingDate >= startDate && readingDate <= endDate;
   });
+};
+
+/**
+ * Update the reflection on a saved reading
+ */
+export const updateReadingReflection = (id: string, reflection: string): void => {
+  try {
+    const history = getReadingHistory();
+    const idx = history.findIndex(r => r.id === id);
+    if (idx === -1) return;
+    history[idx] = { ...history[idx], reflection };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+  } catch (error) {
+    logErrorSafe('Failed to update reflection', error);
+  }
 };
 
 /**

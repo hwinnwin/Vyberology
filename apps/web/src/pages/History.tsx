@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Home, Clock, Hash, Image as ImageIcon, Trash2, Calendar, TrendingUp, Sparkles, Eye } from "lucide-react";
+import { ArrowLeft, Home, Clock, Hash, Image as ImageIcon, Trash2, Calendar, TrendingUp, Sparkles, Eye, Brain } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   getReadingHistory,
@@ -8,6 +8,7 @@ import {
   clearHistory,
   type HistoricalReading,
 } from "@/lib/readingHistory";
+import { analyseReadingPatterns, type PatternInsight } from "@/lib/readingInsights";
 import { getUserReadings, type ReadingRow } from "@/services/readings";
 import { TIER_BADGE, type ReadingTier } from "@/lib/tiers";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +23,7 @@ const History = () => {
   const [serverReadings, setServerReadings] = useState<ReadingRow[]>([]);
   const [recurringPatterns, setRecurringPatterns] = useState<{ pattern: string; count: number }[]>([]);
   const [selectedReading, setSelectedReading] = useState<HistoricalReading | null>(null);
+  const [patternInsights, setPatternInsights] = useState<PatternInsight[]>([]);
 
   useEffect(() => {
     loadHistory();
@@ -35,6 +37,8 @@ const History = () => {
     setReadings(history);
     const patterns = getRecurringPatterns();
     setRecurringPatterns(patterns.slice(0, 8));
+    const summary = analyseReadingPatterns();
+    setPatternInsights(summary.insights);
   };
 
   const handleDeleteReading = (id: string) => {
@@ -186,6 +190,35 @@ const History = () => {
 
       {/* Local Reading History (vybe captures) */}
       <div className="max-w-[720px] mx-auto px-6 pb-8 w-full">
+
+        {/* Lumyn Cross-Reading Insights */}
+        {patternInsights.length > 0 && (
+          <div className="mb-8 p-6 rounded-2xl border border-vy-gold/30 bg-gradient-to-br from-vy-gold/[0.04] to-white/60 backdrop-blur-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <Brain className="h-5 w-5 text-vy-gold" />
+              <h3 className="font-display text-lg font-semibold text-vy-charcoal">Lumyn Sees</h3>
+              <span className="font-sans text-xs text-vy-charcoal/40 ml-1">patterns across your journey</span>
+            </div>
+            <div className="space-y-3">
+              {patternInsights.map((insight, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
+                    insight.significance === 'high' ? 'bg-vy-gold' : 'bg-vy-charcoal/25'
+                  }`} />
+                  <div>
+                    <p className="font-sans text-xs font-semibold text-vy-charcoal/70 uppercase tracking-[0.08em] mb-0.5">
+                      {insight.label}
+                    </p>
+                    <p className="font-sans text-sm text-vy-charcoal/70 leading-relaxed">
+                      {insight.detail}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Recurring Patterns */}
         {recurringPatterns.length > 0 && (
           <div className="mb-8 p-6 rounded-2xl border border-vy-gold/20 bg-white/50 backdrop-blur-sm">
@@ -297,6 +330,12 @@ const History = () => {
                   </button>
                 </div>
 
+                {selectedReading.reflection && (
+                  <div className="mb-5 px-4 py-3 rounded-xl border border-vy-gold/20 bg-vy-gold/[0.04]">
+                    <p className="font-sans text-xs font-semibold text-vy-gold/70 uppercase tracking-[0.08em] mb-1">Lumyn noticed</p>
+                    <p className="font-sans text-sm text-vy-charcoal/70 italic leading-relaxed">{selectedReading.reflection}</p>
+                  </div>
+                )}
                 <div className="whitespace-pre-wrap font-sans text-sm text-vy-charcoal/80 leading-relaxed">
                   {selectedReading.reading}
                 </div>

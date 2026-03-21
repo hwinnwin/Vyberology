@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { saveReading } from "@/lib/readingHistory";
+import { saveReading, updateReadingReflection, getReadingHistory } from "@/lib/readingHistory";
 import { callVybeReading } from "@/lib/vybeApi";
+import { generateReflection } from "@/lib/generateReflection";
 
 interface Reading {
   input_text: string;
@@ -77,6 +78,14 @@ export function useTextInput(
         inputValue: textInput,
         reading: readingText,
       });
+
+      // Generate a short reflection in the background (non-blocking)
+      const savedId = getReadingHistory()[0]?.id
+      if (savedId) {
+        generateReflection(textInput, readingText).then(reflection => {
+          if (reflection) updateReadingReflection(savedId, reflection)
+        })
+      }
 
       setTextInput("");
 

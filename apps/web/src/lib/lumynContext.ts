@@ -5,6 +5,7 @@
  */
 
 import { getReadingHistory, getRecurringPatterns } from "./readingHistory";
+import { analyseReadingPatterns } from "./readingInsights";
 import { supabase } from "@/integrations/supabase/client";
 import type { ChatMessage } from "@/features/capture/components/LumenChat";
 import type { LumynInput } from "@/types/lumyn";
@@ -45,10 +46,13 @@ export async function buildLumynContext(
       .join(", ");
   }
 
-  // 4. User profile (if logged in)
+  // 4. Reading pattern intelligence
+  const patternSummary = analyseReadingPatterns()
+
+  // 5. User profile (if logged in)
   const profileContext = await fetchUserProfile();
 
-  // 5. Conversation history — last 12 messages, 600 chars each
+  // 6. Conversation history — last 12 messages, 600 chars each
   const convoContext = conversationMessages
     .slice(-12)
     .map(
@@ -70,6 +74,9 @@ export async function buildLumynContext(
   }
   if (profileContext) {
     inputs.push({ label: "UserProfile", value: profileContext });
+  }
+  if (patternSummary.totalReadings > 0) {
+    inputs.push({ label: "ReadingPatterns", value: patternSummary.contextSummary });
   }
 
   return inputs;

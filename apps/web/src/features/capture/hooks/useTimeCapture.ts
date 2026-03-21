@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { saveReading } from "@/lib/readingHistory";
+import { saveReading, updateReadingReflection, getReadingHistory } from "@/lib/readingHistory";
 import { callVybeReading } from "@/lib/vybeApi";
+import { generateReflection } from "@/lib/generateReflection";
 
 interface Reading {
   input_text: string;
@@ -75,6 +76,14 @@ export function useTimeCapture(
         inputValue: timeString,
         reading: readingText,
       });
+
+      // Generate a short reflection in the background (non-blocking)
+      const savedId = getReadingHistory()[0]?.id
+      if (savedId) {
+        generateReflection(timeString, readingText).then(reflection => {
+          if (reflection) updateReadingReflection(savedId, reflection)
+        })
+      }
 
       onSuccess?.(newReading);
     } catch (error) {
