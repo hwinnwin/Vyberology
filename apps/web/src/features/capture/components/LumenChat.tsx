@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Send, Sparkles, Mic, MicOff, Volume2, Loader2 } from "lucide-react";
 import { ReadingRenderer } from "@/components/ReadingRenderer";
 import type { SpeechInputState } from "@/hooks/useSpeechInput";
@@ -39,6 +38,14 @@ export function LumenChat({
   onSpeakMessage,
 }: LumenChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Reset textarea height when input is cleared externally (after send)
+  useEffect(() => {
+    if (!inputValue && textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
+  }, [inputValue]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -151,20 +158,30 @@ export function LumenChat({
             </button>
           )}
 
-          <Input
+          <textarea
+            ref={textareaRef}
             placeholder={isListening ? "Listening..." : "Ask Lumyn a question..."}
             value={inputValue}
-            onChange={(e) => onInputChange(e.target.value)}
+            rows={1}
+            onChange={(e) => {
+              onInputChange(e.target.value);
+              // Auto-grow: reset height then set to scrollHeight
+              e.target.style.height = 'auto';
+              e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 onSend();
+                // Reset height after send
+                (e.target as HTMLTextAreaElement).style.height = 'auto';
               }
             }}
             disabled={isProcessing}
-            className={`border-vy-charcoal/10 bg-vy-parchment/80 text-vy-charcoal placeholder:text-vy-charcoal/30 rounded-xl focus:border-vy-gold/50 focus:ring-vy-gold/20 ${
-              isListening ? 'border-red-300 ring-1 ring-red-200' : ''
+            className={`flex-1 min-w-0 resize-none overflow-y-auto border rounded-xl px-3 py-2 text-sm bg-vy-parchment/80 text-vy-charcoal placeholder:text-vy-charcoal/30 focus:outline-none focus:border-vy-gold/50 focus:ring-1 focus:ring-vy-gold/20 leading-5 transition-colors ${
+              isListening ? 'border-red-300 ring-1 ring-red-200' : 'border-vy-charcoal/10'
             }`}
+            style={{ height: 'auto' }}
           />
 
           <Button
