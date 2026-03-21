@@ -356,26 +356,16 @@ export function LumynChatFab() {
         </div>
       )}
 
-      {/* FAB button */}
-      <div className="fixed bottom-6 right-6 z-50">
+      {/* FAB button — hidden when chat is open (panel header X handles close) */}
+      <div className={`fixed bottom-6 right-6 z-50 ${isOpen ? 'hidden' : ''}`}>
         <Button
           size="lg"
-          onClick={() => setIsOpen((prev) => !prev)}
-          className={`rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 p-0 ${
-            isOpen
-              ? "bg-vy-charcoal hover:bg-vy-charcoal/90"
-              : "bg-gradient-to-r from-vy-gold to-amber-500 hover:from-vy-gold/90 hover:to-amber-500/90"
-          }`}
+          onClick={() => setIsOpen(true)}
+          className="rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 p-0 bg-gradient-to-r from-vy-gold to-amber-500 hover:from-vy-gold/90 hover:to-amber-500/90"
         >
-          {isOpen ? (
-            <X className="w-6 h-6 text-vy-parchment" />
-          ) : (
-            <Sparkles className="w-6 h-6 text-white" />
-          )}
+          <Sparkles className="w-6 h-6 text-white" />
         </Button>
-        {!isOpen && (
-          <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-vy-gold animate-pulse" />
-        )}
+        <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-vy-gold animate-pulse" />
       </div>
     </>
   );
