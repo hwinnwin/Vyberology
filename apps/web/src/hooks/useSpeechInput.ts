@@ -68,40 +68,31 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
   const [state, setState] = useState<SpeechInputState>(supported ? 'idle' : 'unsupported')
 
   const recognitionRef = useRef<SpeechRecognition | null>(null)
-  // true while the user intends to keep listening (even across restarts)
-  const activeRef = useRef<boolean>(false)
-  const baseTextRef = useRef<string>('')
-  // Confirmed final text accumulated across the whole session (survives restarts)
-  const finalAccumulatedRef = useRef<string>('')
-  // The last interim text shown — cleared when a final arrives to avoid duplication
-  const lastInterimRef = useRef<string>('')
+  const activeRef = useRef(false)       // user wants mic on
+  const restartingRef = useRef(false)   // restart already scheduled — prevents double-restart
+  const baseTextRef = useRef('')
+  const finalAccumulatedRef = useRef('')
+  const lastInterimRef = useRef('')
   const onTranscriptRef = useRef(onTranscript)
   onTranscriptRef.current = onTranscript
 
-  const createAndStart = useCallback(() => {
-    const SpeechAPI = getSpeechAPI()
-    if (!SpeechAPI) return
-
-    const recognition = new SpeechAPI()
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-AU'
-
-    recognition.onstart = () => setState('listening')
+  const attachHandlers = useCallback((recognition: SpeechRecognition, SpeechAPI: SpeechRecognitionConstructor) => {
+    recognition.onstart = () => {
+      restartingRef.current = false
+      setState('listening')
+    }
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let newFinals = ''
       let interim = ''
-
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript
+        const t = event.results[i][0].transcript
         if (event.results[i].isFinal) {
-          newFinals += transcript
+          newFinals += t
         } else {
-          interim += transcript
+          interim += t
         }
       }
-
       if (newFinals) {
         finalAccumulatedRef.current += newFinals
         lastInterimRef.current = ''
@@ -115,51 +106,52 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'no-speech') return
+      // These are expected on Android — don't treat as fatal
+      if (event.error === 'no-speech' || event.error === 'aborted') return
       console.warn('[speech] error:', event.error)
+      // For other errors (network, not-allowed) stop cleanly
+      activeRef.current = false
+      restartingRef.current = false
+      recognitionRef.current = null
+      setState('idle')
     }
 
     recognition.onend = () => {
       recognitionRef.current = null
-      // If the user hasn't stopped, restart after a brief delay to avoid
-      // InvalidStateError from calling start() too quickly after end
-      if (activeRef.current) {
-        // Flush any pending interim into finals so it isn't lost or duplicated on restart
-        if (lastInterimRef.current) {
-          finalAccumulatedRef.current += lastInterimRef.current
-          lastInterimRef.current = ''
-        }
-        setTimeout(() => {
-          if (!activeRef.current) return
-          try {
-            const next = new SpeechAPI()
-            next.continuous = true
-            next.interimResults = true
-            next.lang = 'en-AU'
-            next.onstart = recognition.onstart
-            next.onresult = recognition.onresult
-            next.onerror = recognition.onerror
-            next.onend = recognition.onend
-            next.start()
-            recognitionRef.current = next
-          } catch (e) {
-            console.warn('[speech] restart failed:', e)
-            activeRef.current = false
-            setState('idle')
-          }
-        }, 150)
-      } else {
-        setState('idle')
-      }
-    }
 
-    try {
-      recognition.start()
-      recognitionRef.current = recognition
-    } catch (e) {
-      console.warn('[speech] start failed:', e)
-      activeRef.current = false
-      setState('idle')
+      if (!activeRef.current || restartingRef.current) {
+        if (!activeRef.current) setState('idle')
+        return
+      }
+
+      // Flush pending interim into finals before restart so words aren't replayed
+      if (lastInterimRef.current) {
+        finalAccumulatedRef.current += lastInterimRef.current
+        lastInterimRef.current = ''
+      }
+
+      restartingRef.current = true
+      setTimeout(() => {
+        if (!activeRef.current) {
+          restartingRef.current = false
+          setState('idle')
+          return
+        }
+        try {
+          const next = new SpeechAPI()
+          next.continuous = true
+          next.interimResults = true
+          next.lang = 'en-AU'
+          attachHandlers(next, SpeechAPI)
+          next.start()
+          recognitionRef.current = next
+        } catch (e) {
+          console.warn('[speech] restart failed:', e)
+          activeRef.current = false
+          restartingRef.current = false
+          setState('idle')
+        }
+      }, 200)
     }
   }, [])
 
@@ -167,9 +159,10 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     const SpeechAPI = getSpeechAPI()
     if (!SpeechAPI) return
 
-    // If already listening, stop
+    // Toggle off if already active
     if (activeRef.current) {
       activeRef.current = false
+      restartingRef.current = false
       recognitionRef.current?.stop()
       recognitionRef.current = null
       setState('idle')
@@ -180,11 +173,26 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     finalAccumulatedRef.current = ''
     lastInterimRef.current = ''
     activeRef.current = true
-    createAndStart()
-  }, [createAndStart])
+    restartingRef.current = false
+
+    try {
+      const recognition = new SpeechAPI()
+      recognition.continuous = true
+      recognition.interimResults = true
+      recognition.lang = 'en-AU'
+      attachHandlers(recognition, SpeechAPI)
+      recognition.start()
+      recognitionRef.current = recognition
+    } catch (e) {
+      console.warn('[speech] start failed:', e)
+      activeRef.current = false
+      setState('idle')
+    }
+  }, [attachHandlers])
 
   const stop = useCallback(() => {
     activeRef.current = false
+    restartingRef.current = false
     recognitionRef.current?.stop()
     recognitionRef.current = null
     setState('idle')
@@ -193,6 +201,7 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
   useEffect(() => {
     return () => {
       activeRef.current = false
+      restartingRef.current = false
       recognitionRef.current?.abort()
     }
   }, [])
