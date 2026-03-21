@@ -2,7 +2,7 @@
 // Lumyn Intelligence Layer — 8-Step Orchestrator (§4)
 // ============================================================
 
-import Anthropic from 'npm:@anthropic-ai/sdk'
+// Anthropic API called via fetch (SDK has Deno compatibility issues)
 import { z } from 'npm:zod'
 import { SupabaseClient } from 'npm:@supabase/supabase-js'
 
@@ -285,35 +285,47 @@ export async function runOrchestrator(params: {
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
-  const client = new Anthropic({ apiKey })
-
   // Split system message from conversation turns (Anthropic API requires system separate)
   const systemMessage = promptMessages.find((m) => m.role === 'system')?.content ?? ''
-  const conversationMessages = promptMessages.filter((m) => m.role !== 'system') as Array<{
-    role: 'user' | 'assistant'
-    content: string
-  }>
+  const conversationMessages = promptMessages
+    .filter((m) => m.role !== 'system')
+    .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
 
   const t0 = Date.now()
-  let rawCompletion: Awaited<ReturnType<typeof client.messages.create>>
-
+  let anthropicRes: Response
   try {
-    rawCompletion = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      system: systemMessage,
-      messages: conversationMessages,
-      temperature: 0.7,
-      max_tokens: 2048,
+    anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        system: systemMessage,
+        messages: conversationMessages,
+        temperature: 0.7,
+        max_tokens: 2048,
+      }),
     })
   } catch {
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
   const latencyMs = Date.now() - t0
-  const tokensIn = rawCompletion.usage?.input_tokens ?? 0
-  const tokensOut = rawCompletion.usage?.output_tokens ?? 0
-  const rawContent =
-    rawCompletion.content[0]?.type === 'text' ? rawCompletion.content[0].text : ''
+
+  if (!anthropicRes.ok) {
+    console.error('Anthropic API error:', anthropicRes.status, await anthropicRes.text())
+    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
+  }
+
+  const anthropicData = await anthropicRes.json()
+  const tokensIn = anthropicData.usage?.input_tokens ?? 0
+  const tokensOut = anthropicData.usage?.output_tokens ?? 0
+  const rawContent = anthropicData.content?.[0]?.type === 'text'
+    ? anthropicData.content[0].text
+    : ''
 
   // ── Step 7: Post-LLM validation ───────────────────────────
   let llmData: z.infer<typeof LLMResponseSchema>
