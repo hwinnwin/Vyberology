@@ -5,7 +5,6 @@ import { LumenChat, ChatMessage } from "@/features/capture/components/LumenChat"
 import { callLumynChat } from "@/services/lumynApi";
 import { speakLumynMessage } from "@/services/lumynTts";
 import { buildLumynContext } from "@/lib/lumynContext";
-import { buildLumynGreeting } from "@/lib/readingInsights";
 import { useToast } from "@/components/ui/use-toast";
 import { useLumynEntitlement } from "@/hooks/useLumynEntitlement";
 import { useSpeechInput } from "@/hooks/useSpeechInput";
@@ -95,10 +94,12 @@ export function LumynChatFab() {
   useEffect(() => {
     if (!isOpen || chatMessages.length > 0) return;
     try {
-      const greeting = buildLumynGreeting();
-      if (greeting) {
-        setChatMessages([{ role: 'assistant', content: greeting }]);
-      }
+      import('@/lib/readingInsights').then(({ buildLumynGreeting }) => {
+        const greeting = buildLumynGreeting();
+        if (greeting) {
+          setChatMessages([{ role: 'assistant', content: greeting }]);
+        }
+      }).catch(() => { /* non-fatal */ });
     } catch {
       // non-fatal — blank chat is fine
     }

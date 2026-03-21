@@ -5,7 +5,6 @@
  */
 
 import { getReadingHistory, getRecurringPatterns } from "./readingHistory";
-import { analyseReadingPatterns } from "./readingInsights";
 import { supabase } from "@/integrations/supabase/client";
 import type { ChatMessage } from "@/features/capture/components/LumenChat";
 import type { LumynInput } from "@/types/lumyn";
@@ -46,7 +45,8 @@ export async function buildLumynContext(
       .join(", ");
   }
 
-  // 4. Reading pattern intelligence
+  // 4. Reading pattern intelligence (lazy import to avoid circular TDZ)
+  const { analyseReadingPatterns } = await import('./readingInsights')
   const patternSummary = analyseReadingPatterns()
 
   // 5. User profile (if logged in)
