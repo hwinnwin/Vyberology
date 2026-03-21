@@ -2,7 +2,7 @@
 // Lumyn Intelligence Layer — 8-Step Orchestrator (§4)
 // ============================================================
 
-// Anthropic API called via fetch (SDK has Deno compatibility issues)
+import OpenAI from 'npm:openai'
 import { z } from 'npm:zod'
 import { SupabaseClient } from 'npm:@supabase/supabase-js'
 
@@ -280,59 +280,40 @@ export async function runOrchestrator(params: {
   promptMessages.push({ role: 'user', content: message })
 
   // ── Step 6: LLM call ──────────────────────────────────────
-  const apiKey = Deno.env.get('ANTHROPIC_API_KEY')
+  const apiKey = Deno.env.get('OPENAI_API_KEY')
   if (!apiKey) {
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
-  // Split system message from conversation turns (Anthropic API requires system separate)
-  const systemMessage = promptMessages.find((m) => m.role === 'system')?.content ?? ''
-  const conversationMessages = promptMessages
-    .filter((m) => m.role !== 'system')
-    .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }))
+  const client = new OpenAI({ apiKey })
 
   const t0 = Date.now()
-  let anthropicRes: Response
+  let rawCompletion: Awaited<ReturnType<typeof client.chat.completions.create>>
+
   try {
-    anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        system: systemMessage,
-        messages: conversationMessages,
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
+    rawCompletion = await client.chat.completions.create({
+      model: 'gpt-4o',
+      messages: promptMessages,
+      response_format: { type: 'json_object' },
+      temperature: 0.7,
+      max_tokens: 2048,
     })
-  } catch {
+  } catch (err) {
+    console.error('OpenAI error:', err)
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
   const latencyMs = Date.now() - t0
-
-  if (!anthropicRes.ok) {
-    console.error('Anthropic API error:', anthropicRes.status, await anthropicRes.text())
-    return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
-  }
-
-  const anthropicData = await anthropicRes.json()
-  const tokensIn = anthropicData.usage?.input_tokens ?? 0
-  const tokensOut = anthropicData.usage?.output_tokens ?? 0
-  const rawContent = anthropicData.content?.[0]?.type === 'text'
-    ? anthropicData.content[0].text
-    : ''
+  const tokensIn = rawCompletion.usage?.prompt_tokens ?? 0
+  const tokensOut = rawCompletion.usage?.completion_tokens ?? 0
+  const rawContent = rawCompletion.choices[0]?.message?.content ?? ''
 
   // ── Step 7: Post-LLM validation ───────────────────────────
   let llmData: z.infer<typeof LLMResponseSchema>
   try {
     llmData = LLMResponseSchema.parse(JSON.parse(rawContent))
-  } catch {
-    // Zod parse failure — return safe fallback
+  } catch (zodErr) {
+    console.error('Zod parse failure:', zodErr, 'raw:', rawContent.slice(0, 500))
     return buildFallbackResponse(SAFE_FALLBACK, mode, conversationId)
   }
 
@@ -378,8 +359,8 @@ export async function runOrchestrator(params: {
     confidence: classification.confidence,
     classification: llmData,
     prompt_version: '1.0',
-    model_provider: 'anthropic',
-    model_name: 'claude-sonnet-4-6',
+    model_provider: 'openai',
+    model_name: 'gpt-4o',
     latency_ms: latencyMs,
     tokens_in: tokensIn,
     tokens_out: tokensOut,
