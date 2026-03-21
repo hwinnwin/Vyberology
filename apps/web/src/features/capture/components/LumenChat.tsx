@@ -49,6 +49,7 @@ export function LumenChat({
 
   const isListening = speechState === 'listening';
   const micSupported = speechState !== 'unsupported';
+  const showMic = onMicClick !== undefined;
 
   return (
     <div className="rounded-2xl border border-vy-charcoal/[0.08] bg-white/60 backdrop-blur-sm shadow-vy-card overflow-hidden flex flex-col"
@@ -92,14 +93,14 @@ export function LumenChat({
                 )}
               </div>
 
-              {/* Speaker button — assistant messages only */}
+              {/* Speaker button — assistant messages only, always visible */}
               {msg.role === "assistant" && msg.content && onSpeakMessage && (
                 <button
                   onClick={() => onSpeakMessage(idx, msg.content)}
-                  className={`absolute -bottom-1 right-7 opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-full flex items-center justify-center ${
+                  className={`absolute -bottom-1 right-7 w-6 h-6 rounded-full flex items-center justify-center transition-all ${
                     ttsMessageIndex === idx && ttsState !== 'idle'
-                      ? 'bg-vy-gold/20 text-vy-gold opacity-100'
-                      : 'bg-vy-charcoal/5 text-vy-charcoal/40 hover:text-vy-charcoal/70'
+                      ? 'bg-vy-gold/20 text-vy-gold'
+                      : 'bg-vy-charcoal/5 text-vy-charcoal/30 hover:bg-vy-charcoal/10 hover:text-vy-charcoal/60'
                   }`}
                   title={ttsMessageIndex === idx && ttsState === 'playing' ? 'Stop' : 'Listen'}
                 >
@@ -131,18 +132,20 @@ export function LumenChat({
       {/* Input */}
       <div className="border-t border-vy-charcoal/[0.06] px-4 py-3">
         <div className="flex gap-2 items-center">
-          {/* Mic button */}
-          {micSupported && onMicClick && (
+          {/* Mic button — always rendered, disabled if unsupported */}
+          {showMic && (
             <button
               type="button"
-              onClick={() => onMicClick(inputValue)}
-              disabled={isProcessing}
+              onClick={() => micSupported && onMicClick!(inputValue)}
+              disabled={isProcessing || !micSupported}
               className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all ${
                 isListening
                   ? 'bg-red-500 text-white shadow-lg scale-110 animate-pulse'
-                  : 'bg-vy-charcoal/8 text-vy-charcoal/50 hover:bg-vy-charcoal/15 hover:text-vy-charcoal disabled:opacity-40'
+                  : micSupported
+                    ? 'bg-vy-charcoal/8 text-vy-charcoal/50 hover:bg-vy-charcoal/15 hover:text-vy-charcoal'
+                    : 'bg-vy-charcoal/5 text-vy-charcoal/20 cursor-not-allowed'
               }`}
-              title={isListening ? 'Stop listening' : 'Speak your message'}
+              title={!micSupported ? 'Voice input not supported in this browser' : isListening ? 'Stop listening' : 'Speak your message'}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
