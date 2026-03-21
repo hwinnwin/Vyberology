@@ -341,13 +341,27 @@ export async function runOrchestrator(params: {
 
   const client = new OpenAI({ apiKey })
 
+  // For Phase 1 streaming, strip the JSON output instruction from the system prompt
+  // so the model responds with natural prose only (not a JSON wrapper)
+  const streamingMessages = promptMessages.map((m) =>
+    m.role === 'system'
+      ? {
+          ...m,
+          content: m.content
+            .replace(/You must respond with valid JSON only\.[^\n]*/g, 'Respond with your message in natural prose only. Do not output JSON or any structured format.')
+            .replace(/No markdown outside the JSON\.[^\n]*/g, '')
+            .replace(/No preamble\. No trailing text\.[^\n]*/g, ''),
+        }
+      : m
+  )
+
   let responseText = ''
   const t0 = Date.now()
 
   try {
     const stream = await client.chat.completions.create({
       model: 'gpt-4o',
-      messages: promptMessages,
+      messages: streamingMessages,
       stream: true,
       temperature: 0.7,
       max_tokens: 1024,
