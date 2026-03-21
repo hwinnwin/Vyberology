@@ -1,16 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sparkles, X, AlertTriangle, MessageSquare, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LumenChat, ChatMessage } from "@/features/capture/components/LumenChat";
 import { callLumynChat } from "@/services/lumynApi";
+import { speakLumynMessage } from "@/services/lumynTts";
 import { buildLumynContext } from "@/lib/lumynContext";
 import { useToast } from "@/components/ui/use-toast";
 import { useLumynEntitlement } from "@/hooks/useLumynEntitlement";
+import { useSpeechInput } from "@/hooks/useSpeechInput";
 import { LumynThreadList } from "@/components/LumynThreadList";
 import { LumynPaywallCard } from "@/components/LumynPaywallCard";
 import { supabase } from "@/integrations/supabase/client";
 import { isNative } from "@/lib/platform";
 import type { LumynConversation } from "@/types/lumyn";
+import type { TtsState } from "@/services/lumynTts";
 
 const CHAT_STORAGE_KEY = "vyberology_lumyn_chat";
 const CONVERSATION_ID_KEY = "vyberology_lumyn_conversation_id";
@@ -47,6 +50,16 @@ export function LumynChatFab() {
   const [showThreadList, setShowThreadList] = useState(false);
   const [paywallHit, setPaywallHit] = useState(false);
 
+  // TTS state
+  const [ttsMessageIndex, setTtsMessageIndex] = useState<number | null>(null);
+  const [ttsState, setTtsState] = useState<TtsState>("idle");
+  const ttsAbortRef = useRef<AbortController | null>(null);
+
+  // Voice input
+  const { state: speechState, start: startListening, stop: stopListening } = useSpeechInput(
+    (transcript) => setChatInput(transcript)
+  );
+
   // Persist chat messages
   useEffect(() => {
     try {
@@ -69,6 +82,39 @@ export function LumynChatFab() {
       /* ignore */
     }
   }, [conversationId]);
+
+  // Stop TTS when chat closes
+  useEffect(() => {
+    if (!isOpen) {
+      ttsAbortRef.current?.abort();
+    }
+  }, [isOpen]);
+
+  const handleMicClick = (currentInput: string) => {
+    if (speechState === "listening") {
+      stopListening();
+    } else {
+      startListening(currentInput);
+    }
+  };
+
+  const handleSpeakMessage = (index: number, content: string) => {
+    // If already playing this message, stop it
+    if (ttsMessageIndex === index && ttsState !== "idle") {
+      ttsAbortRef.current?.abort();
+      return;
+    }
+
+    // Abort any existing playback
+    ttsAbortRef.current?.abort();
+    const controller = new AbortController();
+    ttsAbortRef.current = controller;
+
+    setTtsMessageIndex(index);
+    speakLumynMessage(content, setTtsState, controller.signal).then(() => {
+      setTtsMessageIndex(null);
+    });
+  };
 
   const handleSelectThread = async (conversation: LumynConversation) => {
     setShowThreadList(false);
@@ -97,6 +143,7 @@ export function LumynChatFab() {
     setShowCrisisBanner(false);
     setPaywallHit(false);
     setIsProcessing(false);
+    ttsAbortRef.current?.abort();
   };
 
   const handleUpgrade = async () => {
@@ -116,6 +163,9 @@ export function LumynChatFab() {
 
   const handleSend = async () => {
     if (!chatInput.trim()) return;
+
+    // Stop mic if still listening
+    if (speechState === "listening") stopListening();
 
     const userMessage = chatInput.trim();
     setChatInput("");
@@ -158,7 +208,6 @@ export function LumynChatFab() {
             })
           );
           if (result.paywall) {
-            // Remove the streaming message and show paywall
             setChatMessages((prev) =>
               prev.filter(
                 (m) => (m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId
@@ -171,7 +220,6 @@ export function LumynChatFab() {
           setShowCrisisBanner(result.client_directives?.crisis_banner ?? false);
         },
         onError: (error) => {
-          // Remove empty streaming message
           setChatMessages((prev) =>
             prev.filter(
               (m) => (m as ChatMessage & { _streamingId?: string })._streamingId !== streamingId
@@ -264,6 +312,11 @@ export function LumynChatFab() {
               onInputChange={setChatInput}
               onSend={handleSend}
               isProcessing={isProcessing}
+              speechState={speechState}
+              onMicClick={handleMicClick}
+              ttsMessageIndex={ttsMessageIndex}
+              ttsState={ttsState}
+              onSpeakMessage={handleSpeakMessage}
             />
 
             {/* Inline paywall card */}
