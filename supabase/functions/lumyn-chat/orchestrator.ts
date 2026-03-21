@@ -50,8 +50,8 @@ import type {
 const LLMResponseSchema = z.object({
   response: z.string().min(1),
   classification: z.object({
-    intent: z.enum(['vent', 'decide', 'plan', 'crisis', 'explore', 'curiosity']),
-    emotion: z.string(),
+    intent: z.enum(['vent', 'decide', 'plan', 'crisis', 'explore', 'curiosity']).catch('explore'),
+    emotion: z.string().catch('neutral'),
     domain: z.enum([
       'numerology',
       'career',
@@ -61,9 +61,9 @@ const LLMResponseSchema = z.object({
       'money',
       'existential',
       'general',
-    ]),
-    risk_level: z.enum(['none', 'low', 'medium', 'high', 'crisis']),
-    confidence: z.number().min(0).max(1),
+    ]).catch('general'),
+    risk_level: z.enum(['none', 'low', 'medium', 'high', 'crisis']).catch('none'),
+    confidence: z.number().min(0).max(1).catch(0.8),
   }),
   memory_suggestions: z
     .array(
