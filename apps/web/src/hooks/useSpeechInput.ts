@@ -71,8 +71,10 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
   // true while the user intends to keep listening (even across restarts)
   const activeRef = useRef<boolean>(false)
   const baseTextRef = useRef<string>('')
-  // Accumulates confirmed final segments during a continuous session
+  // Confirmed final text accumulated across the whole session (survives restarts)
   const finalAccumulatedRef = useRef<string>('')
+  // The last interim text shown — cleared when a final arrives to avoid duplication
+  const lastInterimRef = useRef<string>('')
   const onTranscriptRef = useRef(onTranscript)
   onTranscriptRef.current = onTranscript
 
@@ -88,18 +90,23 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     recognition.onstart = () => setState('listening')
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let newFinals = ''
+      let interim = ''
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
         if (event.results[i].isFinal) {
-          finalAccumulatedRef.current += event.results[i][0].transcript
+          newFinals += transcript
+        } else {
+          interim += transcript
         }
       }
 
-      let interim = ''
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (!event.results[i].isFinal) {
-          interim += event.results[i][0].transcript
-        }
+      if (newFinals) {
+        finalAccumulatedRef.current += newFinals
+        lastInterimRef.current = ''
       }
+      lastInterimRef.current = interim
 
       const base = baseTextRef.current
       const spoken = (finalAccumulatedRef.current + interim).trim()
@@ -117,6 +124,11 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
       // If the user hasn't stopped, restart after a brief delay to avoid
       // InvalidStateError from calling start() too quickly after end
       if (activeRef.current) {
+        // Flush any pending interim into finals so it isn't lost or duplicated on restart
+        if (lastInterimRef.current) {
+          finalAccumulatedRef.current += lastInterimRef.current
+          lastInterimRef.current = ''
+        }
         setTimeout(() => {
           if (!activeRef.current) return
           try {
@@ -166,6 +178,7 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
 
     baseTextRef.current = currentInputValue
     finalAccumulatedRef.current = ''
+    lastInterimRef.current = ''
     activeRef.current = true
     createAndStart()
   }, [createAndStart])
