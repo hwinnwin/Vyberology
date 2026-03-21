@@ -56,7 +56,7 @@ export function LumynChatFab() {
   const ttsAbortRef = useRef<AbortController | null>(null);
 
   // Voice input
-  const { state: speechState, start: startListening, stop: stopListening } = useSpeechInput(
+  const { state: speechState, start: startListening } = useSpeechInput(
     (transcript) => setChatInput(transcript)
   );
 
@@ -91,11 +91,7 @@ export function LumynChatFab() {
   }, [isOpen]);
 
   const handleMicClick = (currentInput: string) => {
-    if (speechState === "listening") {
-      stopListening();
-    } else {
-      startListening(currentInput);
-    }
+    startListening(currentInput); // start() toggles: stops if already listening
   };
 
   const handleSpeakMessage = (index: number, content: string) => {
@@ -165,7 +161,7 @@ export function LumynChatFab() {
     if (!chatInput.trim()) return;
 
     // Stop mic if still listening
-    if (speechState === "listening") stopListening();
+    if (speechState === "listening") startListening("");
 
     const userMessage = chatInput.trim();
     setChatInput("");

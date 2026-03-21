@@ -58,33 +58,37 @@ declare global {
 
 export type SpeechInputState = 'idle' | 'listening' | 'unsupported'
 
+function getSpeechAPI(): SpeechRecognitionConstructor | null {
+  if (typeof window === 'undefined') return null
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null
+}
+
 export function useSpeechInput(onTranscript: (text: string) => void) {
-  const [state, setState] = useState<SpeechInputState>(() => {
-    const SpeechRecognitionAPI =
-      typeof window !== 'undefined' &&
-      (window.SpeechRecognition || window.webkitSpeechRecognition)
-    return SpeechRecognitionAPI ? 'idle' : 'unsupported'
-  })
+  const supported = !!getSpeechAPI()
+  const [state, setState] = useState<SpeechInputState>(supported ? 'idle' : 'unsupported')
 
   const recognitionRef = useRef<SpeechRecognition | null>(null)
-  const baseTextRef = useRef<string>('') // text already in input before mic started
+  const baseTextRef = useRef<string>('')
+  const onTranscriptRef = useRef(onTranscript)
+  onTranscriptRef.current = onTranscript
 
   const start = useCallback((currentInputValue: string) => {
-    if (state === 'unsupported') return
+    const SpeechAPI = getSpeechAPI()
+    if (!SpeechAPI) return
 
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition || window.webkitSpeechRecognition
-    if (!SpeechRecognitionAPI) return
+    // If already listening, stop
+    if (recognitionRef.current) {
+      recognitionRef.current.abort()
+      recognitionRef.current = null
+      setState('idle')
+      return
+    }
 
-    // Stop any existing session
-    recognitionRef.current?.abort()
-
-    const recognition = new SpeechRecognitionAPI()
+    const recognition = new SpeechAPI()
     recognition.continuous = false
     recognition.interimResults = true
     recognition.lang = 'en-AU'
 
-    // Preserve whatever was already typed
     baseTextRef.current = currentInputValue
 
     recognition.onstart = () => setState('listening')
@@ -100,25 +104,31 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
           interim += transcript
         }
       }
-
-      // Stream interim results into the input as the user speaks
-      const combined = baseTextRef.current
-        ? baseTextRef.current.trimEnd() + ' ' + (final || interim)
-        : final || interim
-      onTranscript(combined)
+      const base = baseTextRef.current
+      const spoken = final || interim
+      const combined = base ? base.trimEnd() + ' ' + spoken : spoken
+      onTranscriptRef.current(combined)
     }
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error !== 'aborted') {
-        setState('idle')
-      }
+      console.warn('[speech] error:', event.error)
+      recognitionRef.current = null
+      setState('idle')
     }
 
-    recognition.onend = () => setState('idle')
+    recognition.onend = () => {
+      recognitionRef.current = null
+      setState('idle')
+    }
 
-    recognition.start()
-    recognitionRef.current = recognition
-  }, [state, onTranscript])
+    try {
+      recognition.start()
+      recognitionRef.current = recognition
+    } catch (e) {
+      console.warn('[speech] start failed:', e)
+      setState('idle')
+    }
+  }, []) // stable — uses refs for mutable values
 
   const stop = useCallback(() => {
     recognitionRef.current?.stop()
@@ -126,11 +136,8 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     setState('idle')
   }, [])
 
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      recognitionRef.current?.abort()
-    }
+    return () => { recognitionRef.current?.abort() }
   }, [])
 
   return { state, start, stop }
