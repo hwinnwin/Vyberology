@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Sparkles, X, AlertTriangle, MessageSquare } from "lucide-react";
+import { Sparkles, X, AlertTriangle, MessageSquare, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LumenChat, ChatMessage } from "@/features/capture/components/LumenChat";
 import { callLumynChat } from "@/services/lumynApi";
@@ -161,14 +161,23 @@ export function LumynChatFab() {
           <div className="relative">
             {/* Panel header */}
             <div className="absolute -top-3 right-0 left-0 flex justify-between items-center px-1 z-10">
-              {/* Thread list toggle */}
-              <button
-                onClick={() => setShowThreadList((prev) => !prev)}
-                className="w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
-                title="Conversations"
-              >
-                <MessageSquare className="w-3.5 h-3.5" />
-              </button>
+              {/* Left: thread list + new chat */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowThreadList((prev) => !prev)}
+                  className="w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
+                  title="Conversations"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleNewThread}
+                  className="w-7 h-7 rounded-full bg-vy-charcoal text-vy-parchment flex items-center justify-center shadow-lg hover:bg-vy-charcoal/80 transition-colors"
+                  title="New conversation"
+                >
+                  <SquarePen className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
               {/* Free message counter */}
               {!isPro && (
