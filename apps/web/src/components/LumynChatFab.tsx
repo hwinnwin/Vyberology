@@ -94,9 +94,13 @@ export function LumynChatFab() {
   // Inject personalised greeting when FAB opens with no messages
   useEffect(() => {
     if (!isOpen || chatMessages.length > 0) return;
-    const greeting = buildLumynGreeting();
-    if (greeting) {
-      setChatMessages([{ role: 'assistant', content: greeting }]);
+    try {
+      const greeting = buildLumynGreeting();
+      if (greeting) {
+        setChatMessages([{ role: 'assistant', content: greeting }]);
+      }
+    } catch {
+      // non-fatal — blank chat is fine
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -356,17 +360,19 @@ export function LumynChatFab() {
         </div>
       )}
 
-      {/* FAB button — hidden when chat is open (panel header X handles close) */}
-      <div className={`fixed bottom-6 right-6 z-50 ${isOpen ? 'hidden' : ''}`}>
-        <Button
-          size="lg"
-          onClick={() => setIsOpen(true)}
-          className="rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 p-0 bg-gradient-to-r from-vy-gold to-amber-500 hover:from-vy-gold/90 hover:to-amber-500/90"
-        >
-          <Sparkles className="w-6 h-6 text-white" />
-        </Button>
-        <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-vy-gold animate-pulse" />
-      </div>
+      {/* FAB button */}
+      {!isOpen && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            size="lg"
+            onClick={() => setIsOpen(true)}
+            className="rounded-full shadow-lg hover:shadow-xl transition-all w-14 h-14 p-0 bg-gradient-to-r from-vy-gold to-amber-500 hover:from-vy-gold/90 hover:to-amber-500/90"
+          >
+            <Sparkles className="w-6 h-6 text-white" />
+          </Button>
+          <span className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-vy-gold animate-pulse" />
+        </div>
+      )}
     </>
   );
 }
