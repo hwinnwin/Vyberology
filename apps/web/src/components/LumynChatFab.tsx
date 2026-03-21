@@ -76,6 +76,7 @@ export function LumynChatFab() {
     setConversationId(undefined);
     setShowCrisisBanner(false);
     setPaywallHit(false);
+    setIsProcessing(false);
   };
 
   const handleUpgrade = async () => {
