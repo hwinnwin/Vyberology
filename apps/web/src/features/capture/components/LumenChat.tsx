@@ -40,6 +40,10 @@ export function LumenChat({
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const isListening = speechState === 'listening';
+  const micSupported = speechState !== 'unsupported';
+  const showMic = onMicClick !== undefined;
+
   // Resize textarea whenever inputValue changes (covers voice-driven updates, not just typing)
   useEffect(() => {
     const el = textareaRef.current;
@@ -56,10 +60,6 @@ export function LumenChat({
       behavior: "smooth",
     });
   }, [messages]);
-
-  const isListening = speechState === 'listening';
-  const micSupported = speechState !== 'unsupported';
-  const showMic = onMicClick !== undefined;
 
   return (
     <div className="rounded-2xl border border-vy-charcoal/[0.08] bg-white/60 backdrop-blur-sm shadow-vy-card overflow-hidden flex flex-col"
