@@ -74,7 +74,22 @@ export async function callLumynChat(params: {
     }
   }
 
-  // If stream ended without a done/error event, surface the failure
+  // Flush anything left in the buffer after stream closes
+  if (buffer.startsWith('data: ')) {
+    try {
+      const event = JSON.parse(buffer.slice(6))
+      if (event.type === 'done') {
+        receivedDone = true
+        params.onDone(event)
+      } else if (event.type === 'error') {
+        receivedDone = true
+        params.onError(event.error)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   if (!receivedDone) {
     params.onError('Response stream ended unexpectedly')
   }
