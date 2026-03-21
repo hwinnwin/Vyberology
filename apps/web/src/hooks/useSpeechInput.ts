@@ -62,6 +62,11 @@ function getSpeechAPI(): SpeechRecognitionConstructor | null {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null
 }
 
+function isMobile(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+}
+
 export function useSpeechInput(onTranscript: (text: string) => void) {
   const supported = !!getSpeechAPI()
   const [state, setState] = useState<SpeechInputState>(supported ? 'idle' : 'unsupported')
@@ -73,13 +78,53 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
   const onTranscriptRef = useRef(onTranscript)
   onTranscriptRef.current = onTranscript
 
+  // Shared result handler — pure accumulation, no side effects
+  const handleResult = useCallback((event: SpeechRecognitionEvent) => {
+    let newFinals = ''
+    let interim = ''
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript
+      if (event.results[i].isFinal) {
+        newFinals += t
+      } else {
+        interim = t
+      }
+    }
+    if (newFinals) finalTextRef.current += newFinals
+    const base = baseTextRef.current
+    const spoken = (finalTextRef.current + interim).trim()
+    const combined = base ? base.trimEnd() + ' ' + spoken : spoken
+    onTranscriptRef.current(combined)
+  }, [])
+
+  const startSession = useCallback((SpeechAPI: SpeechRecognitionConstructor, onEnd: () => void) => {
+    const recognition = new SpeechAPI()
+    recognition.continuous = true
+    recognition.interimResults = true
+    recognition.lang = 'en-AU'
+    recognition.onstart = () => setState('listening')
+    recognition.onresult = handleResult
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (event.error === 'no-speech' || event.error === 'aborted') return
+      console.warn('[speech] error:', event.error)
+      recognitionRef.current = null
+      setState('idle')
+    }
+    recognition.onend = onEnd
+    recognition.start()
+    recognitionRef.current = recognition
+    return recognition
+  }, [handleResult])
+
   const start = useCallback((currentInputValue: string) => {
     const SpeechAPI = getSpeechAPI()
     if (!SpeechAPI) return
 
     // Toggle off if already listening
     if (recognitionRef.current) {
-      recognitionRef.current.abort()
+      const r = recognitionRef.current as SpeechRecognition & { _cancelLoop?: () => void }
+      r._cancelLoop?.()
+      r.abort()
       recognitionRef.current = null
       setState('idle')
       return
@@ -88,62 +133,58 @@ export function useSpeechInput(onTranscript: (text: string) => void) {
     baseTextRef.current = currentInputValue
     finalTextRef.current = ''
 
-    const recognition = new SpeechAPI()
-    // continuous:true so it doesn't stop on short pauses, but NO restart loop —
-    // one session per tap, avoiding the replay-on-restart bug on Android
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.lang = 'en-AU'
+    if (isMobile()) {
+      // Mobile: single session per tap — no restart loop to avoid Android replay bug
+      try {
+        startSession(SpeechAPI, () => {
+          recognitionRef.current = null
+          setState('idle')
+        })
+      } catch (e) {
+        console.warn('[speech] start failed:', e)
+        setState('idle')
+      }
+    } else {
+      // Desktop: restart loop so Chrome doesn't cut off after ~60s silence timeout
+      const activeRef_local = { current: true }
 
-    recognition.onstart = () => setState('listening')
+      const scheduleRestart = () => {
+        if (!activeRef_local.current) { setState('idle'); return }
+        // Flush any pending interim into finals before restart
+        setTimeout(() => {
+          if (!activeRef_local.current) { setState('idle'); return }
+          try {
+            startSession(SpeechAPI, scheduleRestart)
+          } catch (e) {
+            console.warn('[speech] restart failed:', e)
+            activeRef_local.current = false
+            setState('idle')
+          }
+        }, 150)
+      }
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Only accumulate results we haven't seen before (from resultIndex onward)
-      let newFinals = ''
-      let interim = ''
+      // Store cancel fn on recognitionRef so toggle-off can reach it
+      ;(recognitionRef as React.MutableRefObject<SpeechRecognition & { _cancelLoop?: () => void } | null>).current = null
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript
-        if (event.results[i].isFinal) {
-          newFinals += t
-        } else {
-          interim = t // only the latest interim matters
+      try {
+        startSession(SpeechAPI, scheduleRestart)
+        // Attach cancel so toggle-off cleans up the loop
+        if (recognitionRef.current) {
+          (recognitionRef.current as SpeechRecognition & { _cancelLoop?: () => void })._cancelLoop = () => {
+            activeRef_local.current = false
+          }
         }
+      } catch (e) {
+        console.warn('[speech] start failed:', e)
+        setState('idle')
       }
-
-      if (newFinals) {
-        finalTextRef.current += newFinals
-      }
-
-      const base = baseTextRef.current
-      const spoken = (finalTextRef.current + interim).trim()
-      const combined = base ? base.trimEnd() + ' ' + spoken : spoken
-      onTranscriptRef.current(combined)
     }
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      if (event.error === 'no-speech' || event.error === 'aborted') return
-      console.warn('[speech] error:', event.error)
-      recognitionRef.current = null
-      setState('idle')
-    }
-
-    recognition.onend = () => {
-      recognitionRef.current = null
-      setState('idle')
-    }
-
-    try {
-      recognition.start()
-      recognitionRef.current = recognition
-    } catch (e) {
-      console.warn('[speech] start failed:', e)
-      setState('idle')
-    }
-  }, [])
+  }, [startSession])
 
   const stop = useCallback(() => {
-    recognitionRef.current?.stop()
+    const r = recognitionRef.current as (SpeechRecognition & { _cancelLoop?: () => void }) | null
+    r?._cancelLoop?.()
+    r?.stop()
     recognitionRef.current = null
     setState('idle')
   }, [])
