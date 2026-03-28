@@ -9,10 +9,10 @@
 
 | Metric     | Before | After  | Threshold | Status |
 |------------|--------|--------|-----------|--------|
-| Statements | 55.84% | 90.88% | 80%       | PASS   |
-| Branches   | 88.76% | 90.12% | 70%       | PASS   |
-| Functions  | 73.84% | 86.47% | 80%       | PASS   |
-| Lines      | 55.84% | 90.88% | 80%       | PASS   |
+| Statements | 55.84% | 90.37% | 80%       | PASS   |
+| Branches   | 88.76% | 89.52% | 70%       | PASS   |
+| Functions  | 73.84% | 86.93% | 80%       | PASS   |
+| Lines      | 55.84% | 90.37% | 80%       | PASS   |
 
 ### Test Suite: 46 files, 409 tests, all passing
 
@@ -114,10 +114,13 @@ pnpm --filter vite_react_shadcn_ts test:run -- src/lib/__tests__/readingInsights
 - **Global Setup:** `src/test/setup.ts` provides mocks for localStorage, Supabase, Capacitor, RevenueCat, Web Speech API, and mediaDevices
 - **E2E:** Playwright (3 tests in `tests/e2e/`)
 
+## Completed Recommendations
+
+1. ~~Exclude type-only/config files from coverage~~ — Done: `i18n.ts`, `types/**`, `stubs/**` now excluded
+2. ~~Un-exclude tested services~~ — Done: `stripe.ts` and `readings.ts` now count toward coverage
+3. ~~reading-engine function gap~~ — Done: `ensureTokens` + null-value tests added (97.56% → 98.78%)
+
 ## Remaining Recommendations
 
-1. **Exclude type-only/config files from coverage** — `i18n.ts`, `types/lumyn.ts`, `stubs/purchases-capacitor.ts` add noise
-2. **Un-exclude tested services** — `stripe.ts` and `readings.ts` have tests but are excluded from coverage in `vitest.config.ts`
-3. **Add Supabase Edge Function tests** — `generate-reading-v4`, `lumyn-chat`, `create-checkout-session` have no tests
-4. **Expand E2E tests** — Only 3 Playwright tests; add compatibility flow, history, payment
-5. **reading-engine package** — Functions at 97.56% vs 98% threshold; one untested function in `v4/parse.ts`
+1. **Add Supabase Edge Function tests** — `generate-reading-v4`, `lumyn-chat`, `create-checkout-session` have no tests (Deno runtime, different test setup)
+2. **Expand E2E tests** — Only 3 Playwright tests; add compatibility flow, history, payment flows
