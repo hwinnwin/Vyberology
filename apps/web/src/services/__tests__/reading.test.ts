@@ -100,4 +100,79 @@ describe('generateReading', () => {
       })
     ).rejects.toThrow('Invalid response from server');
   });
+
+  it('throws SERVICE_UNAVAILABLE for "not found" errors', async () => {
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: null,
+      error: { message: 'Edge function not found' },
+    });
+
+    try {
+      await generateReading({
+        fullName: 'John',
+        inputs: [{ label: 'Name', value: 'John' }],
+      });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReadingError);
+      expect((error as ReadingError).code).toBe('SERVICE_UNAVAILABLE');
+      expect((error as ReadingError).statusCode).toBe(503);
+    }
+  });
+
+  it('throws TIMEOUT for timeout errors', async () => {
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: null,
+      error: { message: 'Request timeout exceeded' },
+    });
+
+    try {
+      await generateReading({
+        fullName: 'John',
+        inputs: [{ label: 'Name', value: 'John' }],
+      });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReadingError);
+      expect((error as ReadingError).code).toBe('TIMEOUT');
+      expect((error as ReadingError).statusCode).toBe(408);
+    }
+  });
+
+  it('throws RATE_LIMIT for rate limit errors', async () => {
+    vi.mocked(supabase.functions.invoke).mockResolvedValue({
+      data: null,
+      error: { message: 'rate limit exceeded' },
+    });
+
+    try {
+      await generateReading({
+        fullName: 'John',
+        inputs: [{ label: 'Name', value: 'John' }],
+      });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReadingError);
+      expect((error as ReadingError).code).toBe('RATE_LIMIT');
+      expect((error as ReadingError).statusCode).toBe(429);
+    }
+  });
+
+  it('wraps unexpected non-ReadingError exceptions', async () => {
+    vi.mocked(supabase.functions.invoke).mockRejectedValue(
+      new TypeError('Unexpected type error')
+    );
+
+    try {
+      await generateReading({
+        fullName: 'John',
+        inputs: [{ label: 'Name', value: 'John' }],
+      });
+      expect.unreachable('should have thrown');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ReadingError);
+      expect((error as ReadingError).code).toBe('UNKNOWN_ERROR');
+      expect((error as ReadingError).statusCode).toBe(500);
+    }
+  });
 });

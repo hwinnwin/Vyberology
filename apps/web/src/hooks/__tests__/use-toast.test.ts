@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { reducer } from '../use-toast';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { reducer, useToast, toast } from '../use-toast';
 
 // Minimal toast object matching ToasterToast shape
 const makeToast = (id: string, overrides = {}) => ({
@@ -90,5 +91,73 @@ describe('toast reducer', () => {
       const next = reducer(state, { type: 'REMOVE_TOAST', toastId: 'nonexistent' });
       expect(next.toasts).toHaveLength(1);
     });
+  });
+});
+
+describe('toast function', () => {
+  it('returns an id, dismiss, and update function', () => {
+    const result = toast({ title: 'Hello' });
+    expect(result.id).toBeDefined();
+    expect(typeof result.dismiss).toBe('function');
+    expect(typeof result.update).toBe('function');
+  });
+
+  it('calling dismiss sets toast to closed', () => {
+    const { id, dismiss } = toast({ title: 'Hello' });
+
+    const { result } = renderHook(() => useToast());
+
+    // Verify it exists
+    const toastItem = result.current.toasts.find(t => t.id === id);
+    expect(toastItem?.open).toBe(true);
+
+    act(() => {
+      dismiss();
+    });
+
+    const dismissed = result.current.toasts.find(t => t.id === id);
+    expect(dismissed?.open).toBe(false);
+  });
+});
+
+describe('useToast hook', () => {
+  it('returns toast function and dismiss', () => {
+    const { result } = renderHook(() => useToast());
+
+    expect(typeof result.current.toast).toBe('function');
+    expect(typeof result.current.dismiss).toBe('function');
+    expect(Array.isArray(result.current.toasts)).toBe(true);
+  });
+
+  it('dismiss function dismisses a specific toast', () => {
+    const { result } = renderHook(() => useToast());
+
+    let toastId: string;
+    act(() => {
+      const t = result.current.toast({ title: 'Test' });
+      toastId = t.id;
+    });
+
+    expect(result.current.toasts.find(t => t.id === toastId!)?.open).toBe(true);
+
+    act(() => {
+      result.current.dismiss(toastId!);
+    });
+
+    expect(result.current.toasts.find(t => t.id === toastId!)?.open).toBe(false);
+  });
+
+  it('dismiss without id dismisses all toasts', () => {
+    const { result } = renderHook(() => useToast());
+
+    act(() => {
+      result.current.toast({ title: 'Toast 1' });
+    });
+
+    act(() => {
+      result.current.dismiss();
+    });
+
+    expect(result.current.toasts.every(t => t.open === false)).toBe(true);
   });
 });

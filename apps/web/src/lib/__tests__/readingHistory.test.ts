@@ -14,6 +14,7 @@ import {
   getRecurringPatterns,
   getReadingsByDateRange,
   getReadingsByType,
+  updateReadingReflection,
 } from '../readingHistory';
 
 describe('readingHistory', () => {
@@ -148,6 +149,56 @@ describe('readingHistory', () => {
 
     it('does not throw when history is already empty', () => {
       expect(() => clearHistory()).not.toThrow();
+    });
+
+    it('handles localStorage error gracefully', () => {
+      const spy = vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('Storage full');
+      });
+      expect(() => clearHistory()).not.toThrow();
+      spy.mockRestore();
+    });
+  });
+
+  describe('updateReadingReflection', () => {
+    it('updates reflection on an existing reading', () => {
+      saveReading({ inputType: 'manual', inputValue: '111', reading: 'Test' });
+      const history = getReadingHistory();
+      const id = history[0].id;
+
+      updateReadingReflection(id, 'A powerful insight');
+
+      const updated = getReadingById(id);
+      expect(updated?.reflection).toBe('A powerful insight');
+    });
+
+    it('does nothing when id not found', () => {
+      saveReading({ inputType: 'manual', inputValue: '111', reading: 'Test' });
+      updateReadingReflection('nonexistent', 'reflection');
+      const history = getReadingHistory();
+      expect(history[0].reflection).toBeUndefined();
+    });
+
+    it('handles localStorage error gracefully', () => {
+      saveReading({ inputType: 'manual', inputValue: '111', reading: 'Test' });
+      const id = getReadingHistory()[0].id;
+      const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full');
+      });
+      expect(() => updateReadingReflection(id, 'test')).not.toThrow();
+      spy.mockRestore();
+    });
+  });
+
+  describe('deleteReading error handling', () => {
+    it('handles localStorage error gracefully', () => {
+      saveReading({ inputType: 'manual', inputValue: '111', reading: 'Test' });
+      const id = getReadingHistory()[0].id;
+      const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('Storage full');
+      });
+      expect(() => deleteReading(id)).not.toThrow();
+      spy.mockRestore();
     });
   });
 
