@@ -17,6 +17,9 @@ lerna-debug.log*
 apps/mobile/.npm-cache/
 apps/web/.env.local
 
+# Test coverage output
+coverage/
+
 # Local Netlify folder
 .netlify
 .worktrees/
