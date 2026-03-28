@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { assembleReading } from "../../v4/assemble";
 import { detectMotifs, dominantMotif } from "../../v4/motifs";
-import { extractTokens } from "../../v4/parse";
+import { extractTokens, ensureTokens } from "../../v4/parse";
 import { isFeatureEnabled, withConfig } from "../../v4/index";
-import type { CaptureInput, ReadingConfig } from "../../v4/types";
+import type { CaptureInput, ReadingConfig, TokenInfo } from "../../v4/types";
 import phrasebookData from "../../v4/phrasebook.json" assert { type: "json" };
 
 describe("parse and motif helpers", () => {
@@ -81,6 +81,43 @@ describe("parse and motif helpers", () => {
     const tokens = extractTokens("");
     const motifs = detectMotifs(tokens);
     expect(dominantMotif(tokens, motifs)).toBeUndefined();
+  });
+
+  it("skips tokens with null value (invalid time)", () => {
+    // 25:00 has hours > 23, so time token value returns null
+    const tokens = extractTokens("25:00");
+    const timeTokens = tokens.filter((t) => t.type === "time");
+    expect(timeTokens).toHaveLength(0);
+  });
+
+  it("ensureTokens returns pre-existing tokens when available", () => {
+    const existingTokens: TokenInfo[] = [
+      {
+        raw: "11:11",
+        type: "time",
+        value: { hours: 11, minutes: 11, iso: "11:11", totalMinutes: 671 },
+        start: 0,
+        end: 5,
+        flags: [],
+        reduction: { digits: [1, 1, 1, 1], sum: 4, reduceTo: 4, steps: [4] },
+      },
+    ];
+    const input: CaptureInput = { raw: "11:11", entryNo: 1, tokens: existingTokens };
+    const result = ensureTokens(input);
+    expect(result).toBe(existingTokens);
+  });
+
+  it("ensureTokens parses raw when no tokens provided", () => {
+    const input: CaptureInput = { raw: "05:55", entryNo: 1 };
+    const result = ensureTokens(input);
+    expect(result.length).toBeGreaterThan(0);
+    expect(result[0].type).toBe("time");
+  });
+
+  it("ensureTokens parses raw when tokens array is empty", () => {
+    const input: CaptureInput = { raw: "12:34", entryNo: 1, tokens: [] };
+    const result = ensureTokens(input);
+    expect(result.length).toBeGreaterThan(0);
   });
 });
 

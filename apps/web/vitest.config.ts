@@ -27,6 +27,9 @@ export default defineConfig({
         'ios/**',
         'dist/**',
         'src/lib/numerology/types.ts',
+        'src/lib/i18n.ts',
+        'src/types/**',
+        'src/stubs/**',
         'src/pages/**',
         'src/integrations/**',
         'src/vite-env.d.ts',
@@ -72,9 +75,7 @@ export default defineConfig({
         'src/components/ReadingRenderer.tsx',
         'src/components/VoiceAssistant.tsx',
         'src/components/VybeShareCard.tsx',
-        // Services - Supabase/Stripe integration wrappers
-        'src/services/stripe.ts',
-        'src/services/readings.ts',
+        // Note: stripe.ts and readings.ts are NOT excluded — they have tests
       ],
       thresholds: {
         lines: 80,
