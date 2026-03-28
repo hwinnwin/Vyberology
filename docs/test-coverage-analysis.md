@@ -120,7 +120,10 @@ pnpm --filter vite_react_shadcn_ts test:run -- src/lib/__tests__/readingInsights
 2. ~~Un-exclude tested services~~ — Done: `stripe.ts` and `readings.ts` now count toward coverage
 3. ~~reading-engine function gap~~ — Done: `ensureTokens` + null-value tests added (97.56% → 98.78%)
 
+4. ~~Add Supabase Edge Function tests~~ — Done: security.test.ts (20 tests) + telemetry.test.ts (7 tests) for shared modules. Edge function suite: 33 → 60 tests.
+5. ~~Expand E2E tests~~ — Done: Added compatibility (4), history (4), navigation (8) specs. E2E suite: 1 → 4 spec files with 16+ new tests.
+
 ## Remaining Recommendations
 
-1. **Add Supabase Edge Function tests** — `generate-reading-v4`, `lumyn-chat`, `create-checkout-session` have no tests (Deno runtime, different test setup)
-2. **Expand E2E tests** — Only 3 Playwright tests; add compatibility flow, history, payment flows
+1. **Test remaining edge functions** — `generate-reading-v4`, `lumyn-chat`, `create-checkout-session`, `stripe-webhook`, `validate-iap-receipt` index handlers use Deno imports and can't run under Vitest directly. Extract pure logic (e.g. `calculateCreditsFromAmount`, `isLumynProPrice`) into shared modules to make them testable.
+2. **Add E2E payment flow tests** — Requires mocked Stripe checkout at the Playwright level (route interception). Not done yet due to complexity.
